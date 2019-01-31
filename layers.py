@@ -85,6 +85,60 @@ class GraphAttentionLayer(nn.Module):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
 
 
+class GraphInductiveLayer(Module):
+    """
+    Graph inductive attention layer, similar function to GCN. Attention+GraphSage
+    """
+
+    def __init__(self, in_features, out_features,
+                 nsamples,
+                 sampler_class, adj, train_adj,
+                 aggr_class,
+                 bias=True):
+        super(GraphInductiveLayer, self).__init__()
+        self.in_features = in_features
+        self.out_features = out_features
+        self.weight = Parameter(torch.FloatTensor(in_features, out_features))
+        if bias:
+            self.bias = Parameter(torch.FloatTensor(out_features))
+        else:
+            self.register_parameter('bias', None)
+        self.reset_parameters()
+
+        self.sampler = sampler_class(adj = adj)
+        self.train_sampler = sampler_class(adj=train_adj)
+
+        self.aggregator = aggr_class(input_dim=in_features,
+                output_dim=out_features,nsamples=nsamples)
+
+    def reset_parameters(self):
+        stdv = 1. / math.sqrt(self.weight.size(1))
+        self.weight.data.uniform_(-stdv, stdv)
+        if self.bias is not None:
+            self.bias.data.uniform_(-stdv, stdv)
+
+    def forward(self, input, train=True):
+        ids = input[:,0]
+        # Sample neighbors
+        sample_fns = self.train_sampler if train else self.sampler
+
+        neighbor_adj = sample_fns(ids)
+
+        input = self.aggregator(input,neighbor_adj)
+
+        output = torch.mm(input, self.weight)
+        if self.bias is not None:
+            return output + self.bias
+        else:
+            return output
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' \
+               + str(self.in_features) + ' -> ' \
+               + str(self.out_features) + ')'
+
+
+
 class MetapathAttentionLayer(nn.Module):
     """
     metapath attention layer.
@@ -124,38 +178,3 @@ class MetapathAttentionLayer(nn.Module):
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
 
-
-class GraphInductiveAttention(Module):
-    """
-    Graph inductive attention layer, similar function to GCN. Attention+GraphSage
-    """
-
-    def __init__(self, in_features, out_features, bias=True):
-        super(GraphInductiveAttention, self).__init__()
-        self.in_features = in_features
-        self.out_features = out_features
-        self.weight = Parameter(torch.FloatTensor(in_features, out_features))
-        if bias:
-            self.bias = Parameter(torch.FloatTensor(out_features))
-        else:
-            self.register_parameter('bias', None)
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        stdv = 1. / math.sqrt(self.weight.size(1))
-        self.weight.data.uniform_(-stdv, stdv)
-        if self.bias is not None:
-            self.bias.data.uniform_(-stdv, stdv)
-
-    def forward(self, input, adj):
-        support = torch.mm(input, self.weight)
-        output = torch.spmm(adj, support)
-        if self.bias is not None:
-            return output + self.bias
-        else:
-            return output
-
-    def __repr__(self):
-        return self.__class__.__name__ + ' (' \
-               + str(self.in_features) + ' -> ' \
-               + str(self.out_features) + ')'

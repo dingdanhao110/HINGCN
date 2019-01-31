@@ -88,3 +88,52 @@ def accuracy(output, labels):
     correct = preds.eq(labels).double()
     correct = correct.sum()
     return correct / len(labels)
+
+
+def read_metapath_raw(path="../data/cora/", dataset="cora", num_mps=1):
+    """read metapath file, A1,A2,pathsim triples, return adj are not normalized"""
+    print('Loading {} dataset...'.format(dataset))
+
+    idx_features_labels = np.genfromtxt("{}{}.content".format(path, dataset),
+                                        dtype=np.dtype(str))
+    features = sp.csr_matrix(idx_features_labels[:, 1:-1], dtype=np.float32)
+    features = normalize(features)
+    features = torch.FloatTensor(np.array(features.todense()))
+
+    labels = encode_onehot(idx_features_labels[:, -1])
+    labels = torch.LongTensor(np.where(labels)[1])
+
+    # build graph
+    idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    idx_map = {j: i for i, j in enumerate(idx)}
+
+    adjs = []
+    for path_idx in range(num_mps):
+        edges_unordered = np.genfromtxt("{}{}_{}.metapaths".format(path, dataset, path_idx),
+                                    dtype=np.int32)
+        edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
+                     dtype=np.int32).reshape(edges_unordered.shape)
+
+        adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+                        shape=(features.shape[0], features.shape[0]),
+                        dtype=np.bool)
+
+        # build symmetric adjacency matrix
+        adj= adj + adj.T
+        # adj = (adj + sp.eye(adj.shape[0])) # no normalization
+        adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+        adjs.append(adj)
+        # adjs.append(adj.unsqueeze(0))
+    # adjs = torch.cat(adjs)
+
+
+    idx_train = range(140)
+    idx_val = range(200, 500)
+    idx_test = range(500, 1500)
+
+    idx_train = torch.LongTensor(idx_train)
+    idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    return adjs, features, labels, idx_train, idx_val, idx_test

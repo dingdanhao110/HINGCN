@@ -137,3 +137,10 @@ def read_metapath_raw(path="../data/cora/", dataset="cora", num_mps=1):
     idx_test = torch.LongTensor(idx_test)
 
     return adjs, features, labels, idx_train, idx_val, idx_test
+
+def pathsim(A):
+    value = []
+    x,y = A.nonzero()
+    for i,j in zip(x,y):
+        value.append(2 * A[i, j] / (A[i, i] + A[j, j]))
+    return sp.coo_matrix((value,(x,y)))

@@ -6,7 +6,6 @@ import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 from torch.nn.modules.module import Module
 
-
 class GraphConvolution(Module):
     """
     Simple GCN layer, similar to https://arxiv.org/abs/1609.02907
@@ -139,42 +138,42 @@ class GraphInductiveLayer(Module):
 
 
 
-class MetapathAttentionLayer(nn.Module):
-    """
-    metapath attention layer.
-    """
-
-    def __init__(self, in_features, nmeta, dropout, alpha, concat=True):
-        super(MetapathAttentionLayer, self).__init__()
-        self.dropout = dropout
-        self.in_features = in_features
-        self.alpha = alpha
-        self.concat = concat
-
-        # Weight: [in_features][num_meta]
-        self.W = nn.Parameter(torch.zeros(size=(in_features, nmeta)))
-        nn.init.xavier_uniform_(self.W.data, gain=1.414)
-
-    def forward(self, input):
-        """from input[metapath_id][v_id][embedding] to [v_id][embedding]"""
-        attention = torch.FloatTensor(input.size()[1], input.size()[0])  # shape(|vertices|,num_metapath)
-        for mp_id in range(input.size()[0]):  # mp_id: metapath_idx
-            attention[:, mp_id] = torch.mm(input[mp_id, :, :], self.W[:, mp_id])
-        # attention = F.dropout(attention, self.dropout, training=self.training)
-        attention = F.relu(attention)
-        attention = F.softmax(attention, dim=1)
-        # attention = F.dropout(attention, self.dropout, training=self.training)
-
-        output = torch.FloatTensor(input.size()[1], input.size()[2])  # shape(|vertices|,embed_len)
-        for v_id in range(input.size()[1]):
-            for mp_id in range(input.size()[0]):
-                output[v_id, :] = output[v_id, :] + input[mp_id, v_id, :] * attention[v_id, mp_id]
-
-        if self.concat:
-            return F.elu(output)
-        else:
-            return output
-
-    def __repr__(self):
-        return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
+# class MetapathAttentionLayer(nn.Module):
+#     """
+#     metapath attention layer.
+#     """
+#
+#     def __init__(self, in_features, nmeta, dropout, alpha, concat=True):
+#         super(MetapathAttentionLayer, self).__init__()
+#         self.dropout = dropout
+#         self.in_features = in_features
+#         self.alpha = alpha
+#         self.concat = concat
+#
+#         # Weight: [in_features][num_meta]
+#         self.W = nn.Parameter(torch.zeros(size=(in_features, nmeta)))
+#         nn.init.xavier_uniform_(self.W.data, gain=1.414)
+#
+#     def forward(self, input):
+#         """from input[metapath_id][v_id][embedding] to [v_id][embedding]"""
+#         attention = torch.FloatTensor(input.size()[1], input.size()[0])  # shape(|vertices|,num_metapath)
+#         for mp_id in range(input.size()[0]):  # mp_id: metapath_idx
+#             attention[:, mp_id] = torch.mm(input[mp_id, :, :], self.W[:, mp_id])
+#         # attention = F.dropout(attention, self.dropout, training=self.training)
+#         attention = F.relu(attention)
+#         attention = F.softmax(attention, dim=1)
+#         # attention = F.dropout(attention, self.dropout, training=self.training)
+#
+#         output = torch.FloatTensor(input.size()[1], input.size()[2])  # shape(|vertices|,embed_len)
+#         for v_id in range(input.size()[1]):
+#             for mp_id in range(input.size()[0]):
+#                 output[v_id, :] = output[v_id, :] + input[mp_id, v_id, :] * attention[v_id, mp_id]
+#
+#         if self.concat:
+#             return F.elu(output)
+#         else:
+#             return output
+#
+#     def __repr__(self):
+#         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
 

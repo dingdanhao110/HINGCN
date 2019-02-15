@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from layers import GraphConvolution, GraphAttentionLayer, MetapathAttentionLayer
+from layers import *
 from inductive_modules import *
 
 
@@ -33,7 +33,7 @@ class HINGCN(nn.Module):
             self.add_module('gcn_2_{}'.format(i), gcn)
 
         self.dropout = dropout
-        self.attention = MetapathAttentionLayer(dim_mp, nmeta, dropout=dropout, alpha=alpha, concat=bias)
+        self.attention = MetapathAggrLayer(dim_mp, nmeta, dropout=dropout, alpha=alpha, concat=bias)
         self.linear = nn.Linear(dim_mp,nclass,bias=bias)
 
 
@@ -60,39 +60,65 @@ class HINGCN(nn.Module):
 
 class HINGCN_IA(nn.Module):
     """replaced GCN layers by inductive attention layers"""
-    def __init__(self, nfeat, nhid, nmeta, dim_mp, nclass, alpha, dropout, bias):
+    def __init__(self, nfeat, nhid, nmeta, dim_mp, nclass, alpha, dropout, bias
+                 , sampler, adjs, concat, samples=128
+                 ):
         super(HINGCN_IA, self).__init__()
+        self.adjs = adjs
+        self.nmeta = nmeta
+        self.nsamples = samples
+        self.concat = concat
+        self.dropout = dropout
 
-        self.aggr_layer1 = [AttentionAggregator(nfeat, nhid, dropout=dropout, alpha=alpha, concat=bias) for _ in range(nmeta)]
+        self.aggr_layer1 = [AttentionAggregator(nfeat, nhid, dropout=dropout, alpha=alpha, concat=concat) for _ in range(nmeta)]
         for i, gcn in enumerate(self.aggr_layer1):
             self.add_module('gcn_1_{}'.format(i), gcn)
 
-        self.aggr_layer2 = [AttentionAggregator(nhid, dim_mp, dropout=dropout, alpha=alpha, concat=bias) for _ in range(nmeta)]
+        if concat:
+            nhid*=2
+
+        self.aggr_layer2 = [AttentionAggregator(nhid, dim_mp, dropout=dropout, alpha=alpha, concat=concat) for _ in range(nmeta)]
         for i, gcn in enumerate(self.aggr_layer2):
             self.add_module('gcn_2_{}'.format(i), gcn)
 
-        self.dropout = dropout
-        self.attention = MetapathAttentionLayer(dim_mp, nmeta, dropout=dropout, alpha=alpha, concat=bias)
+        if concat:
+            dim_mp*=2
+
+        self.sampler_layer1 = [sampler(adjs[i]) for i in range(nmeta)]
+        # for i, sam in enumerate(self.sampler_layer1):
+        #     self.add_module('sampler_1_{}'.format(i), sam)
+
+        self.sampler_layer2 = [sampler(adjs[i]) for i in range(nmeta)]
+        # for i, sam in enumerate(self.sampler_layer2):
+        #     self.add_module('sampler_2_{}'.format(i), sam)
+
+        self.attention = MetapathAggrLayer(dim_mp, nmeta, dropout=dropout, alpha=alpha)
         self.linear = nn.Linear(dim_mp,nclass,bias=bias)
 
 
-    def forward(self, input, adjs):
-        """@:param input: feature matrix of queried vertices in HIN;
-                   adjs: list of tensor of homogeneous adj matrices; adjs[mp_idx][v1,v2];
-           @:return logits of classification for queried vertices in HIN
+    def forward(self, input):
         """
+        Args:
+            input: feature matrix of queried vertices in HIN;
+        Return:
+            logits of classification for queried vertices in HIN
+        """
+        ids = np.arange(input.shape[0])
         embeddings = []
-        for mp_idx in range(len(adjs)):
-            neibor_i_1 = UniformNeighborSampler(adjs[mp_idx])
+        for mp_idx in range(self.nmeta):
+            neibor_i_1 = self.sampler_layer1[mp_idx](ids, self.nsamples)
+
             x_i = F.relu(self.aggr_layer1[mp_idx](input, neibor_i_1))
-            # x_i = F.dropout(x_i, self.dropout, training=self.training)
-            neibor_i_2 = UniformNeighborSampler(adjs[mp_idx])
+
+            x_i = F.dropout(x_i, self.dropout, training=self.training)
+            neibor_i_2 = self.sampler_layer2[mp_idx](ids, self.nsamples)
+
             x_i = F.relu(self.aggr_layer2[mp_idx](x_i, neibor_i_2))  #x_i: tensor(v_id,embedding)
-            # x_i = F.dropout(x_i, self.dropout, training=self.training)
+            x_i = F.dropout(x_i, self.dropout, training=self.training)
             embeddings.append(x_i.unsqueeze(0))
         embeddings = torch.cat(embeddings)  #should be a tensor of (mp_idx,v_id,embedding)
 
         output = self.attention(embeddings)
-        # output = F.dropout(output, self.dropout, training=self.training)
+        output = F.dropout(output, self.dropout, training=self.training)
         output = F.relu(self.linear(output))
         return F.log_softmax(output, dim=1)

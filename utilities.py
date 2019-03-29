@@ -3,11 +3,6 @@ import scipy.sparse as sp
 import torch
 
 
-def read_graph(file):
-    """read HIN graph file"""
-    print(file)
-
-
 def encode_onehot(labels):
     classes = set(labels)
     classes_dict = {c: np.identity(len(classes))[i, :] for i, c in

@@ -4,6 +4,7 @@ from __future__ import print_function
 import time
 import argparse
 import numpy as np
+import sys
 
 import torch
 import torch.nn.functional as F
@@ -38,12 +39,14 @@ parser.add_argument('--dropout', type=float, default=0.5,
                     help='Dropout rate (1 - keep probability).')
 parser.add_argument('--alpha', type=float, default=0.8,
                     help='alpha for leaky relu.')
-parser.add_argument('--dataset', type=str, default='cora',
+parser.add_argument('--dataset', type=str, default='homograph',
                     help='Dataset')
-parser.add_argument('--dataset_path', type=str, default='../pygcn/data/cora/',
+parser.add_argument('--dataset_path', type=str, default='./data/dblp/',
                     help='Dataset')
-parser.add_argument('--model', type=str, default='hingcn',
-                    help='Model used in training')
+parser.add_argument('--embedding_file', type=str, default='APC',
+                    help='Dataset')
+parser.add_argument('--label_file', type=str, default='author_label',
+                    help='Dataset')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -53,26 +56,82 @@ torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
+
+def read_embed(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/",
+               emd_file="APC"):
+    with open("{}{}.emd".format(path, emd_file)) as f:
+        n_nodes,n_feature = map(int, f.readline().strip().split())
+    # print(n_nodes,n_feature)
+
+    embedding = np.loadtxt("{}{}.emd".format(path, emd_file),
+                              dtype=np.int32,skiprows=1)
+    emd_index = {}
+    for i in range(n_nodes):
+        emd_index[embedding[i, 0]] = i
+
+    features = np.asarray([embedding[emd_index[i], 1:] for i in range(n_nodes)])
+
+    assert features.shape[1] == n_feature
+    assert features.shape[0] == n_nodes
+
+    return n_nodes, n_feature, features
+
+
+def read_graph(path="./data/dblp/", dataset="homograph", label_file="author_label", emb_file="APC"):
+    print('Loading {} dataset...'.format(dataset))
+
+    n_nodes, n_feature, features = read_embed(path,emb_file)
+    features = torch.FloatTensor(features)
+
+    labels_raw = np.genfromtxt("{}{}.txt".format(path, label_file),dtype=np.int32)
+    labels_raw[:, 0] -= 1
+    labels_raw[:, 1] -= 1
+    labels = np.zeros(n_nodes)
+    labels[labels_raw[:, 0]] = labels_raw[:, 1]
+    labels = torch.LongTensor(labels)
+
+    # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    edges = np.genfromtxt("{}{}.txt".format(path, dataset),
+                                    dtype=np.int32)
+    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+                       shape=(n_nodes, n_nodes),
+                       dtype=np.float32)
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+
+    # features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    reordered = np.random.permutation(labels_raw[:, 0])
+    total_labeled = labels_raw.shape[0]
+
+    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
+    idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
+
+    idx_train = torch.LongTensor(idx_train)
+    idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train, idx_val, idx_test
+
 # Load data
-adjs, features, labels, idx_train, idx_val, idx_test \
-    = read_metapath_dblp()
+adj, features, labels, idx_train, idx_val, idx_test = \
+    read_graph(path=args.dataset_path,
+               dataset=args.dataset, label_file=args.label_file, emb_file=args.embedding_file)
 
 print('Read data finished!')
 
 # Model and optimizer
-model = HINGCN_IA(nfeat=features.shape[1],
+model = GCN(nfeat=features.shape[1],
             nhid=args.hidden,
-            nmeta=args.n_meta,
-            dim_mp=args.dim_mp,
             nclass=labels.max().item() + 1,
-            alpha=args.alpha,
             dropout=args.dropout,
-            sampler=sampler_lookup['weighted_neighbor_sampler'],
-            adjs=adjs,
-            bias=True,
-            concat=False,
-            samples=args.n_sample
-                  )
+            )
 optimizer = optim.Adam(model.parameters(),
                        lr=args.lr, weight_decay=args.weight_decay)
 
@@ -81,7 +140,7 @@ print('Model init finished!')
 if args.cuda:
     model.cuda()
     features = features.cuda()
-    adjs = [adj.cuda() for adj in adjs]
+    adj = adj.cuda()
     idx_train = idx_train.cuda()
     idx_val = idx_val.cuda()
     idx_test = idx_test.cuda()
@@ -91,7 +150,7 @@ def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
-    output = model(features)
+    output = model(features,adj)
     loss_train = F.nll_loss(output[idx_train], labels[idx_train])
     acc_train = accuracy(output[idx_train], labels[idx_train])
     loss_train.backward()
@@ -105,7 +164,7 @@ def train(epoch):
 
     loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     acc_val = accuracy(output[idx_val], labels[idx_val])
-    print('Epoch: {:04d}'.format(epoch+1),
+    print('Epoch: {:04d}'.format(epoch + 1),
           'loss_train: {:.4f}'.format(loss_train.item()),
           'acc_train: {:.4f}'.format(acc_train.item()),
           'loss_val: {:.4f}'.format(loss_val.item()),
@@ -115,44 +174,13 @@ def train(epoch):
 
 def test():
     model.eval()
-    output = model(features)
+    output = model(features,adj)
     loss_test = F.nll_loss(output[idx_test], labels[idx_test])
     acc_test = accuracy(output[idx_test], labels[idx_test])
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.item()),
           "accuracy= {:.4f}".format(acc_test.item()))
 
-# def mini_batch(n_epochs = 100, batch_size = 128):
-#
-#     for epoch in range(n_epochs):
-#         t = time.time()
-#         model.train()
-#         # X is a torch Variable
-#         permutation = torch.randperm(idx_train.shape[0])
-#
-#         for i in range(0, idx_train.size()[0], batch_size):
-#             optimizer.zero_grad()
-#
-#             indices = permutation[i:i + batch_size]
-#             batch_x, batch_y = idx_train[indices], labels[indices]
-#
-#             # in case you wanted a semi-full example
-#             outputs = model.forward(features, adjs, batch_x)
-#             loss = F.nll_loss(outputs, batch_y)
-#             # acc_train = accuracy(outputs, batch_y)
-#
-#             loss.backward()
-#             optimizer.step()
-#         model.eval()
-#         output = model(features, adjs, idx_val)
-#         loss_val = F.nll_loss(output, labels[idx_val])
-#         acc_val = accuracy(output, labels[idx_val])
-#         print('Epoch: {:04d}'.format(epoch + 1),
-#               # 'loss_train: {:.4f}'.format(loss_train.item()),
-#               # 'acc_train: {:.4f}'.format(acc_train.item()),
-#               'loss_val: {:.4f}'.format(loss_val.item()),
-#               'acc_val: {:.4f}'.format(acc_val.item()),
-#               'time: {:.4f}s'.format(time.time() - t))
 
 # Train model
 t_total = time.time()

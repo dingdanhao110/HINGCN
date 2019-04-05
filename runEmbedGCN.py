@@ -10,6 +10,7 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
+from sklearn.feature_extraction.text import TfidfTransformer
 from utilities import *
 from hinmodel import *
 from metapath import *
@@ -21,7 +22,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
 parser.add_argument('--fastmode', action='store_true', default=True,
                     help='Validate during training pass.')
 parser.add_argument('--seed', type=int, default=42, help='Random seed.')
-parser.add_argument('--epochs', type=int, default=20,
+parser.add_argument('--epochs', type=int, default=100,
                     help='Number of epochs to train.')
 parser.add_argument('--lr', type=float, default=0.1,
                     help='Initial learning rate.')
@@ -61,7 +62,7 @@ def read_embed(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/",
                emd_file="APC"):
     with open("{}{}.emd".format(path, emd_file)) as f:
         n_nodes,n_feature = map(int, f.readline().strip().split())
-    # print(n_nodes,n_feature)
+    print("number of nodes:{}, embedding size:{}".format(n_nodes,n_feature))
 
     embedding = np.loadtxt("{}{}.emd".format(path, emd_file),
                               dtype=np.int32,skiprows=1)
@@ -73,6 +74,42 @@ def read_embed(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/",
 
     assert features.shape[1] == n_feature
     assert features.shape[0] == n_nodes
+
+    PA_file = "PA"
+    PT_file = "PT"
+    PA = np.genfromtxt("{}{}.txt".format(path, PA_file),
+                       dtype=np.int32)
+    PT = np.genfromtxt("{}{}.txt".format(path, PT_file),
+                       dtype=np.int32)
+    PA[:, 0] -= 1
+    PA[:, 1] -= 1
+    PT[:, 0] -= 1
+    PT[:, 1] -= 1
+
+    paper_max = max(PA[:, 0]) + 1
+    author_max = max(PA[:, 1]) + 1
+    term_max = max(PT[:, 1]) + 1
+
+    PA = sp.coo_matrix((np.ones(PA.shape[0]), (PA[:, 0], PA[:, 1])),
+                       shape=(paper_max, author_max),
+                       dtype=np.float32)
+    PT = sp.coo_matrix((np.ones(PT.shape[0]), (PT[:, 0], PT[:, 1])),
+                       shape=(paper_max, term_max),
+                       dtype=np.float32)
+
+    transformer = TfidfTransformer()
+    AT = PA.transpose() * PT  # AT
+    AT = transformer.fit_transform(AT)
+
+    AT = AT.todense()
+    AT = np.pad(AT, ((0,features.shape[0]-AT.shape[0]),(0,0)),'constant',constant_values=0 )
+
+    print("number of nodes:{}, feature size:{}".format(AT.shape[0], AT.shape[1]))
+    assert AT.shape[0] == n_nodes
+
+    # features = AT
+    features=np.concatenate((features,AT),axis=1)
+    n_feature = features.shape[1]
 
     return n_nodes, n_feature, features
 
@@ -119,9 +156,51 @@ def read_graph(path="./data/dblp/", dataset="homograph", label_file="author_labe
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
+def read_graph2(path="./data/dblp/", dataset="homograph", label_file="author_label", emb_file="APC"):
+    print('Loading {} dataset...'.format(dataset))
+
+    n_nodes, n_feature, features = read_embed(path,emb_file)
+    features = torch.FloatTensor(features)
+
+    labels_raw = np.genfromtxt("{}{}.txt".format(path, label_file),dtype=np.int32)
+    labels_raw[:, 0] -= 1
+    labels_raw[:, 1] -= 1
+    labels = np.zeros(n_nodes)
+    labels[labels_raw[:, 0]] = labels_raw[:, 1]
+    labels = torch.LongTensor(labels)
+
+    # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    edges = np.genfromtxt("{}{}.txt".format(path, dataset),
+                                    dtype=np.int32)
+    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+                       shape=(n_nodes, n_nodes),
+                       dtype=np.float32)
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+
+    # features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    reordered = np.random.permutation(labels_raw[:, 0])
+    total_labeled = labels_raw.shape[0]
+
+    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
+    idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
+
+    idx_train = torch.LongTensor(idx_train)
+    idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+
+    return adj, features, labels, idx_train, idx_val, idx_test
+
 # Load data
 adj, features, labels, idx_train, idx_val, idx_test = \
-    read_graph(path=args.dataset_path,
+    read_graph2(path=args.dataset_path,
                dataset=args.dataset, label_file=args.label_file, emb_file=args.embedding_file)
 
 print('Read data finished!')

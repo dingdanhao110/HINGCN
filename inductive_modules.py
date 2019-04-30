@@ -6,6 +6,7 @@ from torch.autograd import Variable
 import numpy as np
 from scipy import sparse
 from utilities import sparse_mx_to_torch_sparse_tensor, normalize
+from metapath import query_path
 
 
 def to_numpy(x):
@@ -64,12 +65,12 @@ class WeightedNeighborSampler():
         weighted sampling from "sparse 2D edgelist" COO matrix.
 
     """
+
     def __init__(self, adj):
         assert adj.is_sparse, "WeightedNeighborSampler: not sparse.issparse(adj)"
         self.is_cuda = adj.is_cuda
         self.adj = normalize(adj.to_dense().numpy())
         self.degrees = np.count_nonzero(self.adj, axis=1)
-
 
     def __call__(self, ids, n_samples=128):
         assert n_samples > 0, 'WeightedNeighborSampler: n_samples must be set explicitly'
@@ -117,7 +118,7 @@ class AttentionAggregator(nn.Module):
         a_input = torch.cat([x.repeat(1, n_sample).view(N * n_sample, -1),
                              x[neibs].view(N * n_sample, -1)], dim=1) \
             .view(N, -1, 2 * self.output_dim)
-        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))  #e[ver,sample] attention coeff
+        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))  # e[ver,sample] attention coeff
 
         # Weighted average of neighbors
         attention = F.softmax(e, dim=1)
@@ -131,24 +132,14 @@ class AttentionAggregator(nn.Module):
         h_prime = torch.cat(h_prime)
 
         if self.concat:
-            output = torch.cat([x,h_prime],dim=1)
+            output = torch.cat([x, h_prime], dim=1)
         else:
-            output = x+h_prime
+            output = x + h_prime
 
         return F.elu(output)
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
-
-
-aggregator_lookup = {
-    # "mean": MeanAggregator,
-    # "max_pool": MaxPoolAggregator,
-    # "mean_pool": MeanPoolAggregator,
-    # "lstm": LSTMAggregator,
-    "attention": AttentionAggregator,
-}
-
 
 
 class MetapathAggrLayer(nn.Module):
@@ -169,8 +160,8 @@ class MetapathAggrLayer(nn.Module):
 
     def forward(self, input):
         # input: tensor(nmeta,N,in_features)
-        input = input.transpose(0,1)  #tensor(N,nmeta,in_features)
-        N=input.size()[0]
+        input = input.transpose(0, 1)  # tensor(N,nmeta,in_features)
+        N = input.size()[0]
 
         # a_input = torch.cat([input.repeat(1,1,self.nmeta).view(N, self.nmeta*self.nmeta, -1),
         #                      input.repeat(1,self.nmeta, 1)], dim=2).view(N, -1, 2 * self.in_features)
@@ -186,3 +177,62 @@ class MetapathAggrLayer(nn.Module):
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
 
+
+# TODO: check if dimension matches
+class EdgeAttentionAggregator(nn.Module):
+    def __init__(self, input_dim, output_dim, edge_dim, scheme, dropout, alpha,  concat=True):
+        super(EdgeAttentionAggregator, self).__init__()
+        self.dropout = dropout
+        self.alpha = alpha
+        self.concat = concat
+        self.output_dim = output_dim
+        self.scheme = scheme
+
+        self.leakyrelu = nn.LeakyReLU(self.alpha)
+
+        self.W = nn.Parameter(torch.zeros(size=(input_dim, output_dim)))
+        nn.init.xavier_uniform_(self.W.data, gain=1.414)
+
+        self.a = nn.Parameter(torch.zeros(size=(2 * output_dim + edge_dim, 1)))
+        nn.init.xavier_uniform_(self.a.data, gain=1.414)
+
+    def forward(self, features, index, node_emb, n_sample=128):
+        # Compute attention weights
+        N = features.size()[0]
+
+        x=torch.mm(features, self.W)
+
+        output = []
+        for v in range(N):
+            # generate neighbors of v
+            neigh, emb = query_path(v, self.scheme, index, node_emb, n_sample)
+            assert neigh.shape[0] == n_sample
+            a_input = torch.cat([x[v].repeat(1, n_sample).view(n_sample, -1),
+                                 x[neigh], emb], dim=1) \
+                .view(n_sample, -1)
+            e = self.leakyrelu(torch.matmul(a_input, self.a).view(1, -1))
+            attention = F.softmax(e, dim=1)
+            attention = F.dropout(attention, self.dropout, training=self.training)
+
+            if self.concat:
+                h_prime = torch.matmul(attention, torch.cat([x[neigh], emb], dim=1))
+            else:
+                h_prime = torch.matmul(attention, x[neigh])
+
+            output.append(torch.cat([x[v], h_prime.squeeze()]))
+        output = torch.stack(output)
+
+        return F.elu(output)
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
+
+
+aggregator_lookup = {
+    # "mean": MeanAggregator,
+    # "max_pool": MaxPoolAggregator,
+    # "mean_pool": MeanPoolAggregator,
+    # "lstm": LSTMAggregator,
+    "attention": AttentionAggregator,
+    "eged_attention": EdgeAttentionAggregator,
+}

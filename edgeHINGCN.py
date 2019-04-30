@@ -26,7 +26,7 @@ parser.add_argument('--lr', type=float, default=0.1,
                     help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4,
                     help='Weight decay (L2 loss on parameters).')
-parser.add_argument('--hidden', type=int, default=16,
+parser.add_argument('--hidden', type=int, default=128,
                     help='Number of hidden units.')
 parser.add_argument('--n_meta', type=int, default=1,
                     help='Number of meta-paths.')
@@ -54,23 +54,24 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 # Load data
-adjs, features, labels, idx_train, idx_val, idx_test \
-    = read_metapath_dblp()
+adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index \
+    = read_mpindex_dblp(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/")
 
 print('Read data finished!')
 
 # Model and optimizer
-model = HINGCN_IA(nfeat=features.shape[1],
+model = HINGCN_edge(nfeat=features.shape[1],
             nhid=args.hidden,
             nmeta=args.n_meta,
             dim_mp=args.dim_mp,
+            edge_dim=node_emb['APA'].shape[1],
+            schemes=['APA'],
             nclass=labels.max().item() + 1,
             alpha=args.alpha,
             dropout=args.dropout,
-            sampler=sampler_lookup['weighted_neighbor_sampler'],
-            adjs=adjs,
+            adjs=[],
             bias=True,
-            concat=False,
+            concat=True,
             samples=args.n_sample
                   )
 optimizer = optim.Adam(model.parameters(),
@@ -91,7 +92,7 @@ def train(epoch):
     t = time.time()
     model.train()
     optimizer.zero_grad()
-    output = model(features)
+    output = model(features, index, node_emb, n_sample=args.n_sample)
     loss_train = F.nll_loss(output[idx_train], labels[idx_train])
     acc_train = accuracy(output[idx_train], labels[idx_train])
     loss_train.backward()
@@ -101,7 +102,7 @@ def train(epoch):
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
         model.eval()
-        output = model(features)
+        output = model(features, index, node_emb, n_sample=args.n_sample)
 
     loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     acc_val = accuracy(output[idx_val], labels[idx_val])
@@ -115,7 +116,7 @@ def train(epoch):
 
 def test():
     model.eval()
-    output = model(features)
+    output = model(features, index, node_emb, n_sample=args.n_sample)
     loss_test = F.nll_loss(output[idx_test], labels[idx_test])
     acc_test = accuracy(output[idx_test], labels[idx_test])
     print("Test set results:",

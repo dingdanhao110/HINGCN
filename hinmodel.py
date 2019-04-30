@@ -122,3 +122,69 @@ class HINGCN_IA(nn.Module):
         output = F.dropout(output, self.dropout, training=self.training)
         output = F.relu(self.linear(output))
         return F.log_softmax(output, dim=1)
+
+
+
+class HINGCN_edge(nn.Module):
+    """replaced GCN layers by inductive attention layers"""
+    def __init__(self, nfeat, nhid, nmeta, dim_mp,
+                 edge_dim, schemes, nclass, alpha, dropout, bias,
+                 adjs, concat, samples=128
+                 ):
+        super(HINGCN_edge, self).__init__()
+        self.adjs = adjs
+        self.nmeta = nmeta
+        self.nsamples = samples
+        self.concat = concat
+        self.dropout = dropout
+        self.edge_dim=edge_dim
+        self.schemes=schemes
+
+        assert len(schemes)==nmeta
+
+        # TODO: check dimension
+        self.aggr_layer1 = [EdgeAttentionAggregator(nfeat, nhid, edge_dim, schemes[i],
+                                                    dropout=dropout, alpha=alpha, concat=concat) for i in range(nmeta)]
+        for i, gcn in enumerate(self.aggr_layer1):
+            self.add_module('gcn_1_{}'.format(i), gcn)
+
+        if concat:
+            inter_len = nhid*2+edge_dim
+        else:
+            inter_len = nhid*2
+        self.aggr_layer2 = [EdgeAttentionAggregator(inter_len, dim_mp, edge_dim, schemes[i],
+                                                    dropout=dropout, alpha=alpha, concat=concat) for i in range(nmeta)]
+        for i, gcn in enumerate(self.aggr_layer2):
+            self.add_module('gcn_2_{}'.format(i), gcn)
+
+
+        if concat:
+            res_len = dim_mp*2+edge_dim
+        else:
+            res_len = dim_mp*2
+
+        self.attention = MetapathAggrLayer(res_len, nmeta, dropout=dropout, alpha=alpha)
+        self.linear = nn.Linear(res_len,nclass,bias=bias)
+
+
+    def forward(self, input, index, node_emb, n_sample=128):
+        """
+        Args:
+            input: feature matrix of queried vertices in HIN;
+        Return:
+            logits of classification for queried vertices in HIN
+        """
+        # ids = np.arange(input.shape[0])
+        embeddings = []
+        for mp_idx in range(self.nmeta):
+            x_i = F.relu(self.aggr_layer1[mp_idx](input, index, node_emb, n_sample))
+            x_i = F.dropout(x_i, self.dropout, training=self.training)
+            x_i = F.relu(self.aggr_layer2[mp_idx](x_i, index, node_emb, n_sample))  #x_i: tensor(v_id,embedding)
+            x_i = F.dropout(x_i, self.dropout, training=self.training)
+            embeddings.append(x_i.unsqueeze(0))
+        embeddings = torch.cat(embeddings)  #should be a tensor of (mp_idx,v_id,embedding)
+
+        output = self.attention(embeddings)
+        output = F.dropout(output, self.dropout, training=self.training)
+        output = F.relu(self.linear(output))
+        return F.log_softmax(output, dim=1)

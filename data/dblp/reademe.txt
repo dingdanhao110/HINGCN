@@ -1,0 +1,13 @@
+author_label: author label
+
+PA:paper author
+
+PC:paper conference
+
+PT:paper term
+
+APA APAPA APCPA
+
+term->author feature
+
+tf-idf

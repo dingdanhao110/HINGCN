@@ -5,7 +5,7 @@ from utilities import *
 from sklearn.feature_extraction.text import TfidfTransformer
 import sys
 
-def read_metapath_dblp(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/"):
+def read_metapath_dblp(path="./data/dblp/"):
     label_file = "author_label"
     PA_file = "PA"
     PC_file = "PC"

@@ -28,7 +28,7 @@ parser.add_argument('--lr', type=float, default=0.1,
                     help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4,
                     help='Weight decay (L2 loss on parameters).')
-parser.add_argument('--hidden', type=int, default=16,
+parser.add_argument('--hidden', type=int, default=128,
                     help='Number of hidden units.')
 parser.add_argument('--n_meta', type=int, default=3,
                     help='Number of meta-paths.')
@@ -44,7 +44,7 @@ parser.add_argument('--dataset', type=str, default='homograph',
                     help='Dataset')
 parser.add_argument('--dataset_path', type=str, default='./data/dblp/',
                     help='Dataset')
-parser.add_argument('--embedding_file', type=str, default='APC',
+parser.add_argument('--embedding_file', type=str, default='APA',
                     help='Dataset')
 parser.add_argument('--label_file', type=str, default='author_label',
                     help='Dataset')
@@ -58,8 +58,8 @@ if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
 
-def read_embed(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/",
-               emd_file="APC"):
+def read_embed(path="./data/dblp/",
+               emd_file="APA"):
     with open("{}{}.emd".format(path, emd_file)) as f:
         n_nodes,n_feature = map(int, f.readline().strip().split())
     print("number of nodes:{}, embedding size:{}".format(n_nodes,n_feature))
@@ -114,7 +114,7 @@ def read_embed(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/",
     return n_nodes, n_feature, features
 
 
-def read_graph(path="./data/dblp/", dataset="homograph", label_file="author_label", emb_file="APC"):
+def read_graph(path="./data/dblp/", dataset="homograph", label_file="author_label", emb_file="APA"):
     print('Loading {} dataset...'.format(dataset))
 
     n_nodes, n_feature, features = read_embed(path,emb_file)
@@ -156,7 +156,7 @@ def read_graph(path="./data/dblp/", dataset="homograph", label_file="author_labe
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
-def read_graph2(path="./data/dblp/", dataset="homograph", label_file="author_label", emb_file="APC"):
+def read_graph2(path="./data/dblp/", dataset="homograph", label_file="author_label", emb_file="APA"):
     print('Loading {} dataset...'.format(dataset))
 
     n_nodes, n_feature, features = read_embed(path,emb_file)
@@ -223,6 +223,7 @@ if args.cuda:
     idx_train = idx_train.cuda()
     idx_val = idx_val.cuda()
     idx_test = idx_test.cuda()
+    labels = labels.cuda()
 
 
 def train(epoch):

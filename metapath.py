@@ -256,7 +256,7 @@ def query_path(v, scheme, index, node_emb, sample_size=128):
     mp_len = len(scheme)
 
     paths = []
-    tmp_paths = torch.LongTensor(np.asarray([[v]]))
+    tmp_paths = torch.LongTensor(np.asarray([[v]])).cuda()
 
     # find out index to be used:
     for n in range(mp_len - 1):
@@ -274,7 +274,7 @@ def query_path(v, scheme, index, node_emb, sample_size=128):
             count = to_join_ind[last,1] - to_join_ind[last,0]
             # print(to_join_ind[last])
             rang = torch.arange(to_join_ind[last,0].item(),
-                               to_join_ind[last,1].item(), dtype=torch.long)
+                               to_join_ind[last,1].item(), dtype=torch.long).cuda()
             tmp_paths.append(torch.cat(
                 (p.repeat(1, count).view(count, -1),
                  to_join[rang, 1].view(-1, 1)), dim=1))
@@ -297,7 +297,7 @@ def query_path(v, scheme, index, node_emb, sample_size=128):
     groups = torch.split(paths[:, 1:-1], cnt.tolist())
 
     sampled = torch.LongTensor(np.random.choice
-                               (neigh.shape[0], sample_size))
+                               (neigh.shape[0], sample_size)).cuda()
 
     emb = [torch.sum(node_emb[scheme][groups[g].view(-1, 1)], dim=0) for g in sampled]
     emb = torch.cat(emb)

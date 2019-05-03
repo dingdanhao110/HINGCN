@@ -55,7 +55,7 @@ if args.cuda:
 
 # Load data
 adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index \
-    = read_mpindex_dblp(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/")
+    = read_mpindex_dblp(path="./data/dblp/")
 
 print('Read data finished!')
 
@@ -86,7 +86,11 @@ if args.cuda:
     idx_train = idx_train.cuda()
     idx_val = idx_val.cuda()
     idx_test = idx_test.cuda()
-
+    for i in node_emb:
+        node_emb[i]=node_emb[i].cuda()
+    for i in index:
+        index[i]=index[i].cuda()
+    labels=labels.cuda()
 
 def train(epoch):
     t = time.time()

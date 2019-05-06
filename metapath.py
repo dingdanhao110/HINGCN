@@ -5,6 +5,7 @@ from utilities import *
 from sklearn.feature_extraction.text import TfidfTransformer
 import sys
 
+
 def read_metapath_dblp(path="./data/dblp/"):
     label_file = "author_label"
     PA_file = "PA"
@@ -81,7 +82,7 @@ def read_metapath_dblp(path="./data/dblp/"):
     return adjs, features, labels, idx_train, idx_val, idx_test
 
 
-def read_embed(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/",
+def read_embed(path="./data/dblp/",
                emd_file="APC"):
     with open("{}{}.emd".format(path, emd_file)) as f:
         n_nodes, n_feature = map(int, f.readline().strip().split())
@@ -102,14 +103,162 @@ def read_embed(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/",
     return features, n_nodes, n_feature
 
 
-def read_mpindex_dblp(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/"):
+def dump_2hop_index(index, path="./data/dblp/", file="APA"):
+    with open("{}{}.ind".format(path, file), mode='w') as f:
+
+        for a1 in index:
+            for a2 in index[a1]:
+                f.write('{} {}'.format(a1, a2))
+                for p in index[a1][a2]:
+                    f.write(' {}'.format(p))
+                f.write('\n')
+
+    print("dump index {} complete".format(file))
+    pass
+
+
+def load_2hop_index(path="./data/dblp/", file="APA"):
+    index = {}
+    with open("{}{}.ind".format(path, file), mode='r') as f:
+        for line in f:
+            array = [int(x) for x in line.split()]
+            a1 = array[0]
+            a2 = array[1]
+            if a1 not in index:
+                index[a1] = {}
+            if a2 not in index[a1]:
+                index[a1][a2] = set()
+            for p in array[2:]:
+                index[a1][a2].add(p)
+
+    return index
+
+
+def gen_2hop_index(path="./data/dblp/"):
+    PA_file = "PA"
+    PC_file = "PC"
+    # PT_file = "PT"
+    APA_file = "APA"
+    APC_file = "APC"
+
+    PA = np.genfromtxt("{}{}.txt".format(path, PA_file),
+                       dtype=np.int32)
+    PC = np.genfromtxt("{}{}.txt".format(path, PC_file),
+                       dtype=np.int32)
+    # PT = np.genfromtxt("{}{}.txt".format(path, PT_file),
+    #                    dtype=np.int32)
+    PA[:, 0] -= 1
+    PA[:, 1] -= 1
+    PC[:, 0] -= 1
+    PC[:, 1] -= 1
+    # PT[:, 0] -= 1
+    # PT[:, 1] -= 1
+
+    paper_max = max(PA[:, 0]) + 1
+    author_max = max(PA[:, 1]) + 1
+    conf_max = max(PC[:, 1]) + 1
+    # term_max = max(PT[:, 1]) + 1
+
+    n_nodes = paper_max + author_max + conf_max
+    assert n_nodes == 28871
+
+    # build index
+    PA[:, 0] += author_max
+    PC[:, 0] += author_max
+    PC[:, 1] += author_max + paper_max
+
+    AP = np.copy(PA[:, [1, 0]])
+    CP = np.copy(PC[:, [1, 0]])
+
+    AP = AP[AP[:, 0].argsort()]
+    CP = CP[CP[:, 0].argsort()]
+    PA = PA[PA[:, 0].argsort()]
+    PC = PC[PC[:, 0].argsort()]
+
+    APi = []
+    for i in range(n_nodes):
+        arg = np.where(AP[:, 0] == i)[0]
+        if len(arg):
+            APi.append([arg[0], arg[-1] + 1])
+        else:
+            APi.append([0, 0])
+    APi = np.asarray(APi)
+
+    CPi = []
+    for i in range(n_nodes):
+        arg = np.where(CP[:, 0] == i)[0]
+        if len(arg):
+            CPi.append([arg[0], arg[-1] + 1])
+        else:
+            CPi.append([0, 0])
+
+    CPi = np.asarray(CPi)
+
+    PAi = []
+    for i in range(n_nodes):
+        arg = np.where(PA[:, 0] == i)[0]
+        if len(arg):
+            PAi.append([arg[0], arg[-1] + 1])
+        else:
+            PAi.append([0, 0])
+    PAi = np.asarray(PAi)
+
+    PCi = []
+    for i in range(n_nodes):
+        arg = np.where(PC[:, 0] == i)[0]
+        if len(arg):
+            PCi.append([arg[0], arg[-1] + 1])
+        else:
+            PCi.append([0, 0])
+    PCi = np.asarray(PCi)
+
+    APA_index = {}
+
+    for a in range(author_max):
+        APA_index[a] = {}
+        rang = np.arange(APi[a, 0],
+                         APi[a, 1])
+
+        for p in AP[rang, 1]:
+            a2i = np.arange(PAi[p, 0], PAi[p, 1])
+            for a2 in PA[a2i, 1]:
+                if a2 not in APA_index[a]:
+                    APA_index[a][a2] = set()
+                APA_index[a][a2].add(p)
+
+    APC_index = {}
+
+    for a in range(author_max):
+        APC_index[a] = {}
+        rang = np.arange(APi[a, 0],
+                         APi[a, 1])
+
+        for p in AP[rang, 1]:
+            ci = np.arange(PCi[p, 0], PCi[p, 1])
+            for c in PC[ci, 1]:
+                if c not in APC_index[a]:
+                    APC_index[a][c] = set()
+                APC_index[a][c].add(p)
+
+    print("gen index complete")
+
+    dump_2hop_index(APA_index, file="APA")
+    dump_2hop_index(APC_index, file="APC")
+
+    print(APA_index.__sizeof__())
+    print(APC_index.__sizeof__())
+
+    return APA_index, APC_index
+
+
+def read_mpindex_dblp(path="./data/dblp/"):
     label_file = "author_label"
     PA_file = "PA"
     PC_file = "PC"
     PT_file = "PT"
-    APA_file = "APA"
-    APAPA_file = "APAPA"
-    APCPA_file = "APCPA"
+    APA_file = "APA_cnt"
+    APAPA_file = "APAPA_cnt"
+    APCPA_file = "APCPA_cnt"
 
     PA = np.genfromtxt("{}{}.txt".format(path, PA_file),
                        dtype=np.int32)
@@ -140,14 +289,11 @@ def read_mpindex_dblp(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/"):
     features = transformer.fit_transform(features)
     features = torch.FloatTensor(np.array(features.todense()))
 
-    # read path sim
-    adjs = []
-    # p_APA = sp.load_npz("{}{}.npz".format(path, APA_file))
-    # p_APAPA = sp.load_npz("{}{}.npz".format(path, APAPA_file))
-    # p_APCPA = sp.load_npz("{}{}.npz".format(path, APCPA_file))
-    # adjs.append(sparse_mx_to_torch_sparse_tensor(p_APA))
-    # adjs.append(sparse_mx_to_torch_sparse_tensor(p_APAPA))
-    # adjs.append(sparse_mx_to_torch_sparse_tensor(p_APCPA))
+    #TODO: read path count
+    adjs = {}
+    adjs['APA'] = sp.load_npz("{}{}.npz".format(path, APA_file))
+    adjs['APAPA'] = sp.load_npz("{}{}.npz".format(path, APAPA_file))
+    adjs['APCPA'] = sp.load_npz("{}{}.npz".format(path, APCPA_file))
 
     labels_raw = np.genfromtxt("{}{}.txt".format(path, label_file),
                                dtype=np.int32)
@@ -225,6 +371,9 @@ def read_mpindex_dblp(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/"):
             PCi.append([0, 0])
     PCi = np.asarray(PCi)
 
+    APA_index = load_2hop_index(file="APA")
+    APC_index = load_2hop_index(file='APC')
+
     index = {}
     index['AP'] = torch.LongTensor(AP)
     index['CP'] = torch.LongTensor(CP)
@@ -234,9 +383,11 @@ def read_mpindex_dblp(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/"):
     index['CPi'] = torch.LongTensor(CPi)
     index['PAi'] = torch.LongTensor(PAi)
     index['PCi'] = torch.LongTensor(PCi)
+    index['APA'] = APA_index
+    index['APC'] = APC_index
+
 
     return adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index
-
 
 
 # TODO: optimize path query; modify to torch tensors
@@ -271,10 +422,10 @@ def query_path(v, scheme, index, node_emb, sample_size=128):
         # print(paths)
         for p in paths:
             last = p[-1]
-            count = to_join_ind[last,1] - to_join_ind[last,0]
+            count = to_join_ind[last, 1] - to_join_ind[last, 0]
             # print(to_join_ind[last])
-            rang = torch.arange(to_join_ind[last,0].item(),
-                               to_join_ind[last,1].item(), dtype=torch.long).cuda()
+            rang = torch.arange(to_join_ind[last, 0].item(),
+                                to_join_ind[last, 1].item(), dtype=torch.long).cuda()
             tmp_paths.append(torch.cat(
                 (p.repeat(1, count).view(count, -1),
                  to_join[rang, 1].view(-1, 1)), dim=1))
@@ -307,3 +458,11 @@ def query_path(v, scheme, index, node_emb, sample_size=128):
 #
 # adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index \
 #     = read_mpindex_dblp(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/")
+
+
+# APA_index,APC_index=gen_2hop_index()
+
+# APA_index=load_2hop_index(file="APA")
+# APC_index=load_2hop_index(file='APC')
+# print(APA_index.__sizeof__())
+# print(APC_index.__sizeof__())

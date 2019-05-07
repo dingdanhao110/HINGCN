@@ -6,7 +6,7 @@ from torch.autograd import Variable
 import numpy as np
 from scipy import sparse
 from utilities import sparse_mx_to_torch_sparse_tensor, normalize
-from metapath import query_path
+from metapath import query_path,query_path_indexed
 
 
 def to_numpy(x):
@@ -205,11 +205,12 @@ class EdgeAttentionAggregator(nn.Module):
         output = []
         for v in range(N):
             # generate neighbors of v
-            neigh, emb = query_path(v, self.scheme, index, node_emb, n_sample)
-            assert neigh.shape[0] == n_sample
-            a_input = torch.cat([x[v].repeat(1, n_sample).view(n_sample, -1),
+            neigh, emb = query_path_indexed(v, self.scheme, index, node_emb, n_sample)
+            # assert neigh.shape[0] == n_sample
+            n_neigh = neigh.shape[0]
+            a_input = torch.cat([x[v].repeat(1, n_neigh).view(n_neigh, -1),
                                  x[neigh], emb], dim=1) \
-                .view(n_sample, -1)
+                .view(n_neigh, -1)
             e = self.leakyrelu(torch.matmul(a_input, self.a).view(1, -1))
             attention = F.softmax(e, dim=1)
             attention = F.dropout(attention, self.dropout, training=self.training)

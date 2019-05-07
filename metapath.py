@@ -2,6 +2,7 @@ import numpy as np
 import scipy.sparse as sp
 import torch
 from utilities import *
+import random
 from sklearn.feature_extraction.text import TfidfTransformer
 import sys
 
@@ -256,9 +257,9 @@ def read_mpindex_dblp(path="./data/dblp/"):
     PA_file = "PA"
     PC_file = "PC"
     PT_file = "PT"
-    APA_file = "APA_cnt"
-    APAPA_file = "APAPA_cnt"
-    APCPA_file = "APCPA_cnt"
+    APA_file = "APA"
+    APAPA_file = "APAPA"
+    APCPA_file = "APCPA"
 
     PA = np.genfromtxt("{}{}.txt".format(path, PA_file),
                        dtype=np.int32)
@@ -289,11 +290,11 @@ def read_mpindex_dblp(path="./data/dblp/"):
     features = transformer.fit_transform(features)
     features = torch.FloatTensor(np.array(features.todense()))
 
-    #TODO: read path count
+    # read path count
     adjs = {}
-    adjs['APA'] = sp.load_npz("{}{}.npz".format(path, APA_file))
-    adjs['APAPA'] = sp.load_npz("{}{}.npz".format(path, APAPA_file))
-    adjs['APCPA'] = sp.load_npz("{}{}.npz".format(path, APCPA_file))
+    adjs['APA'] = sp.load_npz("{}{}_cnt.npz".format(path, APA_file))
+    adjs['APAPA'] = sp.load_npz("{}{}_cnt.npz".format(path, APAPA_file))
+    adjs['APCPA'] = sp.load_npz("{}{}_cnt.npz".format(path, APCPA_file))
 
     labels_raw = np.genfromtxt("{}{}.txt".format(path, label_file),
                                dtype=np.int32)
@@ -385,9 +386,9 @@ def read_mpindex_dblp(path="./data/dblp/"):
     index['PCi'] = torch.LongTensor(PCi)
     index['APA'] = APA_index
     index['APC'] = APC_index
+    index['adjs'] = adjs
 
-
-    return adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index
+    return [], features, labels, idx_train, idx_val, idx_test, node_emb, index
 
 
 # TODO: optimize path query; modify to torch tensors
@@ -455,14 +456,59 @@ def query_path(v, scheme, index, node_emb, sample_size=128):
 
     return neigh[sampled], emb
 
+
+def query_path_indexed(v, scheme, index, node_emb, sample_size=128):
+    '''
+    Generate metapaths with starting vertex v and path scheme scheme.
+
+    :param v: query node
+    :param scheme: 'APAPA'
+    :param index: index['AP'] stores edges (a,p);
+        index['APi'] stores offset for A.
+    :param node_emb: node embeddings
+    :param sample_size: number of neighbors sampled
+    :return: paths: meta paths
+
+    '''
+    mp_len = len(scheme)
+    # emb_len = node_emb['APA'].shape[1]
+    if mp_len == 3:
+        # find out index to be used:
+        cnt = index['adjs'][scheme]
+        ind = index[scheme]
+
+        neigh=[]
+        result=[]
+
+        if sample_size>len(ind[v]):
+            sample_size = len(ind[v])
+
+        for a in random.sample(ind[v].keys(),sample_size):
+            neigh.append(a)
+            tmp=[]
+            for p in ind[v][a]:
+                tmp.append(node_emb[scheme][p])
+            tmp=torch.sum(torch.stack(tmp),dim=0)
+            result.append(tmp)
+        result=torch.stack(result)
+        neigh = torch.LongTensor(neigh)
+        assert neigh.shape[0] == result.shape[0]
+
+
+        return neigh,result
+    else:
+        # len==5
+        # find out index to be used:
+        scheme1 = scheme[0:3]
+        scheme2 = scheme[2:5]
+        cnt1 = index['adjs'][scheme1]
+        ind1 = index[scheme1]
+        cnt2 = index['adjs'][scheme2]
+        ind2 = index[scheme2]
+
+        return
+
+
 #
 # adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index \
-#     = read_mpindex_dblp(path="/home/danhao/Git/gcn/HINGCN/trunk/data/dblp/")
-
-
-# APA_index,APC_index=gen_2hop_index()
-
-# APA_index=load_2hop_index(file="APA")
-# APC_index=load_2hop_index(file='APC')
-# print(APA_index.__sizeof__())
-# print(APC_index.__sizeof__())
+#     = read_mpindex_dblp(path="./data/dblp/")

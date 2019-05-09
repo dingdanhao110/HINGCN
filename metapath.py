@@ -241,15 +241,32 @@ def gen_2hop_index(path="./data/dblp/"):
                     APC_index[a][c] = set()
                 APC_index[a][c].add(p)
 
+    CPA_index = {}
+
+    for c in range(author_max+paper_max,author_max+paper_max+conf_max):
+
+        CPA_index[c] = {}
+        rang = np.arange(CPi[c, 0],
+                         CPi[c, 1])
+
+        for p in CP[rang, 1]:
+            ai = np.arange(PAi[p, 0], PAi[p, 1])
+            for a in PA[ai, 1]:
+                if a not in CPA_index[c]:
+                    CPA_index[c][a] = set()
+                CPA_index[c][a].add(p)
+
     print("gen index complete")
 
-    dump_2hop_index(APA_index, file="APA")
-    dump_2hop_index(APC_index, file="APC")
+    # dump_2hop_index(APA_index, file="APA")
+    # dump_2hop_index(APC_index, file="APC")
+    # dump_2hop_index(CPA_index, file="CPA")
 
     print(APA_index.__sizeof__())
     print(APC_index.__sizeof__())
+    print(CPA_index.__sizeof__())
 
-    return APA_index, APC_index
+    return APA_index, APC_index, CPA_index
 
 
 def read_mpindex_dblp(path="./data/dblp/"):
@@ -292,9 +309,9 @@ def read_mpindex_dblp(path="./data/dblp/"):
 
     # read path count
     adjs = {}
-    adjs['APA'] = sp.load_npz("{}{}_cnt.npz".format(path, APA_file))
-    adjs['APAPA'] = sp.load_npz("{}{}_cnt.npz".format(path, APAPA_file))
-    adjs['APCPA'] = sp.load_npz("{}{}_cnt.npz".format(path, APCPA_file))
+    # adjs['APA'] = sp.load_npz("{}{}_cnt.npz".format(path, APA_file))
+    # adjs['APAPA'] = sp.load_npz("{}{}_cnt.npz".format(path, APAPA_file))
+    # adjs['APCPA'] = sp.load_npz("{}{}_cnt.npz".format(path, APCPA_file))
 
     labels_raw = np.genfromtxt("{}{}.txt".format(path, label_file),
                                dtype=np.int32)
@@ -319,6 +336,8 @@ def read_mpindex_dblp(path="./data/dblp/"):
     node_emb = {}
     # n_nodes = 28871
     node_emb['APA'], n_nodes, n_feature = read_embed(path, APA_file)
+    node_emb['APAPA'] = node_emb['APA']
+    node_emb['APCPA'] = node_emb['APA']
     # node_emb['APAPA'] = read_embed(path, APAPA_file)
     # node_emb['APCPA'] = read_embed(path, APCPA_file)
 
@@ -374,6 +393,7 @@ def read_mpindex_dblp(path="./data/dblp/"):
 
     APA_index = load_2hop_index(file="APA")
     APC_index = load_2hop_index(file='APC')
+    CPA_index = load_2hop_index(file='CPA')
 
     index = {}
     index['AP'] = torch.LongTensor(AP)
@@ -386,7 +406,8 @@ def read_mpindex_dblp(path="./data/dblp/"):
     index['PCi'] = torch.LongTensor(PCi)
     index['APA'] = APA_index
     index['APC'] = APC_index
-    index['adjs'] = adjs
+    index['CPA'] = CPA_index
+    # index['adjs'] = adjs
 
     return [], features, labels, idx_train, idx_val, idx_test, node_emb, index
 
@@ -474,41 +495,64 @@ def query_path_indexed(v, scheme, index, node_emb, sample_size=128):
     # emb_len = node_emb['APA'].shape[1]
     if mp_len == 3:
         # find out index to be used:
-        cnt = index['adjs'][scheme]
+        # cnt = index['adjs'][scheme]
         ind = index[scheme]
 
-        neigh=[]
-        result=[]
+        neigh = []
+        result = []
 
-        if sample_size>len(ind[v]):
+        if sample_size > len(ind[v]):
             sample_size = len(ind[v])
 
-        for a in random.sample(ind[v].keys(),sample_size):
+        for a in random.sample(ind[v].keys(), sample_size):
             neigh.append(a)
-            tmp=[]
+            tmp = []
             for p in ind[v][a]:
                 tmp.append(node_emb[scheme][p])
-            tmp=torch.sum(torch.stack(tmp),dim=0)
+            tmp = torch.sum(torch.stack(tmp), dim=0)
             result.append(tmp)
-        result=torch.stack(result)
+        result = torch.stack(result)
         neigh = torch.LongTensor(neigh)
         assert neigh.shape[0] == result.shape[0]
 
-
-        return neigh,result
+        return neigh, result
     else:
         # len==5
+        # example metapath instance: v-p-a1-p-a2
         # find out index to be used:
         scheme1 = scheme[0:3]
         scheme2 = scheme[2:5]
-        cnt1 = index['adjs'][scheme1]
         ind1 = index[scheme1]
-        cnt2 = index['adjs'][scheme2]
         ind2 = index[scheme2]
 
-        return
+        result = {}
+        for a1 in ind1[v].keys():
+            np1 = len(ind1[v][a1])
+            edge1 = [node_emb[scheme][p] for p in ind1[v][a1]]
+            edge1 = torch.sum(torch.stack(edge1), dim=0)  # edge1: the emd between v and a1
 
+            for a2 in ind2[a1].keys():
+                np2 = len(ind2[a1][a2])
+                edge2 = [node_emb[scheme][p] for p in ind2[a1][a2]]
+                edge2 = torch.sum(torch.stack(edge2), dim=0)  # edge2: the emd between a1 and a2
+                if a2 not in result:
+                    result[a2] = node_emb[scheme][a1] * (np2 * np1)
+                else:
+                    result[a2] += node_emb[scheme][a1] * (np2 * np1)
+                result[a2] += edge1 * np2
+                result[a2] += edge2 * np1
+
+        res = []
+        neigh = []
+        for nei,emb in result.items():
+            neigh.append(nei)
+            res.append(emb)
+        neigh = torch.LongTensor(neigh)
+        res = torch.stack(res)
+        return neigh,res
 
 #
 # adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index \
 #     = read_mpindex_dblp(path="./data/dblp/")
+
+gen_2hop_index()

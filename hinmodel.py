@@ -142,7 +142,6 @@ class HINGCN_edge(nn.Module):
 
         assert len(schemes)==nmeta
 
-        # TODO: check dimension
         self.aggr_layer1 = [EdgeAttentionAggregator(nfeat, nhid, edge_dim, schemes[i],
                                                     dropout=dropout, alpha=alpha, concat=concat) for i in range(nmeta)]
         for i, gcn in enumerate(self.aggr_layer1):

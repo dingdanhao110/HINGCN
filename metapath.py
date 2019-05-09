@@ -258,9 +258,9 @@ def gen_2hop_index(path="./data/dblp/"):
 
     print("gen index complete")
 
-    # dump_2hop_index(APA_index, file="APA")
-    # dump_2hop_index(APC_index, file="APC")
-    # dump_2hop_index(CPA_index, file="CPA")
+    dump_2hop_index(APA_index, file="APA")
+    dump_2hop_index(APC_index, file="APC")
+    dump_2hop_index(CPA_index, file="CPA")
 
     print(APA_index.__sizeof__())
     print(APC_index.__sizeof__())
@@ -527,13 +527,13 @@ def query_path_indexed(v, scheme, index, node_emb, sample_size=128):
 
         result = {}
         for a1 in ind1[v].keys():
-            np1 = len(ind1[v][a1])
-            edge1 = [node_emb[scheme][p] for p in ind1[v][a1]]
+            np1 = min(len(ind1[v][a1]),sample_size)
+            edge1 = [node_emb[scheme][p] for p in random.sample(ind1[v][a1],np1)]
             edge1 = torch.sum(torch.stack(edge1), dim=0)  # edge1: the emd between v and a1
 
             for a2 in ind2[a1].keys():
-                np2 = len(ind2[a1][a2])
-                edge2 = [node_emb[scheme][p] for p in ind2[a1][a2]]
+                np2 = min(len(ind2[a1][a2]),sample_size)
+                edge2 = [node_emb[scheme][p] for p in random.sample(ind2[a1][a2],np2)]
                 edge2 = torch.sum(torch.stack(edge2), dim=0)  # edge2: the emd between a1 and a2
                 if a2 not in result:
                     result[a2] = node_emb[scheme][a1] * (np2 * np1)
@@ -555,4 +555,4 @@ def query_path_indexed(v, scheme, index, node_emb, sample_size=128):
 # adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index \
 #     = read_mpindex_dblp(path="./data/dblp/")
 
-gen_2hop_index()
+#gen_2hop_index()

@@ -89,7 +89,8 @@ if args.cuda:
     for i in node_emb:
         node_emb[i]=node_emb[i].cuda()
     for i in index:
-        index[i]=index[i].cuda()
+        if torch.is_tensor(index[i]):
+            index[i]=index[i].cuda()
     labels=labels.cuda()
 
 def train(epoch):

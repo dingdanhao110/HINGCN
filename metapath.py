@@ -84,18 +84,18 @@ def read_metapath_dblp(path="./data/dblp/"):
 
 
 def read_embed(path="./data/dblp/",
-               emd_file="APC"):
-    with open("{}{}.emd".format(path, emd_file)) as f:
+               emb_file="APC"):
+    with open("{}{}.emb".format(path, emb_file)) as f:
         n_nodes, n_feature = map(int, f.readline().strip().split())
     print("number of nodes:{}, embedding size:{}".format(n_nodes, n_feature))
 
-    embedding = np.loadtxt("{}{}.emd".format(path, emd_file),
+    embedding = np.loadtxt("{}{}.emb".format(path, emb_file),
                            dtype=np.float32, skiprows=1)
-    emd_index = {}
+    emb_index = {}
     for i in range(n_nodes):
-        emd_index[embedding[i, 0]] = i
+        emb_index[embedding[i, 0]] = i
 
-    features = np.asarray([embedding[emd_index[i], 1:] for i in range(n_nodes)])
+    features = np.asarray([embedding[emb_index[i], 1:] for i in range(n_nodes)])
     features = torch.from_numpy(features)
 
     assert features.shape[1] == n_feature
@@ -223,6 +223,8 @@ def gen_2hop_index(path="./data/dblp/"):
         for p in AP[rang, 1]:
             a2i = np.arange(PAi[p, 0], PAi[p, 1])
             for a2 in PA[a2i, 1]:
+                if a == a2:
+                    continue
                 if a2 not in APA_index[a]:
                     APA_index[a][a2] = set()
                 APA_index[a][a2].add(p)
@@ -259,12 +261,12 @@ def gen_2hop_index(path="./data/dblp/"):
     print("gen index complete")
 
     dump_2hop_index(APA_index, file="APA")
-    dump_2hop_index(APC_index, file="APC")
-    dump_2hop_index(CPA_index, file="CPA")
+    # dump_2hop_index(APC_index, file="APC")
+    # dump_2hop_index(CPA_index, file="CPA")
 
-    print(APA_index.__sizeof__())
-    print(APC_index.__sizeof__())
-    print(CPA_index.__sizeof__())
+    # print(APA_index.__sizeof__())
+    # print(APC_index.__sizeof__())
+    # print(CPA_index.__sizeof__())
 
     return APA_index, APC_index, CPA_index
 
@@ -335,7 +337,7 @@ def read_mpindex_dblp(path="./data/dblp/"):
     # Read node embeddings
     node_emb = {}
     # n_nodes = 28871
-    node_emb['APA'], n_nodes, n_feature = read_embed(path, APA_file)
+    node_emb['APA'], n_nodes, n_feature = read_embed(path, 'APC_16')
     node_emb['APAPA'] = node_emb['APA']
     node_emb['APCPA'] = node_emb['APA']
     # node_emb['APAPA'] = read_embed(path, APAPA_file)
@@ -391,9 +393,9 @@ def read_mpindex_dblp(path="./data/dblp/"):
             PCi.append([0, 0])
     PCi = np.asarray(PCi)
 
-    APA_index = load_2hop_index(file="APA")
-    APC_index = load_2hop_index(file='APC')
-    CPA_index = load_2hop_index(file='CPA')
+    APA_index = load_2hop_index(path=path,file="APA")
+    APC_index = load_2hop_index(path=path,file='APC')
+    CPA_index = load_2hop_index(path=path,file='CPA')
 
     index = {}
     index['AP'] = torch.LongTensor(AP)
@@ -527,13 +529,13 @@ def query_path_indexed(v, scheme, index, node_emb, sample_size=128):
 
         result = {}
         for a1 in ind1[v].keys():
-            np1 = min(len(ind1[v][a1]),sample_size)
-            edge1 = [node_emb[scheme][p] for p in random.sample(ind1[v][a1],np1)]
+            np1 = len(ind1[v][a1])
+            edge1 = [node_emb[scheme][p] for p in ind1[v][a1]]
             edge1 = torch.sum(torch.stack(edge1), dim=0)  # edge1: the emd between v and a1
 
             for a2 in ind2[a1].keys():
-                np2 = min(len(ind2[a1][a2]),sample_size)
-                edge2 = [node_emb[scheme][p] for p in random.sample(ind2[a1][a2],np2)]
+                np2 = len(ind2[a1][a2])
+                edge2 = [node_emb[scheme][p] for p in ind2[a1][a2]]
                 edge2 = torch.sum(torch.stack(edge2), dim=0)  # edge2: the emd between a1 and a2
                 if a2 not in result:
                     result[a2] = node_emb[scheme][a1] * (np2 * np1)
@@ -555,4 +557,4 @@ def query_path_indexed(v, scheme, index, node_emb, sample_size=128):
 # adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index \
 #     = read_mpindex_dblp(path="./data/dblp/")
 
-#gen_2hop_index()
+# APA_index, APC_index, CPA_index = gen_2hop_index()

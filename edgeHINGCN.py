@@ -20,7 +20,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
 parser.add_argument('--fastmode', action='store_true', default=True,
                     help='Validate during training pass.')
 parser.add_argument('--seed', type=int, default=42, help='Random seed.')
-parser.add_argument('--epochs', type=int, default=20,
+parser.add_argument('--epochs', type=int, default=1,
                     help='Number of epochs to train.')
 parser.add_argument('--lr', type=float, default=0.1,
                     help='Initial learning rate.')
@@ -28,7 +28,7 @@ parser.add_argument('--weight_decay', type=float, default=5e-4,
                     help='Weight decay (L2 loss on parameters).')
 parser.add_argument('--hidden', type=int, default=128,
                     help='Number of hidden units.')
-parser.add_argument('--n_meta', type=int, default=3,
+parser.add_argument('--n_meta', type=int, default=1,
                     help='Number of meta-paths.')
 parser.add_argument('--dim_mp', type=int, default=16,
                     help='Number of hidden units in layer2.')
@@ -65,7 +65,7 @@ model = HINGCN_edge(nfeat=features.shape[1],
             nmeta=args.n_meta,
             dim_mp=args.dim_mp,
             edge_dim=node_emb['APA'].shape[1],
-            schemes=['APA','APAPA','APCPA'],
+            schemes=['APA'],
             nclass=labels.max().item() + 1,
             alpha=args.alpha,
             dropout=args.dropout,

@@ -1,0 +1,5 @@
+APA+APAPA
+
+embedding size: 128->32,16,8
+
+APA-> a1,a2 precompute all edge embedding as index

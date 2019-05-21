@@ -187,3 +187,70 @@ class HINGCN_edge(nn.Module):
         output = F.dropout(output, self.dropout, training=self.training)
         output = F.relu(self.linear(output))
         return F.log_softmax(output, dim=1)
+
+
+
+class HINGCN_edge_emb(nn.Module):
+    """replaced query_neighbor with edge embeddings"""
+    def __init__(self, nfeat, nhid, nmeta, dim_mp, edge_index,
+                 edge_emb, schemes, nclass, alpha, dropout, bias,
+                 adjs, concat, samples=128
+                 ):
+        super(HINGCN_edge_emb, self).__init__()
+        self.adjs = adjs
+        self.nmeta = nmeta
+        self.nsamples = samples
+        self.concat = concat
+        self.dropout = dropout
+        self.edge_index = edge_index
+        self.edge_dim=edge_emb.shape[1]
+        self.edge_emb=nn.Embedding.from_pretrained(edge_emb)
+        self.schemes=schemes
+
+        assert len(schemes)==nmeta
+
+        self.aggr_layer1 = [EdgeEmbAttentionAggregator(nfeat, nhid, self.edge_dim, schemes[i],
+                                                    dropout=dropout, alpha=alpha, concat=concat) for i in range(nmeta)]
+        for i, gcn in enumerate(self.aggr_layer1):
+            self.add_module('gcn_1_{}'.format(i), gcn)
+
+        if concat:
+            inter_len = nhid*2+self.edge_dim
+        else:
+            inter_len = nhid*2
+        self.aggr_layer2 = [EdgeEmbAttentionAggregator(inter_len, dim_mp, self.edge_dim, schemes[i],
+                                                    dropout=dropout, alpha=alpha, concat=concat) for i in range(nmeta)]
+        for i, gcn in enumerate(self.aggr_layer2):
+            self.add_module('gcn_2_{}'.format(i), gcn)
+
+
+        if concat:
+            res_len = dim_mp*2+self.edge_dim
+        else:
+            res_len = dim_mp*2
+
+        self.attention = MetapathAggrLayer(res_len, nmeta, dropout=dropout, alpha=alpha)
+        self.linear = nn.Linear(res_len,nclass,bias=bias)
+
+
+    def forward(self, input, index, node_emb, n_sample=128):
+        """
+        Args:
+            input: feature matrix of queried vertices in HIN;
+        Return:
+            logits of classification for queried vertices in HIN
+        """
+        # ids = np.arange(input.shape[0])
+        embeddings = []
+        for mp_idx in range(self.nmeta):
+            x_i = F.relu(self.aggr_layer1[mp_idx](input, index, node_emb, self.edge_index, self.edge_emb, n_sample))
+            x_i = F.dropout(x_i, self.dropout, training=self.training)
+            x_i = F.relu(self.aggr_layer2[mp_idx](x_i, index, node_emb, self.edge_index, self.edge_emb, n_sample))  #x_i: tensor(v_id,embedding)
+            x_i = F.dropout(x_i, self.dropout, training=self.training)
+            embeddings.append(x_i.unsqueeze(0))
+        embeddings = torch.cat(embeddings)  #should be a tensor of (mp_idx,v_id,embedding)
+
+        output = self.attention(embeddings)
+        output = F.dropout(output, self.dropout, training=self.training)
+        output = F.relu(self.linear(output))
+        return F.log_softmax(output, dim=1)

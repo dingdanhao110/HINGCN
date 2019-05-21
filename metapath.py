@@ -260,7 +260,7 @@ def gen_2hop_index(path="./data/dblp/"):
 
     print("gen index complete")
 
-    dump_2hop_index(APA_index, file="APA")
+    # dump_2hop_index(APA_index, file="APA")
     # dump_2hop_index(APC_index, file="APC")
     # dump_2hop_index(CPA_index, file="CPA")
 

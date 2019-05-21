@@ -12,6 +12,7 @@ import torch.optim as optim
 from utilities import *
 from hinmodel import *
 from metapath import *
+from edgeEmd.EdgeEmb import *
 
 # Training settings
 parser = argparse.ArgumentParser()
@@ -20,15 +21,15 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
 parser.add_argument('--fastmode', action='store_true', default=True,
                     help='Validate during training pass.')
 parser.add_argument('--seed', type=int, default=42, help='Random seed.')
-parser.add_argument('--epochs', type=int, default=1,
+parser.add_argument('--epochs', type=int, default=20,
                     help='Number of epochs to train.')
 parser.add_argument('--lr', type=float, default=0.1,
                     help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4,
                     help='Weight decay (L2 loss on parameters).')
-parser.add_argument('--hidden', type=int, default=128,
+parser.add_argument('--hidden', type=int, default=16,
                     help='Number of hidden units.')
-parser.add_argument('--n_meta', type=int, default=1,
+parser.add_argument('--n_meta', type=int, default=3,
                     help='Number of meta-paths.')
 parser.add_argument('--dim_mp', type=int, default=16,
                     help='Number of hidden units in layer2.')
@@ -40,10 +41,12 @@ parser.add_argument('--alpha', type=float, default=0.8,
                     help='alpha for leaky relu.')
 parser.add_argument('--dataset', type=str, default='cora',
                     help='Dataset')
-parser.add_argument('--dataset_path', type=str, default='../pygcn/data/cora/',
+parser.add_argument('--dataset_path', type=str, default='./data/dblp/',
                     help='Dataset')
 parser.add_argument('--model', type=str, default='hingcn',
                     help='Model used in training')
+parser.add_argument('--edge_emb', type=bool, default=True,
+                    help='Use pretrained edge embedding or not')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -55,17 +58,31 @@ if args.cuda:
 
 # Load data
 adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index \
-    = read_mpindex_dblp(path="./data/dblp/")
+    = read_mpindex_dblp(path=args.dataset_path)
+
+if args.edge_emb:
+    edge_index,edge_emb = load_edge_emb(path=args.dataset_path,
+                                        schemes=['APA','APAPA','APCPA'],
+                                        n_dim=16)
+    if args.cuda:
+        for i in edge_index:
+            if torch.is_tensor(edge_index[i]):
+                edge_index[i]=edge_index[i].cuda()
+        for i in edge_emb:
+            if torch.is_tensor(edge_emb[i]):
+                edge_emb[i]=edge_emb[i].cuda()
 
 print('Read data finished!')
 
 # Model and optimizer
-model = HINGCN_edge(nfeat=features.shape[1],
+if args.edge_emb:
+    model = HINGCN_edge_emb(nfeat=features.shape[1],
             nhid=args.hidden,
             nmeta=args.n_meta,
             dim_mp=args.dim_mp,
-            edge_dim=node_emb['APA'].shape[1],
-            schemes=['APA'],
+            edge_index=edge_index,
+            edge_emb=edge_emb,
+            schemes=['APA','APAPA','APCPA'],
             nclass=labels.max().item() + 1,
             alpha=args.alpha,
             dropout=args.dropout,
@@ -74,6 +91,21 @@ model = HINGCN_edge(nfeat=features.shape[1],
             concat=True,
             samples=args.n_sample
                   )
+else:
+    model = HINGCN_edge(nfeat=features.shape[1],
+                            nhid=args.hidden,
+                            nmeta=args.n_meta,
+                            dim_mp=args.dim_mp,
+                            edge_dim=node_emb['APA'].shape[0],
+                            schemes=['APA', 'APAPA', 'APCPA'],
+                            nclass=labels.max().item() + 1,
+                            alpha=args.alpha,
+                            dropout=args.dropout,
+                            adjs=[],
+                            bias=True,
+                            concat=True,
+                            samples=args.n_sample
+                            )
 optimizer = optim.Adam(model.parameters(),
                        lr=args.lr, weight_decay=args.weight_decay)
 

@@ -178,7 +178,6 @@ class MetapathAggrLayer(nn.Module):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
 
 
-# TODO: check if dimension matches
 class EdgeAttentionAggregator(nn.Module):
     def __init__(self, input_dim, output_dim, edge_dim, scheme, dropout, alpha,  concat=True):
         super(EdgeAttentionAggregator, self).__init__()
@@ -229,6 +228,74 @@ class EdgeAttentionAggregator(nn.Module):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
 
 
+#use edge emb instead of query_path
+class EdgeEmbAttentionAggregator(nn.Module):
+    def __init__(self, input_dim, output_dim, edge_dim, scheme, dropout, alpha,  concat=True):
+        super(EdgeEmbAttentionAggregator, self).__init__()
+        self.dropout = dropout
+        self.alpha = alpha
+        self.concat = concat
+        self.output_dim = output_dim
+        self.scheme = scheme
+
+        self.leakyrelu = nn.LeakyReLU(self.alpha)
+
+        self.W = nn.Parameter(torch.zeros(size=(input_dim, output_dim)))
+        nn.init.xavier_uniform_(self.W.data, gain=1.414)
+
+        self.a = nn.Parameter(torch.zeros(size=(2 * output_dim + edge_dim, 1)))
+        nn.init.xavier_uniform_(self.a.data, gain=1.414)
+
+    def forward(self, features, index, node_emb, edge_index, edge_emb, n_sample=128):
+        emb = edge_emb[self.scheme]
+        e_index = edge_index[self.scheme]
+
+        # Compute attention weights
+        N = features.size()[0]
+        x = torch.mm(features, self.W)
+
+        # vectorize: each vertex sample n_sample neighbors;
+        neigh = []
+        for v in range(N):
+            nonz = torch.nonzero(e_index[v]).view(-1)
+            if (len(nonz)==0):
+                #no neighbor, only sample from itself
+                #for edge embedding... PADDING with all-zero embedding at edge_emb[0]
+                neigh.append(torch.LongTensor([v]).repeat(n_sample))
+            else:
+                idx = np.random.choice(nonz.shape[0], n_sample)
+                neigh.append(nonz[idx])
+        neigh = torch.stack(neigh)
+
+        a_input = torch.cat([x.repeat(1, n_sample).view(N, n_sample, -1),
+                             x[neigh],
+                             emb[ e_index[
+                                 torch.arange(N).view(-1,1).repeat(1,n_sample).view(-1),
+                                 neigh.view(-1)]
+                             ]], dim=2) \
+            .view(N, n_sample, -1)
+
+        e = self.leakyrelu(torch.matmul(a_input, self.a))
+        attention = F.softmax(e, dim=1)
+        attention = F.dropout(attention, self.dropout, training=self.training)
+
+        # TODO: double check
+        if self.concat:
+            h_prime = [torch.matmul(attention[i],
+                                    torch.cat([x[neigh[i]],
+                                               emb[e_index[i, neigh[i]]]],
+                                              dim=1)) for i in range(N)]
+        else:
+            h_prime = [torch.matmul(attention[i], x[neigh[i]]) for i in range(N)]
+
+        output = torch.stack(h_prime)
+
+        return F.elu(output)
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
+
+
 aggregator_lookup = {
     # "mean": MeanAggregator,
     # "max_pool": MaxPoolAggregator,
@@ -236,4 +303,5 @@ aggregator_lookup = {
     # "lstm": LSTMAggregator,
     "attention": AttentionAggregator,
     "eged_attention": EdgeAttentionAggregator,
+    "edge_emb_attn": EdgeEmbAttentionAggregator,
 }

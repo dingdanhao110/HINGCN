@@ -194,40 +194,52 @@ class HINGCN_edge_emb(nn.Module):
     """replaced query_neighbor with edge embeddings"""
     def __init__(self, nfeat, nhid, nmeta, dim_mp, edge_index,
                  edge_emb, schemes, nclass, alpha, dropout, bias,
-                 adjs, concat, samples=128
+                 adjs, concat=False, addedge=False, samples=128
                  ):
         super(HINGCN_edge_emb, self).__init__()
         self.adjs = adjs
         self.nmeta = nmeta
         self.nsamples = samples
         self.concat = concat
+        self.addedge= addedge
         self.dropout = dropout
         self.edge_index = edge_index
-        self.edge_dim=edge_emb.shape[1]
-        self.edge_emb=nn.Embedding.from_pretrained(edge_emb)
+        self.edge_dim=edge_emb['APA'].shape[1]
+        self.edge_emb={}
+        for s,e in edge_emb.items():
+            # print(s)
+            self.edge_emb[s]=nn.Embedding.from_pretrained(e,freeze=True)
         self.schemes=schemes
 
         assert len(schemes)==nmeta
 
         self.aggr_layer1 = [EdgeEmbAttentionAggregator(nfeat, nhid, self.edge_dim, schemes[i],
-                                                    dropout=dropout, alpha=alpha, concat=concat) for i in range(nmeta)]
+                                                    dropout=dropout, alpha=alpha,
+                                                       concat=concat,addedge=addedge) for i in range(nmeta)]
         for i, gcn in enumerate(self.aggr_layer1):
             self.add_module('gcn_1_{}'.format(i), gcn)
 
+
         if concat:
-            inter_len = nhid*2+self.edge_dim
-        else:
             inter_len = nhid*2
+        else:
+            inter_len = nhid
+        if addedge:
+            inter_len += self.edge_dim
+
         self.aggr_layer2 = [EdgeEmbAttentionAggregator(inter_len, dim_mp, self.edge_dim, schemes[i],
-                                                    dropout=dropout, alpha=alpha, concat=concat) for i in range(nmeta)]
+                                                    dropout=dropout, alpha=alpha,
+                                                       concat=concat,addedge=addedge) for i in range(nmeta)]
         for i, gcn in enumerate(self.aggr_layer2):
             self.add_module('gcn_2_{}'.format(i), gcn)
 
 
         if concat:
-            res_len = dim_mp*2+self.edge_dim
-        else:
             res_len = dim_mp*2
+        else:
+            res_len = dim_mp
+        if addedge:
+            res_len += self.edge_dim
 
         self.attention = MetapathAggrLayer(res_len, nmeta, dropout=dropout, alpha=alpha)
         self.linear = nn.Linear(res_len,nclass,bias=bias)

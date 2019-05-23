@@ -58,6 +58,7 @@ def read_metapath(path="../data/cora/", dataset="cora", num_mps=1):
 
     return adjs, features, labels, idx_train, idx_val, idx_test
 
+
 def normalize(mx):
     """Row-normalize sparse matrix"""
     rowsum = np.array(mx.sum(1))
@@ -132,6 +133,7 @@ def read_metapath_raw(path="../data/cora/", dataset="cora", num_mps=1):
     idx_test = torch.LongTensor(idx_test)
 
     return adjs, features, labels, idx_train, idx_val, idx_test
+
 
 def pathsim(A):
     value = []

@@ -4,7 +4,6 @@ import torch
 from utilities import *
 import random
 from sklearn.feature_extraction.text import TfidfTransformer
-import sys
 
 
 def read_metapath_dblp(path="./data/dblp/"):
@@ -414,7 +413,6 @@ def read_mpindex_dblp(path="./data/dblp/"):
     return [], features, labels, idx_train, idx_val, idx_test, node_emb, index
 
 
-# TODO: optimize path query; modify to torch tensors
 def query_path(v, scheme, index, node_emb, sample_size=128):
     '''
     Generate metapaths with starting vertex v and path scheme scheme.

@@ -21,7 +21,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
 parser.add_argument('--fastmode', action='store_true', default=True,
                     help='Validate during training pass.')
 parser.add_argument('--seed', type=int, default=42, help='Random seed.')
-parser.add_argument('--epochs', type=int, default=20,
+parser.add_argument('--epochs', type=int, default=50,
                     help='Number of epochs to train.')
 parser.add_argument('--lr', type=float, default=0.1,
                     help='Initial learning rate.')
@@ -88,7 +88,8 @@ if args.edge_emb:
             dropout=args.dropout,
             adjs=[],
             bias=True,
-            concat=True,
+            concat=False,
+            addedge=False,
             samples=args.n_sample
                   )
 else:

@@ -230,13 +230,14 @@ class EdgeAttentionAggregator(nn.Module):
 
 #use edge emb instead of query_path
 class EdgeEmbAttentionAggregator(nn.Module):
-    def __init__(self, input_dim, output_dim, edge_dim, scheme, dropout, alpha,  concat=True):
+    def __init__(self, input_dim, output_dim, edge_dim, scheme, dropout, alpha,  concat=False, addedge=False):
         super(EdgeEmbAttentionAggregator, self).__init__()
         self.dropout = dropout
         self.alpha = alpha
         self.concat = concat
         self.output_dim = output_dim
         self.scheme = scheme
+        self.addedge = addedge
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
@@ -265,31 +266,34 @@ class EdgeEmbAttentionAggregator(nn.Module):
             else:
                 idx = np.random.choice(nonz.shape[0], n_sample)
                 neigh.append(nonz[idx])
-        neigh = torch.stack(neigh)
+        neigh = torch.stack(neigh).long()
 
         a_input = torch.cat([x.repeat(1, n_sample).view(N, n_sample, -1),
                              x[neigh],
-                             emb[ e_index[
+                             emb( e_index[
                                  torch.arange(N).view(-1,1).repeat(1,n_sample).view(-1),
                                  neigh.view(-1)]
-                             ]], dim=2) \
+                                  ).view(N, n_sample, -1)], dim=2) \
             .view(N, n_sample, -1)
 
         e = self.leakyrelu(torch.matmul(a_input, self.a))
         attention = F.softmax(e, dim=1)
+        attention = attention.squeeze(2)
         attention = F.dropout(attention, self.dropout, training=self.training)
 
-        # TODO: double check
+
+
+        h_prime = [torch.matmul(attention[i], x[neigh[i]]) for i in range(N)]
+        h_prime = torch.stack(h_prime)
         if self.concat:
-            h_prime = [torch.matmul(attention[i],
-                                    torch.cat([x[neigh[i]],
-                                               emb[e_index[i, neigh[i]]]],
-                                              dim=1)) for i in range(N)]
+            output = torch.cat([x,h_prime],dim=1)
         else:
-            h_prime = [torch.matmul(attention[i], x[neigh[i]]) for i in range(N)]
-
-        output = torch.stack(h_prime)
-
+            output = h_prime + x
+        if self.addedge:
+            output = torch.cat([output, [
+                                torch.matmul(attention[i],
+                                               emb(e_index[i,neigh[i]])) for i in range(N)]
+                                   ] ,dim=1)
         return F.elu(output)
 
     def __repr__(self):

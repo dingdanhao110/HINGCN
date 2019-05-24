@@ -251,7 +251,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
         self.W3 = nn.Parameter(torch.zeros(size=(edge_dim, edge_dim)))
         nn.init.xavier_uniform_(self.W3.data, gain=1.414)
 
-        self.B = nn.Parameter(torch.zeros(size=(edge_dim, 1)))
+        self.B = nn.Parameter(torch.zeros(size=(1, edge_dim)))
         nn.init.xavier_uniform_(self.B.data, gain=1.414)
 
         self.a = nn.Parameter(torch.zeros(size=(2 * output_dim + edge_dim, 1)))
@@ -281,9 +281,9 @@ class EdgeEmbAttentionAggregator(nn.Module):
         a_input = torch.cat([x.repeat(1, n_sample).view(N, n_sample, -1),
                              x[neigh],
                              emb[e_index[
-                                     torch.arange(N).view(-1, 1).repeat(1, n_sample).view(-1),
-                                     neigh.view(-1)]
-                                 ].view(N, n_sample, -1)], dim=2) \
+                                 torch.arange(N).view(-1, 1).repeat(1, n_sample).view(-1),
+                                 neigh.view(-1)]
+                             ].view(N, n_sample, -1)], dim=2) \
             .view(N, n_sample, -1)
 
         e = self.leakyrelu(torch.matmul(a_input, self.a))
@@ -304,24 +304,25 @@ class EdgeEmbAttentionAggregator(nn.Module):
                                 ], dim=1)
         output = F.elu(output)
 
-
         # update edge
         if self.update_edge:
             to_update = e_index.nonzero()
             to_update = to_update[(to_update[:, 0] < to_update[:, 1]).nonzero().squeeze()]
 
-            n=to_update.shape[0]
+            n = to_update.shape[0]
 
-            edges = e_index[to_update[:,0],to_update[:,1]]
+            #memory error.. consider minibatch update
+
+            edges = e_index[to_update[:, 0], to_update[:, 1]]
 
             v_input = output[to_update]
-            v_input = torch.mm(v_input, self.W2).sum(dim=1)
+            v_input = torch.matmul(v_input, self.W2).sum(dim=1)
 
-            e_input = torch.mm(emb[edges],self.W3)
+            e_input = torch.mm(emb[edges], self.W3)
 
-            a_input = e_input+v_input+self.B.repeat(n,1)
+            a_input = torch.cat([self.B, e_input+v_input+self.B.repeat(n,1)],dim=0)
 
-            emb = F.relu(torch.matmul(a_input,emb))
+            emb = F.relu(a_input * emb)
 
         return output, emb
 

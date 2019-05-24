@@ -29,7 +29,7 @@ parser.add_argument('--weight_decay', type=float, default=5e-4,
                     help='Weight decay (L2 loss on parameters).')
 parser.add_argument('--hidden', type=int, default=16,
                     help='Number of hidden units.')
-parser.add_argument('--n_meta', type=int, default=1,
+parser.add_argument('--n_meta', type=int, default=3,
                     help='Number of meta-paths.')
 parser.add_argument('--dim_mp', type=int, default=16,
                     help='Number of hidden units in layer2.')
@@ -47,6 +47,12 @@ parser.add_argument('--model', type=str, default='hingcn',
                     help='Model used in training')
 parser.add_argument('--edge_emb', type=bool, default=True,
                     help='Use pretrained edge embedding or not')
+parser.add_argument('--concat', type=bool, default=False,
+                    help='Concat feature or add')
+parser.add_argument('--addedge', type=bool, default=False,
+                    help='prop edge to next hop or not')
+parser.add_argument('--update_edge', type=bool, default=True,
+                    help='Update edge embedding or not')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -82,15 +88,15 @@ if args.edge_emb:
             dim_mp=args.dim_mp,
             edge_index=edge_index,
             edge_emb=edge_emb,
-            schemes=['APA'], #,'APAPA','APCPA'
+            schemes=['APA', 'APAPA','APCPA'],
             nclass=labels.max().item() + 1,
             alpha=args.alpha,
             dropout=args.dropout,
             adjs=[],
             bias=True,
-            concat=True,
-            addedge=True,
-            update_edge=False,
+            concat=args.concat,
+            addedge=args.addedge,
+            update_edge=args.update_edge,
             samples=args.n_sample
                   )
 else:

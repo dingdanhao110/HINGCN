@@ -29,7 +29,7 @@ parser.add_argument('--weight_decay', type=float, default=5e-4,
                     help='Weight decay (L2 loss on parameters).')
 parser.add_argument('--hidden', type=int, default=16,
                     help='Number of hidden units.')
-parser.add_argument('--n_meta', type=int, default=3,
+parser.add_argument('--n_meta', type=int, default=1,
                     help='Number of meta-paths.')
 parser.add_argument('--dim_mp', type=int, default=16,
                     help='Number of hidden units in layer2.')
@@ -82,14 +82,15 @@ if args.edge_emb:
             dim_mp=args.dim_mp,
             edge_index=edge_index,
             edge_emb=edge_emb,
-            schemes=['APA','APAPA','APCPA'],
+            schemes=['APA'], #,'APAPA','APCPA'
             nclass=labels.max().item() + 1,
             alpha=args.alpha,
             dropout=args.dropout,
             adjs=[],
             bias=True,
-            concat=False,
-            addedge=False,
+            concat=True,
+            addedge=True,
+            update_edge=False,
             samples=args.n_sample
                   )
 else:
@@ -98,7 +99,7 @@ else:
                             nmeta=args.n_meta,
                             dim_mp=args.dim_mp,
                             edge_dim=node_emb['APA'].shape[0],
-                            schemes=['APA', 'APAPA', 'APCPA'],
+                            schemes=['APA'], # 'APAPA', 'APCPA'
                             nclass=labels.max().item() + 1,
                             alpha=args.alpha,
                             dropout=args.dropout,

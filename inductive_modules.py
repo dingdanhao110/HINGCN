@@ -6,7 +6,7 @@ from torch.autograd import Variable
 import numpy as np
 from scipy import sparse
 from utilities import sparse_mx_to_torch_sparse_tensor, normalize
-from metapath import query_path,query_path_indexed
+from metapath import query_path, query_path_indexed
 
 
 def to_numpy(x):
@@ -179,7 +179,7 @@ class MetapathAggrLayer(nn.Module):
 
 
 class EdgeAttentionAggregator(nn.Module):
-    def __init__(self, input_dim, output_dim, edge_dim, scheme, dropout, alpha,  concat=True):
+    def __init__(self, input_dim, output_dim, edge_dim, scheme, dropout, alpha, concat=True):
         super(EdgeAttentionAggregator, self).__init__()
         self.dropout = dropout
         self.alpha = alpha
@@ -199,7 +199,7 @@ class EdgeAttentionAggregator(nn.Module):
         # Compute attention weights
         N = features.size()[0]
 
-        x=torch.mm(features, self.W)
+        x = torch.mm(features, self.W)
 
         output = []
         for v in range(N):
@@ -228,28 +228,38 @@ class EdgeAttentionAggregator(nn.Module):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
 
 
-#use edge emb instead of query_path
+# use edge emb instead of query_path
 class EdgeEmbAttentionAggregator(nn.Module):
-    def __init__(self, input_dim, output_dim, edge_dim, scheme, dropout, alpha,  concat=False, addedge=False):
+    def __init__(self, input_dim, output_dim, edge_dim, dropout, alpha,
+                 concat=False, addedge=False, update_edge=False):
         super(EdgeEmbAttentionAggregator, self).__init__()
         self.dropout = dropout
         self.alpha = alpha
         self.concat = concat
         self.output_dim = output_dim
-        self.scheme = scheme
         self.addedge = addedge
+        self.update_edge = update_edge
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
         self.W = nn.Parameter(torch.zeros(size=(input_dim, output_dim)))
         nn.init.xavier_uniform_(self.W.data, gain=1.414)
 
+        self.W2 = nn.Parameter(torch.zeros(size=(output_dim, edge_dim)))
+        nn.init.xavier_uniform_(self.W2.data, gain=1.414)
+
+        self.W3 = nn.Parameter(torch.zeros(size=(edge_dim, edge_dim)))
+        nn.init.xavier_uniform_(self.W3.data, gain=1.414)
+
+        self.B = nn.Parameter(torch.zeros(size=(edge_dim, 1)))
+        nn.init.xavier_uniform_(self.B.data, gain=1.414)
+
         self.a = nn.Parameter(torch.zeros(size=(2 * output_dim + edge_dim, 1)))
         nn.init.xavier_uniform_(self.a.data, gain=1.414)
 
     def forward(self, features, index, node_emb, edge_index, edge_emb, n_sample=128):
-        emb = edge_emb[self.scheme]
-        e_index = edge_index[self.scheme]
+        emb = edge_emb
+        e_index = edge_index
 
         # Compute attention weights
         N = features.size()[0]
@@ -259,9 +269,9 @@ class EdgeEmbAttentionAggregator(nn.Module):
         neigh = []
         for v in range(N):
             nonz = torch.nonzero(e_index[v]).view(-1)
-            if (len(nonz)==0):
-                #no neighbor, only sample from itself
-                #for edge embedding... PADDING with all-zero embedding at edge_emb[0]
+            if (len(nonz) == 0):
+                # no neighbor, only sample from itself
+                # for edge embedding... PADDING with all-zero embedding at edge_emb[0]
                 neigh.append(torch.LongTensor([v]).repeat(n_sample))
             else:
                 idx = np.random.choice(nonz.shape[0], n_sample)
@@ -270,10 +280,10 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
         a_input = torch.cat([x.repeat(1, n_sample).view(N, n_sample, -1),
                              x[neigh],
-                             emb( e_index[
-                                 torch.arange(N).view(-1,1).repeat(1,n_sample).view(-1),
-                                 neigh.view(-1)]
-                                  ).view(N, n_sample, -1)], dim=2) \
+                             emb[e_index[
+                                     torch.arange(N).view(-1, 1).repeat(1, n_sample).view(-1),
+                                     neigh.view(-1)]
+                                 ].view(N, n_sample, -1)], dim=2) \
             .view(N, n_sample, -1)
 
         e = self.leakyrelu(torch.matmul(a_input, self.a))
@@ -281,20 +291,39 @@ class EdgeEmbAttentionAggregator(nn.Module):
         attention = attention.squeeze(2)
         attention = F.dropout(attention, self.dropout, training=self.training)
 
-
-
         h_prime = [torch.matmul(attention[i], x[neigh[i]]) for i in range(N)]
         h_prime = torch.stack(h_prime)
         if self.concat:
-            output = torch.cat([x,h_prime],dim=1)
+            output = torch.cat([x, h_prime], dim=1)
         else:
             output = h_prime + x
         if self.addedge:
-            output = torch.cat([output, [
-                                torch.matmul(attention[i],
-                                               emb(e_index[i,neigh[i]])) for i in range(N)]
-                                   ] ,dim=1)
-        return F.elu(output)
+            output = torch.cat([output, torch.stack([
+                torch.matmul(attention[i],
+                             emb[e_index[i, neigh[i]]]) for i in range(N)])
+                                ], dim=1)
+        output = F.elu(output)
+
+
+        # update edge
+        if self.update_edge:
+            to_update = e_index.nonzero()
+            to_update = to_update[(to_update[:, 0] < to_update[:, 1]).nonzero().squeeze()]
+
+            n=to_update.shape[0]
+
+            edges = e_index[to_update[:,0],to_update[:,1]]
+
+            v_input = output[to_update]
+            v_input = torch.mm(v_input, self.W2).sum(dim=1)
+
+            e_input = torch.mm(emb[edges],self.W3)
+
+            a_input = e_input+v_input+self.B.repeat(n,1)
+
+            emb = F.relu(torch.matmul(a_input,emb))
+
+        return output, emb
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'

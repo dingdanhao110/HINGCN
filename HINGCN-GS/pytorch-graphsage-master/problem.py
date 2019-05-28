@@ -45,6 +45,7 @@ class ProblemMetrics:
     def multilabel_classification(y_true, y_pred):
         y_pred = (y_pred > 0).astype(int)
         return {
+            "accuracy": float(metrics.accuracy_score(y_true, y_pred)),
             "micro" : float(metrics.f1_score(y_true, y_pred, average="micro")),
             "macro" : float(metrics.f1_score(y_true, y_pred, average="macro")),
         }
@@ -53,6 +54,7 @@ class ProblemMetrics:
     def classification(y_true, y_pred):
         y_pred = np.argmax(y_pred, axis=1)
         return {
+            "accuracy": float(metrics.accuracy_score(y_true, y_pred)),
             "micro" : float(metrics.f1_score(y_true, y_pred, average="micro")),
             "macro" : float(metrics.f1_score(y_true, y_pred, average="macro")),
         }
@@ -85,10 +87,13 @@ class NodeProblem(object):
         self.adj = edge_index
         self.edge_emb = edge_emb
 
+        self.schemes=schemes
+
         self.folds     = folds
         self.targets   = labels
 
         self.feats_dim = self.feats.shape[1] if self.feats is not None else None
+        self.edge_dim = edge_emb[schemes[0]].shape[1]
         self.n_nodes   = self.adj[schemes[0]].shape[0]
         self.cuda      = cuda
         self.__to_torch()
@@ -146,6 +151,6 @@ class NodeProblem(object):
         n_chunks = idx.shape[0] // batch_size + 1
         for chunk_id, chunk in enumerate(np.array_split(idx, n_chunks)):
             mids = nodes[chunk]
-            targets = self.targets[mids]
+            targets = self.targets[mids].reshape(-1,1)
             mids, targets = self.__batch_to_torch(mids, targets)
             yield mids, targets, chunk_id / n_chunks

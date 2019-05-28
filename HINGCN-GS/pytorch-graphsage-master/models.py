@@ -51,7 +51,7 @@ class HINGCN_GS(nn.Module):
 
         # Prep
         self.prep = prep_class(input_dim=input_dim, n_nodes=n_nodes)
-        input_dim = self.prep.output_dim
+        self.input_dim = self.prep.output_dim
 
         # Network
         self.para_layers = []
@@ -59,15 +59,17 @@ class HINGCN_GS(nn.Module):
         for mp in range(len(schemes)):
             agg_layers = []
             edge_layers = []
-            for spec in enumerate(layer_specs):
+            input_dim=self.input_dim
+            for spec in layer_specs:
                 agg = aggregator_class(
                     input_dim=input_dim,
+                    edge_dim=edge_dim,
                     output_dim=spec['output_dim'],
                     activation=spec['activation'],
                 )
                 agg_layers.append(agg)
                 input_dim = agg.output_dim  # May not be the same as spec['output_dim']
-                edge_layers.append(edgeupt_class(input_dim, edge_dim))
+                edge_layers.append(edgeupt_class(input_dim, edge_dim,activation=spec['activation']))
 
             self.para_layers.append(torch.nn.Sequential(*agg_layers))
             self.emb_layers.append(torch.nn.Sequential(*edge_layers))
@@ -90,15 +92,16 @@ class HINGCN_GS(nn.Module):
         has_feats = feats is not None
 
         output=[]
+        tmp_ids=ids
         for mp in range(len(self.schemes)):
-
+            ids=tmp_ids
             tmp_feats = feats[ids] if has_feats else None
             all_feats = [self.prep(ids, tmp_feats, layer_idx=0)]
             all_edges = []
             for layer_idx, sampler_fn in enumerate(sample_fns):
-                neigh = sampler_fn(adj=adjs, ids=ids).contiguous().view(-1)
-                n_sample = neigh.shape[0] / ids.shape[0]
-                all_edges.append(edge_emb[adjs[
+                neigh = sampler_fn(adj=adjs[self.schemes[mp]], ids=ids).contiguous().view(-1)
+                n_sample = int(neigh.shape[0] / ids.shape[0])
+                all_edges.append(edge_emb[self.schemes[mp]][adjs[self.schemes[mp]][
                     ids.view(-1, 1).repeat(1, n_sample).view(-1),
                     neigh]])
 
@@ -121,17 +124,17 @@ class HINGCN_GS(nn.Module):
         output = torch.cat(output)
         output = self.mp_agg(output)
         # out = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
-        return F.relu(self.fc(output))
+        return F.softmax(self.fc(output))
 
     def set_progress(self, progress):
         self.lr = self.lr_scheduler(progress)
         LRSchedule.set_lr(self.optimizer, self.lr)
 
-    def train_step(self, ids, feats, targets, loss_fn):
+    def train_step(self, ids, feats, adjs, edge_emb, targets, loss_fn):
         self.optimizer.zero_grad()
-        preds = self(ids, feats, train=True)
+        preds = self(ids, feats, adjs, edge_emb, train=True)
         loss = loss_fn(preds, targets.squeeze())
         loss.backward()
-        torch.nn.utils.clip_grad_norm(self.parameters(), 5)
+        torch.nn.utils.clip_grad_norm_(self.parameters(), 5)
         self.optimizer.step()
-        return preds
+        return loss, preds

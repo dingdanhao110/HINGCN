@@ -26,11 +26,12 @@ from lr import LRSchedule
 # --
 # Helpers
 
-def evaluate(model, problem, mode='val'):
+def evaluate(model, problem, batch_size, mode='val'):
     assert mode in ['test', 'val']
     preds, acts = [], []
-    for (ids, targets, _) in problem.iterate(mode=mode, shuffle=False):
-        preds.append(to_numpy(model(ids, problem.feats, train=False)))
+    for (ids, targets, _) in problem.iterate(mode=mode, shuffle=False, batch_size=batch_size):
+        # print(ids.shape,targets.shape)
+        preds.append(to_numpy(model(ids, problem.feats, problem.adj, problem.edge_emb, train=False)))
         acts.append(to_numpy(targets))
     
     return problem.metric_fn(np.vstack(acts), np.vstack(preds))
@@ -45,9 +46,9 @@ def parse_args():
     parser.add_argument('--no-cuda', action="store_true")
     
     # Optimization params
-    parser.add_argument('--batch-size', type=int, default=128)
-    parser.add_argument('--epochs', type=int, default=10)
-    parser.add_argument('--lr-init', type=float, default=0.01)
+    parser.add_argument('--batch-size', type=int, default=512)
+    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--lr-init', type=float, default=0.1)
     parser.add_argument('--lr-schedule', type=str, default='constant')
     parser.add_argument('--weight-decay', type=float, default=0.0)
     
@@ -58,8 +59,8 @@ def parse_args():
     parser.add_argument('--mpaggr-class', type=str, default='metapath')
     parser.add_argument('--edgeupt-class', type=str, default='edge')
 
-    parser.add_argument('--n-train-samples', type=str, default='25,10')
-    parser.add_argument('--n-val-samples', type=str, default='25,10')
+    parser.add_argument('--n-train-samples', type=str, default='8,8')
+    parser.add_argument('--n-val-samples', type=str, default='8,8')
     parser.add_argument('--output-dims', type=str, default='16,16')
     
     # Logging
@@ -84,18 +85,17 @@ if __name__ == "__main__":
     
     # --
     # Load problem
-    schemes = ['APA','APAPA','APCPA']
+    schemes = ['APA','APAPA','APCPA']#
     problem = NodeProblem(problem_path=args.problem_path, cuda=args.cuda, schemes=schemes)
     
     # --
     # Define model
     
-    n_train_samples =  args.n_train_samples.split(',')
-    n_val_samples = args.n_val_samples.split(',')
-    output_dims = args.output_dims.split(',')
+    n_train_samples =  list(map(int,args.n_train_samples.split(',')))
+    n_val_samples = list(map(int,args.n_val_samples.split(',')))
+    output_dims = list(map(int,args.output_dims.split(',') ))
     model = HINGCN_GS(**{
         "sampler_class" : sampler_lookup[args.sampler_class],
-        "edge_emb" : problem.edge_emb,
         
         "prep_class" : prep_lookup[args.prep_class],
         "aggregator_class" : aggregator_lookup[args.aggregator_class],
@@ -103,6 +103,8 @@ if __name__ == "__main__":
         "edgeupt_class": aggregator_lookup[args.edgeupt_class],
 
         "input_dim" : problem.feats_dim,
+        "edge_dim"  : problem.edge_dim,
+        "schemes"   : problem.schemes,
         "n_nodes"   : problem.n_nodes,
         "n_classes" : problem.n_classes,
         "layer_specs" : [
@@ -116,7 +118,7 @@ if __name__ == "__main__":
                 "n_train_samples" : n_train_samples[1],
                 "n_val_samples" : n_val_samples[1],
                 "output_dim" : output_dims[1],
-                "activation" : lambda x: x,
+                "activation" : F.relu,  # lambda x: x
             },
         ],
         
@@ -138,32 +140,42 @@ if __name__ == "__main__":
     start_time = time()
     val_metric = None
     for epoch in range(args.epochs):
-        
+        train_loss=0
         # Train
         _ = model.train()
         for ids, targets, epoch_progress in problem.iterate(mode='train', shuffle=True, batch_size=args.batch_size):
             model.set_progress((epoch + epoch_progress) / args.epochs)
-            preds = model.train_step(
+            loss, preds = model.train_step(
                 ids=ids, 
                 feats=problem.feats,
+                edge_emb=problem.edge_emb,
+                adjs=problem.adj,
                 targets=targets,
                 loss_fn=problem.loss_fn,
             )
-            
+            train_loss+=loss.item()
             train_metric = problem.metric_fn(to_numpy(targets), to_numpy(preds))
             print(json.dumps({
                 "epoch" : epoch,
                 "epoch_progress" : epoch_progress,
                 "train_metric" : train_metric,
-                "val_metric" : val_metric,
                 "time" : time() - start_time,
             }, double_precision=5))
             sys.stdout.flush()
-        
+
+
         # Evaluate
-        _ = model.eval()
-        val_metric = evaluate(model, problem, mode='val')
-    
+        if epoch%args.log_interval==0:
+            _ = model.eval()
+            val_metric = evaluate(model, problem, batch_size=args.batch_size, mode='val')
+
+            print(json.dumps({
+                "epoch": epoch,
+                "train_loss": train_loss,
+                "val_metric": val_metric,
+            }, double_precision=5))
+            sys.stdout.flush()
+
     print('-- done --', file=sys.stderr)
     print(json.dumps({
         "epoch" : epoch,
@@ -175,6 +187,6 @@ if __name__ == "__main__":
     
     if args.show_test:
         print(json.dumps({
-            "test_f1" : evaluate(model, problem, mode='test')
+            "test_f1" : evaluate(model, problem, batch_size=args.batch_size, mode='test')
         }, double_precision=5))
 

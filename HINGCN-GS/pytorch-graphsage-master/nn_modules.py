@@ -279,8 +279,8 @@ class AttentionAggregator(nn.Module, AggregatorMixin):
 
 
 class EdgeEmbAttentionAggregator(nn.Module):
-    def __init__(self, input_dim, output_dim, edge_dim, dropout=0.5, alpha=0.8,
-                 concat_node=False, concat_edge=False):
+    def __init__(self, input_dim, output_dim, edge_dim, activation, dropout=0.5, alpha=0.8,
+                 concat_node=True, concat_edge=True):
         super(EdgeEmbAttentionAggregator, self).__init__()
         self.dropout = dropout
         self.alpha = alpha
@@ -293,6 +293,8 @@ class EdgeEmbAttentionAggregator(nn.Module):
             self.output_dim += edge_dim
         self.concat_edge = concat_edge
 
+
+        self.activation = activation
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
         self.W = nn.Parameter(torch.zeros(size=(input_dim, output_dim)))
@@ -311,7 +313,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
         x = torch.mm(input, self.W)
         neighs = torch.mm(neigh_feat, self.W2)
 
-        n_sample = neighs.shape[0] / x.shape[0]
+        n_sample = int(neighs.shape[0] / x.shape[0])
 
 
         a_input = torch.cat([x.repeat(1, n_sample).view(N, n_sample, -1),
@@ -326,7 +328,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
         # h_prime = [torch.matmul(attention[i], neigh_feat.view(N, n_sample, -1)[i]) for i in range(N)]
         h_prime = torch.bmm(attention, neighs.view(N, n_sample, -1)).squeeze()
-        if self.concat:
+        if self.concat_node:
             output = torch.cat([x, h_prime], dim=1)
         else:
             output = h_prime + x
@@ -334,7 +336,8 @@ class EdgeEmbAttentionAggregator(nn.Module):
             output = torch.cat([output,
                                 torch.bmm(attention, edge_emb.view(N, n_sample, -1)).squeeze()],
                                dim=1)
-        output = F.elu(output)
+        if self.activation:
+            output = self.activation(output)
 
         return output
 
@@ -343,10 +346,11 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
 
 class EdgeAggregator(nn.Module):
-    def __init__(self, input_dim, edge_dim):
+    def __init__(self, input_dim, edge_dim, activation):
         super(EdgeAggregator, self).__init__()
 
         self.input_dim = input_dim
+        self.activation=activation
 
         self.W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
         nn.init.xavier_uniform_(self.W1.data, gain=1.414)
@@ -362,7 +366,7 @@ class EdgeAggregator(nn.Module):
         # e = sigma(w1*x+W2*neibs+b) @ e
 
         n = edge_emb.shape[0]
-        n_sample = edge_emb.shape[0] / x.shape[0]
+        n_sample = int(edge_emb.shape[0] / x.shape[0])
 
         x_input = torch.mm(x.repeat(n_sample, 1), self.W1)
 
@@ -372,8 +376,9 @@ class EdgeAggregator(nn.Module):
 
         a_input = e_input + n_input + x_input + self.B.repeat(n, 1)
 
-        emb = F.relu(a_input) * edge_emb
-
+        if self.activation:
+            a_input=self.activation(a_input)
+        emb = a_input * edge_emb
         return emb
 
 
@@ -382,18 +387,19 @@ class MetapathAggrLayer(nn.Module):
     metapath attention layer.
     """
 
-    def __init__(self, in_features):
+    def __init__(self, in_features,alpha=0.8):
         super(MetapathAggrLayer, self).__init__()
         # self.dropout = dropout
         self.in_features = in_features
         self.out_features = in_features
+        self.alpha=alpha
         self.a = nn.Parameter(torch.zeros(size=(in_features, 1)))
         nn.init.xavier_uniform_(self.a.data, gain=1.414)
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
     def forward(self, input):
         # input: tensor(nmeta,N,in_features)
-        n_meta = input.size[0]
+        n_meta = input.shape[0]
         input = input.transpose(0, 1)  # tensor(N,nmeta,in_features)
         N = input.size()[0]
 

@@ -22,7 +22,7 @@ def set_seeds(seed=0):
 
 def to_numpy(x):
     if isinstance(x, Variable):
-        return to_numpy(x.data)
+        return x.cpu().data.numpy() if x.is_cuda else x.data.numpy()
     
     return x.cpu().numpy() if x.is_cuda else x.numpy()
 
@@ -70,6 +70,7 @@ def read_mpindex_dblp(path="./data/dblp/"):
     PC_file = "PC"
     PT_file = "PT"
 
+    # print("{}{}.txt".format(path, PA_file))
     PA = np.genfromtxt("{}{}.txt".format(path, PA_file),
                        dtype=np.int32)
     PC = np.genfromtxt("{}{}.txt".format(path, PC_file),

@@ -382,6 +382,22 @@ class EdgeAggregator(nn.Module):
         return emb
 
 
+class IdEdgeAggregator(nn.Module):
+    def __init__(self, input_dim, edge_dim, activation):
+        super(IdEdgeAggregator, self).__init__()
+
+        self.input_dim = input_dim
+        self.activation=activation
+        self.edge_dim=edge_dim
+
+
+    def forward(self, x, neibs, edge_emb):
+        # identical mapping
+        # e = sigma(w1*x+W2*neibs+b) @ e
+
+        return edge_emb
+
+
 class MetapathAggrLayer(nn.Module):
     """
     metapath attention layer.
@@ -424,5 +440,6 @@ aggregator_lookup = {
 
     "metapath": MetapathAggrLayer,
     "edge_emb_attn": EdgeEmbAttentionAggregator,
+    "IDedge": IdEdgeAggregator,
     "edge": EdgeAggregator,
 }

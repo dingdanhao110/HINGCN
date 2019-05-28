@@ -4,7 +4,8 @@ Indexing: index[a1,a2,0] ~ index[a1,a2,1] is the range of embeddings of multi-ed
 get matrix of embeddings: emb[ np.arange(index[a1,a2,0] , index[a1,a2,1]) ]
 
 '''
-
+import sys
+sys.path.append('../')
 from metapath import *
 
 

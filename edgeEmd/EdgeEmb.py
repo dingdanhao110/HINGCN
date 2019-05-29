@@ -9,14 +9,14 @@ sys.path.append('../')
 from metapath import *
 
 
-def dump_edge_emb(path="../data/dblp/"):
+def dump_edge_emb(path='../data/dblp/'):
     # dump APA
     APA_file = "APA"
     APAPA_file = "APAPA"
     APCPA_file = "APCPA"
 
     adjs, features, labels, idx_train, idx_val, idx_test, node_emb, index \
-        = read_mpindex_dblp(path="../data/dblp/")
+        = read_mpindex_dblp(path=path)
 
     n_author = features.shape[0]
     emb_len = node_emb['APA'].shape[1]

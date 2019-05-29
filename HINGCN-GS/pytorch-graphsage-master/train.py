@@ -53,7 +53,7 @@ def parse_args():
     parser.add_argument('--weight-decay', type=float, default=0.0)
     
     # Architecture params
-    parser.add_argument('--sampler-class', type=str, default='uniform_neighbor_sampler')
+    parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
     parser.add_argument('--aggregator-class', type=str, default='edge_emb_attn')
     parser.add_argument('--prep-class', type=str, default='identity')
     parser.add_argument('--mpaggr-class', type=str, default='metapath')
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     
     # --
     # Load problem
-    schemes = ['APA','APAPA','APCPA']#
+    schemes = ['APA']#,'APAPA','APCPA'
     problem = NodeProblem(problem_path=args.problem_path, cuda=args.cuda, schemes=schemes)
     
     # --

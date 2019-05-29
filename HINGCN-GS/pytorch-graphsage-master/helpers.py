@@ -131,13 +131,14 @@ def load_edge_emb(path, schemes, n_dim=16, n_author=20000):
                             dtype=np.long)
         ind = ind + ind.transpose()
         # print('ind generated')
-        ind = torch.from_numpy(ind.todense())
+        #change to sparse adj matrix
+        ind = sparse_mx_to_torch_sparse_tensor(ind)
         # print('ind generated')
         embedding = np.zeros(n_dim, dtype=np.float32)
         embedding = np.vstack((embedding, data[scheme][:, 2:]))
         emb[scheme] = torch.from_numpy(embedding).float()
 
-        index[scheme] = ind
+        index[scheme] = ind.long()
         print('loading edge embedding for {} complete'.format(scheme))
 
     return index, emb

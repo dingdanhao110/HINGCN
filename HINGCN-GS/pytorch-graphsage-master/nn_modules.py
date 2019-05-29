@@ -41,6 +41,7 @@ class UniformNeighborSampler(object):
         pass
 
     def __call__(self, adj, ids, n_samples=16):
+        cuda = adj.is_cuda
 
         neigh = []
         for v in ids:
@@ -48,17 +49,77 @@ class UniformNeighborSampler(object):
             if (len(nonz) == 0):
                 # no neighbor, only sample from itself
                 # for edge embedding... PADDING with all-zero embedding at edge_emb[0]
-                neigh.append(torch.LongTensor([v]).repeat(n_samples))
+                if cuda:
+                    neigh.append(torch.cuda.LongTensor([v]).repeat(n_samples))
+                else:
+                    neigh.append(torch.LongTensor([v]).repeat(n_samples))
             else:
                 idx = np.random.choice(nonz.shape[0], n_samples)
                 neigh.append(nonz[idx])
         neigh = torch.stack(neigh).long().view(-1)
+        edges = adj[
+            ids.view(-1, 1).repeat(1, n_samples).view(-1),
+            neigh]
+        return neigh, edges
 
-        return neigh
+
+class SpUniformNeighborSampler(object):
+    """
+        Samples from a "sparse 2D edgelist", which looks like
+
+            [
+                [0, 1, 2, ..., 4],
+                [0, 0, 5, ..., 10],
+                ...
+            ]
+
+        stored as torch.LongTensor.
+
+        Adj[a1,a2]=id, where the edge embedding of edge (a1,a2) is stored at emb[id]
+
+        If a node does not have a neighbor, sample itself n_sample times and
+        return emb[0]. * emb[0] is the padding zero embedding.
+
+        We didn't apply the optimization from GraphSage
+    """
+
+    def __init__(self):
+        pass
+
+    def __call__(self, adj, ids, n_samples=16):
+
+        cuda = adj.is_cuda
+
+        nonz = adj._indices()
+        values = adj._values()
+
+        neigh = []
+        edges = []
+        for v in ids:
+            n = torch.nonzero(nonz[0, :] == v).view(-1)
+            if (len(n) == 0):
+                # no neighbor, only sample from itself
+                # for edge embedding... PADDING with all-zero embedding at edge_emb[0]
+                if cuda:
+                    neigh.append(torch.cuda.LongTensor([v]).repeat(n_samples))
+                    edges.append(torch.cuda.LongTensor([0]).repeat(n_samples))
+                else:
+                    neigh.append(torch.LongTensor([v]).repeat(n_samples))
+                    edges.append(torch.LongTensor([0]).repeat(n_samples))
+            else:
+                # np.random.choice(nonz.shape[0], n_samples)
+                idx = torch.randint(0, n.shape[0], (n_samples,))
+
+                neigh.append(nonz[1, n[idx]])
+                edges.append(values[n[idx]])
+        neigh = torch.stack(neigh).long().view(-1)
+        edges = torch.stack(edges).long().view(-1)
+        return neigh, edges
 
 
 sampler_lookup = {
     "uniform_neighbor_sampler": UniformNeighborSampler,
+    "sparse_uniform_neighbor_sampler": SpUniformNeighborSampler,
 }
 
 
@@ -293,7 +354,6 @@ class EdgeEmbAttentionAggregator(nn.Module):
             self.output_dim += edge_dim
         self.concat_edge = concat_edge
 
-
         self.activation = activation
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
@@ -314,7 +374,6 @@ class EdgeEmbAttentionAggregator(nn.Module):
         neighs = torch.mm(neigh_feat, self.W2)
 
         n_sample = int(neighs.shape[0] / x.shape[0])
-
 
         a_input = torch.cat([x.repeat(1, n_sample).view(N, n_sample, -1),
                              neighs.view(N, n_sample, -1),
@@ -350,7 +409,7 @@ class EdgeAggregator(nn.Module):
         super(EdgeAggregator, self).__init__()
 
         self.input_dim = input_dim
-        self.activation=activation
+        self.activation = activation
 
         self.W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
         nn.init.xavier_uniform_(self.W1.data, gain=1.414)
@@ -377,7 +436,7 @@ class EdgeAggregator(nn.Module):
         a_input = e_input + n_input + x_input + self.B.repeat(n, 1)
 
         if self.activation:
-            a_input=self.activation(a_input)
+            a_input = self.activation(a_input)
         emb = a_input * edge_emb
         return emb
 
@@ -387,9 +446,8 @@ class IdEdgeAggregator(nn.Module):
         super(IdEdgeAggregator, self).__init__()
 
         self.input_dim = input_dim
-        self.activation=activation
-        self.edge_dim=edge_dim
-
+        self.activation = activation
+        self.edge_dim = edge_dim
 
     def forward(self, x, neibs, edge_emb):
         # identical mapping
@@ -403,12 +461,12 @@ class MetapathAggrLayer(nn.Module):
     metapath attention layer.
     """
 
-    def __init__(self, in_features,alpha=0.8):
+    def __init__(self, in_features, alpha=0.8):
         super(MetapathAggrLayer, self).__init__()
         # self.dropout = dropout
         self.in_features = in_features
         self.out_features = in_features
-        self.alpha=alpha
+        self.alpha = alpha
         self.a = nn.Parameter(torch.zeros(size=(in_features, 1)))
         nn.init.xavier_uniform_(self.a.data, gain=1.414)
         self.leakyrelu = nn.LeakyReLU(self.alpha)

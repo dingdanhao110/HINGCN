@@ -99,13 +99,11 @@ class HINGCN_GS(nn.Module):
             all_feats = [self.prep(ids, tmp_feats, layer_idx=0)]
             all_edges = []
             for layer_idx, sampler_fn in enumerate(sample_fns):
-                neigh = sampler_fn(adj=adjs[self.schemes[mp]], ids=ids).contiguous().view(-1)
-                n_sample = int(neigh.shape[0] / ids.shape[0])
-                all_edges.append(edge_emb[self.schemes[mp]][adjs[self.schemes[mp]][
-                    ids.view(-1, 1).repeat(1, n_sample).view(-1),
-                    neigh]])
+                neigh, edges = sampler_fn(adj=adjs[self.schemes[mp]], ids=ids)
 
-                ids = neigh
+                all_edges.append(edge_emb[self.schemes[mp]][edges.contiguous().view(-1)])
+
+                ids = neigh.contiguous().view(-1)
                 tmp_feats = feats[ids] if has_feats else None
                 all_feats.append(self.prep(ids, tmp_feats, layer_idx=layer_idx + 1))
 

@@ -66,6 +66,8 @@ class HINGCN_GS(nn.Module):
                     edge_dim=edge_dim,
                     output_dim=spec['output_dim'],
                     activation=spec['activation'],
+                    concat_node=spec['concat_node'],
+                    concat_edge=spec['concat_edge'],
                 )
                 agg_layers.append(agg)
                 input_dim = agg.output_dim  # May not be the same as spec['output_dim']

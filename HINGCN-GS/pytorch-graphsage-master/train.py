@@ -58,6 +58,8 @@ def parse_args():
     parser.add_argument('--prep-class', type=str, default='identity')
     parser.add_argument('--mpaggr-class', type=str, default='metapath')
     parser.add_argument('--edgeupt-class', type=str, default='IDedge')
+    parser.add_argument('--concat-node', type=bool, default=True)
+    parser.add_argument('--concat-edge', type=bool, default=True)
 
     parser.add_argument('--n-train-samples', type=str, default='8,8')
     parser.add_argument('--n-val-samples', type=str, default='8,8')
@@ -85,7 +87,7 @@ if __name__ == "__main__":
     
     # --
     # Load problem
-    schemes = ['APA']#,'APAPA','APCPA'
+    schemes = ['APA','APAPA','APCPA']#
     problem = NodeProblem(problem_path=args.problem_path, cuda=args.cuda, schemes=schemes)
     
     # --
@@ -113,12 +115,16 @@ if __name__ == "__main__":
                 "n_val_samples" : n_val_samples[0],
                 "output_dim" : output_dims[0],
                 "activation" : F.relu,
+                "concat_node" : args.concat_node,
+                "concat_edge" : args.concat_edge,
             },
             {
                 "n_train_samples" : n_train_samples[1],
                 "n_val_samples" : n_val_samples[1],
                 "output_dim" : output_dims[1],
                 "activation" : F.relu,  # lambda x: x
+                "concat_node": args.concat_node,
+                "concat_edge": args.concat_edge,
             },
         ],
         

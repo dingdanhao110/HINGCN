@@ -57,9 +57,9 @@ def parse_args():
     parser.add_argument('--aggregator-class', type=str, default='edge_emb_attn')
     parser.add_argument('--prep-class', type=str, default='identity')
     parser.add_argument('--mpaggr-class', type=str, default='metapath')
-    parser.add_argument('--edgeupt-class', type=str, default='IDedge')
-    parser.add_argument('--concat-node', type=bool, default=True)
-    parser.add_argument('--concat-edge', type=bool, default=True)
+    parser.add_argument('--edgeupt-class', type=str, default='edge')
+    parser.add_argument('--concat-node', type=bool, default=False)
+    parser.add_argument('--concat-edge', type=bool, default=False)
 
     parser.add_argument('--n-train-samples', type=str, default='8,8')
     parser.add_argument('--n-val-samples', type=str, default='8,8')

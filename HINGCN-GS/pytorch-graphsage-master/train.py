@@ -48,7 +48,7 @@ def parse_args():
     # Optimization params
     parser.add_argument('--batch-size', type=int, default=512)
     parser.add_argument('--epochs', type=int, default=100)
-    parser.add_argument('--lr-init', type=float, default=0.1)
+    parser.add_argument('--lr-init', type=float, default=0.01)
     parser.add_argument('--lr-schedule', type=str, default='constant')
     parser.add_argument('--weight-decay', type=float, default=0.0)
     
@@ -185,6 +185,7 @@ if __name__ == "__main__":
                 "epoch": epoch,
                 "train_loss": train_loss,
                 "val_metric": val_metric,
+                "test_metric": evaluate(model, problem, batch_size=args.batch_size, mode='test')
             }, double_precision=5))
             sys.stdout.flush()
 
@@ -199,6 +200,6 @@ if __name__ == "__main__":
     
     if args.show_test:
         print(json.dumps({
-            "test_f1" : evaluate(model, problem, batch_size=args.batch_size, mode='test')
+            "test_metric" : evaluate(model, problem, batch_size=args.batch_size, mode='test')
         }, double_precision=5))
 

@@ -70,6 +70,7 @@ class HINGCN_GS(nn.Module):
                     activation=spec['activation'],
                     concat_node=spec['concat_node'],
                     concat_edge=spec['concat_edge'],
+                    dropout=self.dropout,
                 )
                 agg_layers.append(agg)
                 input_dim = agg.output_dim  # May not be the same as spec['output_dim']
@@ -136,8 +137,10 @@ class HINGCN_GS(nn.Module):
             output.append(all_feats[0].unsqueeze(0))
         output = torch.cat(output)
         output = self.mp_agg(output)
-        # out = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
-        return F.softmax(self.fc(output), dim=1)
+        output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
+        output = F.dropout(output, self.dropout, training=self.training)
+
+        return self.fc(output)
 
     def set_progress(self, progress):
         self.lr = self.lr_scheduler(progress)

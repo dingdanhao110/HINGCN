@@ -115,18 +115,17 @@ class NodeProblem(object):
         # if not sparse.issparse(self.adj):
         if self.cuda:
                 for i in self.adj:
-                    print(torch.cuda.memory_allocated())
                     self.adj[i]=self.adj[i].cuda()
-                for i in self.edge_emb:
                     print(torch.cuda.memory_allocated())
+                for i in self.edge_emb:
                     if torch.is_tensor(self.edge_emb[i]):
                         self.edge_emb[i] = self.edge_emb[i].cuda()
+                    print(torch.cuda.memory_allocated())
 
-        print(torch.cuda.memory_allocated())
         if self.feats is not None:
             if self.cuda:
                 self.feats = self.feats.cuda()
-        print(torch.cuda.memory_allocated())
+                print(torch.cuda.memory_allocated())
 
     def __batch_to_torch(self, mids, targets):
         """ convert batch to torch """

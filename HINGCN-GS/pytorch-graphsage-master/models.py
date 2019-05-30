@@ -60,7 +60,7 @@ class HINGCN_GS(nn.Module):
             agg_layers = []
             edge_layers = []
             input_dim=self.input_dim
-            for spec in layer_specs:
+            for i, spec in enumerate(layer_specs):
                 agg = aggregator_class(
                     input_dim=input_dim,
                     edge_dim=edge_dim,
@@ -69,10 +69,19 @@ class HINGCN_GS(nn.Module):
                 )
                 agg_layers.append(agg)
                 input_dim = agg.output_dim  # May not be the same as spec['output_dim']
-                edge_layers.append(edgeupt_class(input_dim, edge_dim,activation=spec['activation']))
 
-            self.para_layers.append(torch.nn.Sequential(*agg_layers))
-            self.emb_layers.append(torch.nn.Sequential(*edge_layers))
+                edge=edgeupt_class(
+                    input_dim=input_dim,
+                    edge_dim=edge_dim,
+                    activation=spec['activation'],
+                )
+                edge_layers.append(edge)
+
+                self.add_module('agg_{}_{}'.format(mp,i), agg)
+                self.add_module('edge_{}_{}'.format(mp,i), edge)
+
+            self.para_layers.append(agg_layers)
+            self.emb_layers.append(edge_layers)
 
         self.mp_agg = mpaggr_class(input_dim)
 
@@ -122,7 +131,7 @@ class HINGCN_GS(nn.Module):
         output = torch.cat(output)
         output = self.mp_agg(output)
         # out = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
-        return F.softmax(self.fc(output))
+        return F.softmax(self.fc(output), dim=1)
 
     def set_progress(self, progress):
         self.lr = self.lr_scheduler(progress)

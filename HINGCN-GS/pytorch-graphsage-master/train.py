@@ -85,7 +85,7 @@ if __name__ == "__main__":
     
     # --
     # Load problem
-    schemes = ['APA','APAPA','APCPA']#
+    schemes = ['APA']#,'APAPA','APCPA'
     problem = NodeProblem(problem_path=args.problem_path, cuda=args.cuda, schemes=schemes)
     
     # --

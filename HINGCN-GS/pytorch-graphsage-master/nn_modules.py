@@ -343,6 +343,8 @@ class EdgeEmbAttentionAggregator(nn.Module):
     def __init__(self, input_dim, output_dim, edge_dim, activation, dropout=0.5, alpha=0.8,
                  concat_node=True, concat_edge=True):
         super(EdgeEmbAttentionAggregator, self).__init__()
+        self.input_dim = input_dim
+        self.edge_dim = edge_dim
         self.dropout = dropout
         self.alpha = alpha
         self.concat_node = concat_node
@@ -401,7 +403,8 @@ class EdgeEmbAttentionAggregator(nn.Module):
         return output
 
     def __repr__(self):
-        return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim)\
+               + ' -> ' + str(self.output_dim) + ')'
 
 
 class EdgeAggregator(nn.Module):
@@ -409,6 +412,7 @@ class EdgeAggregator(nn.Module):
         super(EdgeAggregator, self).__init__()
 
         self.input_dim = input_dim
+        self.edge_dim = edge_dim
         self.activation = activation
 
         self.W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
@@ -440,6 +444,9 @@ class EdgeAggregator(nn.Module):
         emb = a_input * edge_emb
         return emb
 
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim)\
+               + ' -> ' + str(self.edge_dim) + ')'
 
 class IdEdgeAggregator(nn.Module):
     def __init__(self, input_dim, edge_dim, activation):
@@ -452,7 +459,6 @@ class IdEdgeAggregator(nn.Module):
     def forward(self, x, neibs, edge_emb):
         # identical mapping
         # e = sigma(w1*x+W2*neibs+b) @ e
-
         return edge_emb
 
 

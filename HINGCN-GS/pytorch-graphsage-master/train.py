@@ -58,8 +58,8 @@ def parse_args():
     parser.add_argument('--prep-class', type=str, default='identity')
     parser.add_argument('--mpaggr-class', type=str, default='metapath')
     parser.add_argument('--edgeupt-class', type=str, default='edge')
-    parser.add_argument('--concat-node', type=bool, default=False)
-    parser.add_argument('--concat-edge', type=bool, default=False)
+    parser.add_argument('--concat-node', action="store_true")
+    parser.add_argument('--concat-edge', action="store_true")
 
     parser.add_argument('--n-train-samples', type=str, default='8,8')
     parser.add_argument('--n-val-samples', type=str, default='8,8')
@@ -169,6 +169,12 @@ if __name__ == "__main__":
             }, double_precision=5))
             sys.stdout.flush()
 
+        print(json.dumps({
+            "epoch": epoch,
+            "time": time() - start_time,
+            "train_loss": train_loss,
+        }, double_precision=5))
+        sys.stdout.flush()
 
         # Evaluate
         if epoch%args.log_interval==0:

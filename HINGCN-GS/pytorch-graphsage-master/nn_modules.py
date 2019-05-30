@@ -385,7 +385,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
         attention = F.softmax(e, dim=1)
         attention = attention.view(N, 1, n_sample)
         # attention = attention.squeeze(2)
-        # attention = F.dropout(attention, self.dropout, training=self.training)
+        attention = F.dropout(attention, self.dropout, training=self.training)
 
         # h_prime = [torch.matmul(attention[i], neigh_feat.view(N, n_sample, -1)[i]) for i in range(N)]
         h_prime = torch.bmm(attention, neighs.view(N, n_sample, -1)).squeeze()
@@ -439,6 +439,8 @@ class EdgeAggregator(nn.Module):
 
         a_input = e_input + n_input + x_input + self.B.repeat(n, 1)
 
+        a_input = F.dropout(a_input, self.dropout, training=self.training)
+
         if self.activation:
             a_input = self.activation(a_input)
         emb = a_input * edge_emb
@@ -487,6 +489,8 @@ class MetapathAggrLayer(nn.Module):
         #                      input.repeat(1,self.nmeta, 1)], dim=2).view(N, -1, 2 * self.in_features)
         e = self.leakyrelu(torch.matmul(input, self.a).squeeze(2))
         e = F.softmax(e, dim=1).view(N, 1, n_meta)
+
+        e = F.dropout(e, self.dropout, training=self.training)
 
         output = torch.bmm(e, input).squeeze()
         return output

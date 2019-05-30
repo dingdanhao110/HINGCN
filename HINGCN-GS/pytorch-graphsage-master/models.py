@@ -35,13 +35,15 @@ class HINGCN_GS(nn.Module):
                  lr_init=0.01,
                  weight_decay=0.0,
                  lr_schedule='constant',
-                 epochs=10):
+                 dropout=0.5,
+                 ):
 
         super(HINGCN_GS, self).__init__()
 
         # --
         # Define network
         self.schemes = schemes
+        self.dropout = dropout
 
         # Sampler
         self.train_sampler = sampler_class()
@@ -59,7 +61,7 @@ class HINGCN_GS(nn.Module):
         for mp in range(len(schemes)):
             agg_layers = []
             edge_layers = []
-            input_dim=self.input_dim
+            input_dim = self.input_dim
             for i, spec in enumerate(layer_specs):
                 agg = aggregator_class(
                     input_dim=input_dim,
@@ -72,15 +74,15 @@ class HINGCN_GS(nn.Module):
                 agg_layers.append(agg)
                 input_dim = agg.output_dim  # May not be the same as spec['output_dim']
 
-                edge=edgeupt_class(
+                edge = edgeupt_class(
                     input_dim=input_dim,
                     edge_dim=edge_dim,
                     activation=spec['activation'],
                 )
                 edge_layers.append(edge)
 
-                self.add_module('agg_{}_{}'.format(mp,i), agg)
-                self.add_module('edge_{}_{}'.format(mp,i), edge)
+                self.add_module('agg_{}_{}'.format(mp, i), agg)
+                self.add_module('edge_{}_{}'.format(mp, i), edge)
 
             self.para_layers.append(agg_layers)
             self.emb_layers.append(edge_layers)
@@ -102,10 +104,10 @@ class HINGCN_GS(nn.Module):
 
         has_feats = feats is not None
 
-        output=[]
-        tmp_ids=ids
+        output = []
+        tmp_ids = ids
         for mp in range(len(self.schemes)):
-            ids=tmp_ids
+            ids = tmp_ids
             tmp_feats = feats[ids] if has_feats else None
             all_feats = [self.prep(ids, tmp_feats, layer_idx=0)]
             all_edges = []
@@ -122,11 +124,13 @@ class HINGCN_GS(nn.Module):
             # Each iteration reduces length of array by one
             for i in range(len(self.para_layers[mp])):
                 all_feats = [self.para_layers[mp][i](all_feats[k], all_feats[k + 1],
-                                       all_edges[k]
-                                       ) for k in range(len(all_feats) - 1)]
+                                                     all_edges[k]
+                                                     ) for k in range(len(all_feats) - 1)]
+                all_feats = [F.dropout(i, self.dropout, training=self.training) for i in all_feats]
                 all_edges = [self.emb_layers[mp][i](all_feats[k], all_feats[k + 1],
-                                       all_edges[k]
-                                       ) for k in range(len(all_edges) - 1)]
+                                                    all_edges[k]
+                                                    ) for k in range(len(all_edges) - 1)]
+                all_edges = [F.dropout(i, self.dropout, training=self.training) for i in all_edges]
 
             assert len(all_feats) == 1, "len(all_feats) != 1"
             output.append(all_feats[0].unsqueeze(0))

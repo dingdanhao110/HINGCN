@@ -381,6 +381,8 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
         print('input:',input.get_device())
         print('W:',self.W.get_device())
+        print('W2:', self.W2.get_device())
+        print('a:', self.a.get_device())
 
 
         x = torch.mm(input, self.W)

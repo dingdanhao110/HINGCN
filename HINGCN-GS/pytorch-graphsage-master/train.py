@@ -88,7 +88,8 @@ if __name__ == "__main__":
     # --
     # Load problem
     schemes = ['APA','APAPA','APCPA']#
-    problem = NodeProblem(problem_path=args.problem_path, cuda=args.cuda, schemes=schemes)
+    device = torch.device("cuda:0" if torch.cuda.is_available() and args.cuda else "cpu")
+    problem = NodeProblem(problem_path=args.problem_path, device=device, schemes=schemes)
     
     # --
     # Define model
@@ -134,7 +135,9 @@ if __name__ == "__main__":
     })
     
     if args.cuda:
-        model = model.cuda()
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = torch.nn.DataParallel(model)
+        model = model.to(device)
     
     print(model, file=sys.stderr)
     

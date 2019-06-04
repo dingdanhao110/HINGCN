@@ -69,7 +69,7 @@ class ProblemMetrics:
 # Problem definition
 
 class NodeProblem(object):
-    def __init__(self, problem_path, schemes, cuda=True):
+    def __init__(self, problem_path, schemes, device):
         
         print('NodeProblem: loading started')
 
@@ -95,7 +95,7 @@ class NodeProblem(object):
         self.feats_dim = self.feats.shape[1] if self.feats is not None else None
         self.edge_dim = edge_emb[schemes[0]].shape[1]
         self.n_nodes   = self.adj[schemes[0]].shape[0]
-        self.cuda      = cuda
+        self.device      = device
         self.__to_torch()
         
         self.nodes = {
@@ -113,19 +113,19 @@ class NodeProblem(object):
         self.feats = torch.FloatTensor(self.feats)
 
         # if not sparse.issparse(self.adj):
-        if self.cuda:
+        if self.device!="cpu":
                 for i in self.adj:
-                    self.adj[i]=self.adj[i].cuda()
-                    print(torch.cuda.memory_allocated())
+                    self.adj[i]=self.adj[i].to(self.device)
+                    # print(torch.cuda.memory_allocated())
                 for i in self.edge_emb:
                     if torch.is_tensor(self.edge_emb[i]):
-                        self.edge_emb[i] = self.edge_emb[i].cuda()
-                    print(torch.cuda.memory_allocated())
+                        self.edge_emb[i] = self.edge_emb[i].to(self.device)
+                    # print(torch.cuda.memory_allocated())
 
         if self.feats is not None:
-            if self.cuda:
-                self.feats = self.feats.cuda()
-                print(torch.cuda.memory_allocated())
+            if self.device!="cpu":
+                self.feats = self.feats.to(self.device)
+                # print(torch.cuda.memory_allocated())
 
     def __batch_to_torch(self, mids, targets):
         """ convert batch to torch """
@@ -140,8 +140,8 @@ class NodeProblem(object):
         else:
             raise Exception('NodeDataLoader: unknown task: %s' % self.task)
         
-        if self.cuda:
-            mids, targets = mids.cuda(), targets.cuda()
+        if self.device!="cpu":
+            mids, targets = mids.to(self.device), targets.to(self.device)
         
         return mids, targets
     

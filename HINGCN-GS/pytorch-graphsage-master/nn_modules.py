@@ -89,6 +89,7 @@ class SpUniformNeighborSampler(object):
     def __call__(self, adj, ids, n_samples=16):
 
         cuda = adj.is_cuda
+        device = adj.device
 
         nonz = adj._indices()
         values = adj._values()
@@ -96,7 +97,7 @@ class SpUniformNeighborSampler(object):
         neigh = []
         edges = []
         for v in ids:
-            n = torch.nonzero(nonz[0, :] == v).view(-1)
+            n = torch.nonzero(nonz[0, :] == torch.tensor(v).to(device)).view(-1)
             if (len(n) == 0):
                 # no neighbor, only sample from itself
                 # for edge embedding... PADDING with all-zero embedding at edge_emb[0]

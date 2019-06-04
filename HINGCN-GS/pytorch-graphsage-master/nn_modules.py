@@ -535,7 +535,7 @@ class MetapathAggrLayer(nn.Module):
 
         # a_input = torch.cat([input.repeat(1,1,self.nmeta).view(N, self.nmeta*self.nmeta, -1),
         #                      input.repeat(1,self.nmeta, 1)], dim=2).view(N, -1, 2 * self.in_features)
-        e = self.leakyrelu(torch.matmul(input, self.a).squeeze(2))
+        e = self.leakyrelu(torch.matmul(input, self.a.to(input.device)).squeeze(2))
         e = F.softmax(e, dim=1).view(N, 1, n_meta)
 
         e = F.dropout(e, self.dropout, training=self.training)

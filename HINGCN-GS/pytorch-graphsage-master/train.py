@@ -31,7 +31,7 @@ def evaluate(model, problem, batch_size, mode='val'):
     preds, acts = [], []
     for (ids, targets, _) in problem.iterate(mode=mode, shuffle=False, batch_size=batch_size):
         # print(ids.shape,targets.shape)
-        preds.append(to_numpy(model(ids, problem.feats, problem.adj, problem.edge_emb, train=False)))
+        preds.append(to_numpy(model(ids, problem.feats, problem.adj, problem.edge_emb, train=False).to("cpu")))
         acts.append(to_numpy(targets))
     
     return problem.metric_fn(np.vstack(acts), np.vstack(preds))

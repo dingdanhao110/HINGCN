@@ -108,7 +108,7 @@ class HINGCN_GS(nn.Module):
     # We only want to forward IDs to facilitate nn.DataParallelism
     def forward(self, ids, train=True):
 
-        print("\tIn Model: input size ", input.size())
+        print("\tIn Model: input size ", ids.shape)
 
         # Sample neighbors
         sample_fns = self.train_sample_fns if train else self.val_sample_fns

@@ -56,7 +56,6 @@ class HINGCN_GS(nn.Module):
 
         # Define network
         self.n_mp = n_mp
-        # self.register_buffer('schemes', schemes)
         self.dropout = dropout
 
         # Sampler

@@ -161,8 +161,9 @@ if __name__ == "__main__":
     
     if args.cuda:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = MyDataParallel(model, device_ids=[0, 1])
         model = model.to(device)
-        model = MyDataParallel(model)
+
 
     # --
     # Define optimizer

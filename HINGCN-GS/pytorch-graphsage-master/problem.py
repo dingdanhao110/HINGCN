@@ -140,8 +140,8 @@ class NodeProblem(object):
         else:
             raise Exception('NodeDataLoader: unknown task: %s' % self.task)
         
-        # if self.device!="cpu":
-        #     mids, targets = mids.to(self.device), targets.to(self.device)
+        if self.device!="cpu":
+            mids, targets = mids.to(self.device), targets.to(self.device)
         
         return mids, targets
     

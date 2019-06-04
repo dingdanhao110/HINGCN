@@ -47,6 +47,10 @@ class HINGCN_GS(nn.Module):
         self.edge_emb = problem.edge_emb
         self.adjs = problem.adj
 
+        # self.register_parameter(self.feats)
+        # self.register_parameter(self.edge_emb)
+        # self.register_parameter(self.adjs)
+
         # Define network
         self.schemes = schemes
         self.dropout = dropout
@@ -164,10 +168,6 @@ class HINGCN_GS(nn.Module):
         torch.nn.utils.clip_grad_norm_(self.parameters(), 5)
         self.optimizer.step()
         return loss, preds
-
-    def eval_step(self, ids):
-        preds = self(ids, train=False)
-        return preds
 
 
 class MyDataParallel(nn.DataParallel):

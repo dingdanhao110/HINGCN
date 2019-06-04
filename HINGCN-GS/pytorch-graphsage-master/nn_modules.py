@@ -359,14 +359,17 @@ class EdgeEmbAttentionAggregator(nn.Module):
         self.activation = activation
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
-        self.W = nn.Parameter(torch.zeros(size=(input_dim, output_dim)))
-        nn.init.xavier_uniform_(self.W.data, gain=1.414)
+        W = nn.Parameter(torch.zeros(size=(input_dim, output_dim)))
+        nn.init.xavier_uniform_(W.data, gain=1.414)
+        self.register_parameter('W',W)
 
-        self.W2 = nn.Parameter(torch.zeros(size=(input_dim, output_dim)))
-        nn.init.xavier_uniform_(self.W2.data, gain=1.414)
+        W2 = nn.Parameter(torch.zeros(size=(input_dim, output_dim)))
+        nn.init.xavier_uniform_(W2.data, gain=1.414)
+        self.register_parameter('W2', W2)
 
-        self.a = nn.Parameter(torch.zeros(size=(2 * output_dim + edge_dim, 1)))
-        nn.init.xavier_uniform_(self.a.data, gain=1.414)
+        a = nn.Parameter(torch.zeros(size=(2 * output_dim + edge_dim, 1)))
+        nn.init.xavier_uniform_(a.data, gain=1.414)
+        self.register_parameter('a', a)
 
     def forward(self, input, neigh_feat, edge_emb):
         # Compute attention weights
@@ -416,14 +419,17 @@ class EdgeAggregator(nn.Module):
         self.activation = activation
         self.dropout = dropout
 
-        self.W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
-        nn.init.xavier_uniform_(self.W1.data, gain=1.414)
+        W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
+        nn.init.xavier_uniform_(W1.data, gain=1.414)
+        self.register_parameter('W1', W1)
 
-        self.W2 = nn.Parameter(torch.zeros(size=(edge_dim, edge_dim)))
-        nn.init.xavier_uniform_(self.W2.data, gain=1.414)
+        W2 = nn.Parameter(torch.zeros(size=(edge_dim, edge_dim)))
+        nn.init.xavier_uniform_(W2.data, gain=1.414)
+        self.register_parameter('W2', W2)
 
-        self.B = nn.Parameter(torch.zeros(size=(1, edge_dim)))
-        nn.init.xavier_uniform_(self.B.data, gain=1.414)
+        B = nn.Parameter(torch.zeros(size=(1, edge_dim)))
+        nn.init.xavier_uniform_(B.data, gain=1.414)
+        self.register_parameter('B', B)
 
     def forward(self, x, neibs, edge_emb):
         # update edge embedding:
@@ -475,11 +481,13 @@ class ResEdge(nn.Module):
         self.activation = activation
         self.dropout = dropout
 
-        self.W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
-        nn.init.xavier_uniform_(self.W1.data, gain=1.414)
+        W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
+        nn.init.xavier_uniform_(W1.data, gain=1.414)
+        self.register_parameter('W1', W1)
 
-        self.W2 = nn.Parameter(torch.zeros(size=(edge_dim, edge_dim)))
-        nn.init.xavier_uniform_(self.W2.data, gain=1.414)
+        W2 = nn.Parameter(torch.zeros(size=(edge_dim, edge_dim)))
+        nn.init.xavier_uniform_(W2.data, gain=1.414)
+        self.register_parameter('W2', W2)
 
     def forward(self, x, neibs, edge_emb):
         # update edge embedding:
@@ -522,8 +530,10 @@ class MetapathAggrLayer(nn.Module):
         self.alpha = alpha
         self.dropout = dropout
 
-        self.a = nn.Parameter(torch.zeros(size=(in_features, 1)))
-        nn.init.xavier_uniform_(self.a.data, gain=1.414)
+        a = nn.Parameter(torch.zeros(size=(in_features, 1)))
+        nn.init.xavier_uniform_(a.data, gain=1.414)
+        self.register_parameter('a', a)
+
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
     def forward(self, input):

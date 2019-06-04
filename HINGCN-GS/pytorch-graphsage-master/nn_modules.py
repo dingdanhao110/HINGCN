@@ -443,6 +443,10 @@ class EdgeAggregator(nn.Module):
         # update edge embedding:
         # e = sigma(w1*x+W2*neibs+b) @ e
 
+        self.W1.to(x.device)
+        self.W2.to(x.device)
+        self.B.to(x.device)
+
         n = edge_emb.shape[0]
         n_sample = int(edge_emb.shape[0] / x.shape[0])
 
@@ -502,6 +506,9 @@ class ResEdge(nn.Module):
         # e = sigma(W1*x+W1*neibs+W2*e) + e
 
         # n = edge_emb.shape[0]
+        self.W1.to(x.device)
+        self.W2.to(x.device)
+
         n_sample = int(edge_emb.shape[0] / x.shape[0])
 
         x_input = torch.mm(x, self.W1).repeat(n_sample, 1)
@@ -546,6 +553,8 @@ class MetapathAggrLayer(nn.Module):
 
     def forward(self, input):
         # input: tensor(nmeta,N,in_features)
+        self.a.to(input.device)
+
         n_meta = input.shape[0]
         input = input.transpose(0, 1)  # tensor(N,nmeta,in_features)
         N = input.size()[0]

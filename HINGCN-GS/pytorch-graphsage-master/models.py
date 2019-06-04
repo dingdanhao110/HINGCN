@@ -43,17 +43,17 @@ class HINGCN_GS(nn.Module):
 
         # --
         # Graph Data
-        self.feats = problem.feats
-        self.edge_emb = problem.edge_emb
-        self.adjs = problem.adj
+        # self.feats = problem.feats
+        # self.edge_emb = problem.edge_emb
+        # self.adjs = problem.adj
 
-        self.register_buffer(self.feats)
-        self.register_buffer(self.edge_emb)
-        self.register_buffer(self.adjs)
+        self.register_buffer('feats', problem.feats)
+        self.register_buffer('edge_emb', problem.edge_emb)
+        self.register_buffer('adjs', problem.adj)
 
         # Define network
-        self.schemes = schemes
-        self.register_buffer(self.schemes)
+        # self.schemes = schemes
+        self.register_buffer('schemes', schemes)
         self.dropout = dropout
 
         # Sampler

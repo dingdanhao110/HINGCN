@@ -375,6 +375,10 @@ class EdgeEmbAttentionAggregator(nn.Module):
         # Compute attention weights
         N = input.size()[0]
 
+        print('input:',input.get_device())
+        print('W:',self.W.get_device())
+
+
         x = torch.mm(input, self.W)
         neighs = torch.mm(neigh_feat, self.W2)
 

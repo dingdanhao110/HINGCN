@@ -139,7 +139,7 @@ if __name__ == "__main__":
     if args.cuda:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
         model = MyDataParallel(model)
-        model = model.to(device)
+        # model = model.to(device)
     
     print(model, file=sys.stderr)
     

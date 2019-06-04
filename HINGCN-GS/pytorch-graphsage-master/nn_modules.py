@@ -89,7 +89,6 @@ class SpUniformNeighborSampler(object):
     def __call__(self, adj, ids, n_samples=16):
 
         cuda = adj.is_cuda
-        device = adj.device
 
         nonz = adj._indices()
         values = adj._values()
@@ -97,7 +96,7 @@ class SpUniformNeighborSampler(object):
         neigh = []
         edges = []
         for v in ids:
-            n = torch.nonzero(nonz[0, :] == torch.tensor(v).to(device)).view(-1)
+            n = torch.nonzero(nonz[0, :] == v).view(-1)
             if (len(n) == 0):
                 # no neighbor, only sample from itself
                 # for edge embedding... PADDING with all-zero embedding at edge_emb[0]
@@ -535,7 +534,7 @@ class MetapathAggrLayer(nn.Module):
 
         # a_input = torch.cat([input.repeat(1,1,self.nmeta).view(N, self.nmeta*self.nmeta, -1),
         #                      input.repeat(1,self.nmeta, 1)], dim=2).view(N, -1, 2 * self.in_features)
-        e = self.leakyrelu(torch.matmul(input, self.a.to(input.device)).squeeze(2))
+        e = self.leakyrelu(torch.matmul(input, self.a).squeeze(2))
         e = F.softmax(e, dim=1).view(N, 1, n_meta)
 
         e = F.dropout(e, self.dropout, training=self.training)

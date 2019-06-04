@@ -47,12 +47,13 @@ class HINGCN_GS(nn.Module):
         self.edge_emb = problem.edge_emb
         self.adjs = problem.adj
 
-        # self.register_parameter(self.feats)
-        # self.register_parameter(self.edge_emb)
-        # self.register_parameter(self.adjs)
+        self.register_buffer(self.feats)
+        self.register_buffer(self.edge_emb)
+        self.register_buffer(self.adjs)
 
         # Define network
         self.schemes = schemes
+        self.register_buffer(self.schemes)
         self.dropout = dropout
 
         # Sampler

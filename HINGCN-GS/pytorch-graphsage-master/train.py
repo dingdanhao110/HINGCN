@@ -17,7 +17,7 @@ import torch
 from torch.autograd import Variable
 from torch.nn import functional as F
 
-from models import HINGCN_GS
+from models import HINGCN_GS,MyDataParallel
 from problem import NodeProblem
 from helpers import set_seeds, to_numpy
 from nn_modules import aggregator_lookup, prep_lookup, sampler_lookup
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     
     if args.cuda:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
-        model = torch.nn.DataParallel(model)
+        model = MyDataParallel(model)
         model = model.to(device)
     
     print(model, file=sys.stderr)

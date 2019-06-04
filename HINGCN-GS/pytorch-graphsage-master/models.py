@@ -154,3 +154,8 @@ class HINGCN_GS(nn.Module):
         torch.nn.utils.clip_grad_norm_(self.parameters(), 5)
         self.optimizer.step()
         return loss, preds
+
+
+class MyDataParallel(nn.DataParallel):
+    def __getattr__(self, name):
+        return getattr(self.module, name)

@@ -375,6 +375,10 @@ class EdgeEmbAttentionAggregator(nn.Module):
         # Compute attention weights
         N = input.size()[0]
 
+        self.W.to(input.device)
+        self.W2.to(input.device)
+        self.a.to(input.device)
+
         print('input:',input.get_device())
         print('W:',self.W.get_device())
 

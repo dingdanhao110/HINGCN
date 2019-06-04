@@ -7,6 +7,7 @@
 from __future__ import division
 from __future__ import print_function
 
+from functools import partial
 import sys
 import argparse
 import ujson as json
@@ -26,17 +27,17 @@ from lr import LRSchedule
 # --
 # Helpers
 
-def set_progress(model, progress):
-    model.lr = model.lr_scheduler(progress)
-    LRSchedule.set_lr(model.optimizer, model.lr)
+def set_progress(optimizer, lr_scheduler, progress):
+    lr = lr_scheduler(progress)
+    LRSchedule.set_lr(optimizer, lr)
 
-def train_step(model, ids, targets, loss_fn):
-    model.optimizer.zero_grad()
+def train_step(model,optimizer, ids, targets, loss_fn):
+    optimizer.zero_grad()
     preds = model(ids, train=True)
     loss = loss_fn(preds, targets.squeeze())
     loss.backward()
     torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
-    model.optimizer.step()
+    optimizer.step()
     return loss, preds
 
 def evaluate(model, problem, batch_size, mode='val'):
@@ -152,10 +153,10 @@ if __name__ == "__main__":
                 "concat_edge": args.concat_edge,
             },
         ],
-        
-        "lr_init" : args.lr_init,
-        "lr_schedule" : args.lr_schedule,
-        "weight_decay" : args.weight_decay,
+        #
+        # "lr_init" : args.lr_init,
+        # "lr_schedule" : args.lr_schedule,
+        # "weight_decay" : args.weight_decay,
     })
     
     if args.cuda:
@@ -163,9 +164,15 @@ if __name__ == "__main__":
         model = model.to(device)
         model = MyDataParallel(model)
 
+    # --
+    # Define optimizer
+
+    lr_scheduler = partial(getattr(LRSchedule, args.lr_schedule), lr_init=args.lr_init)
+    lr = lr_scheduler(0.0)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=args.weight_decay)
     
     print(model, file=sys.stderr)
-    
+
     # --
     # Train
     
@@ -178,9 +185,10 @@ if __name__ == "__main__":
         # Train
         _ = model.train()
         for ids, targets, epoch_progress in problem.iterate(mode='train', shuffle=True, batch_size=args.batch_size):
-            set_progress(model, (epoch + epoch_progress) / args.epochs)
+            set_progress(optimizer, lr_scheduler, (epoch + epoch_progress) / args.epochs)
             loss, preds = train_step(
                 model=model,
+                optimizer=optimizer,
                 ids=ids,
                 targets=targets,
                 loss_fn=problem.loss_fn,

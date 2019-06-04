@@ -106,12 +106,6 @@ class HINGCN_GS(nn.Module):
 
         self.fc = nn.Linear(input_dim, n_classes, bias=True)
 
-        # --
-        # Define optimizer
-
-        self.lr_scheduler = partial(getattr(LRSchedule, lr_schedule), lr_init=lr_init)
-        self.lr = self.lr_scheduler(0.0)
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=weight_decay)
 
     # We only want to forward IDs to facilitate nn.DataParallelism
     def forward(self, ids, train=True):

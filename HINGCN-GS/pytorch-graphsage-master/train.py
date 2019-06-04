@@ -26,12 +26,13 @@ from lr import LRSchedule
 # --
 # Helpers
 
+
 def evaluate(model, problem, batch_size, mode='val'):
     assert mode in ['test', 'val']
     preds, acts = [], []
     for (ids, targets, _) in problem.iterate(mode=mode, shuffle=False, batch_size=batch_size):
         # print(ids.shape,targets.shape)
-        preds.append(to_numpy(model(ids, problem.feats, problem.adj, problem.edge_emb, train=False).to("cpu")))
+        preds.append(to_numpy(model(ids, train=False)))
         acts.append(to_numpy(targets))
     
     return problem.metric_fn(np.vstack(acts), np.vstack(preds))
@@ -98,6 +99,7 @@ if __name__ == "__main__":
     n_val_samples = list(map(int,args.n_val_samples.split(',')))
     output_dims = list(map(int,args.output_dims.split(',') ))
     model = HINGCN_GS(**{
+        "problem" : problem,
         "sampler_class" : sampler_lookup[args.sampler_class],
         
         "prep_class" : prep_lookup[args.prep_class],
@@ -155,10 +157,7 @@ if __name__ == "__main__":
         for ids, targets, epoch_progress in problem.iterate(mode='train', shuffle=True, batch_size=args.batch_size):
             model.set_progress((epoch + epoch_progress) / args.epochs)
             loss, preds = model.train_step(
-                ids=ids, 
-                feats=problem.feats,
-                edge_emb=problem.edge_emb,
-                adjs=problem.adj,
+                ids=ids,
                 targets=targets,
                 loss_fn=problem.loss_fn,
             )

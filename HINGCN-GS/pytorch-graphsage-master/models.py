@@ -32,6 +32,7 @@ class HINGCN_GS(nn.Module):
                  prep_class,
                  sampler_class,
                  schemes,
+                 problem,
                  lr_init=0.01,
                  weight_decay=0.0,
                  lr_schedule='constant',
@@ -41,6 +42,11 @@ class HINGCN_GS(nn.Module):
         super(HINGCN_GS, self).__init__()
 
         # --
+        # Graph Data
+        self.feats = problem.feats
+        self.edge_emb = problem.edge_emb
+        self.adjs = problem.adj
+
         # Define network
         self.schemes = schemes
         self.dropout = dropout
@@ -99,26 +105,27 @@ class HINGCN_GS(nn.Module):
         self.lr = self.lr_scheduler(0.0)
         self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr, weight_decay=weight_decay)
 
-    def forward(self, ids, feats, adjs, edge_emb, train=True):
+    # We only want to forward IDs to facilitate nn.DataParallelism
+    def forward(self, ids, train=True):
         # Sample neighbors
         sample_fns = self.train_sample_fns if train else self.val_sample_fns
 
-        has_feats = feats is not None
+        has_feats = self.feats is not None
 
         output = []
         tmp_ids = ids
         for mp in range(len(self.schemes)):
             ids = tmp_ids
-            tmp_feats = feats[ids] if has_feats else None
+            tmp_feats = self.feats[ids] if has_feats else None
             all_feats = [self.prep(ids, tmp_feats, layer_idx=0)]
             all_edges = []
             for layer_idx, sampler_fn in enumerate(sample_fns):
-                neigh, edges = sampler_fn(adj=adjs[self.schemes[mp]], ids=ids)
+                neigh, edges = sampler_fn(adj=self.adjs[self.schemes[mp]], ids=ids)
 
-                all_edges.append(edge_emb[self.schemes[mp]][edges.contiguous().view(-1)])
+                all_edges.append(self.edge_emb[self.schemes[mp]][edges.contiguous().view(-1)])
 
                 ids = neigh.contiguous().view(-1)
-                tmp_feats = feats[ids] if has_feats else None
+                tmp_feats = self.feats[ids] if has_feats else None
                 all_feats.append(self.prep(ids, tmp_feats, layer_idx=layer_idx + 1))
 
             # Sequentially apply layers, per original (little weird, IMO)
@@ -146,9 +153,9 @@ class HINGCN_GS(nn.Module):
         self.lr = self.lr_scheduler(progress)
         LRSchedule.set_lr(self.optimizer, self.lr)
 
-    def train_step(self, ids, feats, adjs, edge_emb, targets, loss_fn):
+    def train_step(self, ids, targets, loss_fn):
         self.optimizer.zero_grad()
-        preds = self(ids, feats, adjs, edge_emb, train=True)
+        preds = self(ids, train=True)
         loss = loss_fn(preds, targets.squeeze())
         loss.backward()
         torch.nn.utils.clip_grad_norm_(self.parameters(), 5)

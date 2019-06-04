@@ -26,6 +26,18 @@ from lr import LRSchedule
 # --
 # Helpers
 
+def set_progress(model, progress):
+    model.lr = model.lr_scheduler(progress)
+    LRSchedule.set_lr(model.optimizer, model.lr)
+
+def train_step(model, ids, targets, loss_fn):
+    model.optimizer.zero_grad()
+    preds = model(ids, train=True)
+    loss = loss_fn(preds, targets.squeeze())
+    loss.backward()
+    torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
+    model.optimizer.step()
+    return loss, preds
 
 def evaluate(model, problem, batch_size, mode='val'):
     assert mode in ['test', 'val']
@@ -166,8 +178,9 @@ if __name__ == "__main__":
         # Train
         _ = model.train()
         for ids, targets, epoch_progress in problem.iterate(mode='train', shuffle=True, batch_size=args.batch_size):
-            model.set_progress((epoch + epoch_progress) / args.epochs)
-            loss, preds = model.train_step(
+            set_progress(model, (epoch + epoch_progress) / args.epochs)
+            loss, preds = train_step(
+                model=model,
                 ids=ids,
                 targets=targets,
                 loss_fn=problem.loss_fn,

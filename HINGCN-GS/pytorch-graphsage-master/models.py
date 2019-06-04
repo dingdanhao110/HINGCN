@@ -160,18 +160,6 @@ class HINGCN_GS(nn.Module):
 
         return self.fc(output)
 
-    def set_progress(self, progress):
-        self.lr = self.lr_scheduler(progress)
-        LRSchedule.set_lr(self.optimizer, self.lr)
-
-    def train_step(self, ids, targets, loss_fn):
-        self.optimizer.zero_grad()
-        preds = self(ids, train=True)
-        loss = loss_fn(preds, targets.squeeze())
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.parameters(), 5)
-        self.optimizer.step()
-        return loss, preds
 
 
 class MyDataParallel(nn.DataParallel):

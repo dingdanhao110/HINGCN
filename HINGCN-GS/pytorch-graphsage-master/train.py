@@ -27,16 +27,27 @@ from lr import LRSchedule
 # Helpers
 
 
+# def evaluate(model, problem, batch_size, mode='val'):
+#     assert mode in ['test', 'val']
+#     preds, acts = [], []
+#     for (ids, targets, _) in problem.iterate(mode=mode, shuffle=False, batch_size=batch_size):
+#         # print(ids.shape,targets.shape)
+#         preds.append(to_numpy(model(ids, train=False)))
+#         acts.append(to_numpy(targets))
+#
+#     return problem.metric_fn(np.vstack(acts), np.vstack(preds))
+
+
 def evaluate(model, problem, batch_size, mode='val'):
     assert mode in ['test', 'val']
     preds, acts = [], []
     for (ids, targets, _) in problem.iterate(mode=mode, shuffle=False, batch_size=batch_size):
         # print(ids.shape,targets.shape)
-        preds.append(to_numpy(model(ids, train=False)))
+        pred = model.eval_step(ids)
+        preds.append(to_numpy(pred))
         acts.append(to_numpy(targets))
-    
-    return problem.metric_fn(np.vstack(acts), np.vstack(preds))
 
+    return problem.metric_fn(np.vstack(acts), np.vstack(preds))
 # --
 # Args
 
@@ -139,7 +150,7 @@ if __name__ == "__main__":
     if args.cuda:
         print("Let's use", torch.cuda.device_count(), "GPUs!")
         model = MyDataParallel(model)
-        # model = model.to(device)
+        model = model.to(device)
     
     print(model, file=sys.stderr)
     

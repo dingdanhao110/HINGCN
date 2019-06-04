@@ -162,6 +162,10 @@ class HINGCN_GS(nn.Module):
         self.optimizer.step()
         return loss, preds
 
+    def eval_step(self, ids):
+        preds = self(ids, train=False)
+        return preds
+
 
 class MyDataParallel(nn.DataParallel):
     def __getattr__(self, name):

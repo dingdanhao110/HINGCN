@@ -514,12 +514,14 @@ class MetapathAggrLayer(nn.Module):
     metapath attention layer.
     """
 
-    def __init__(self, in_features, alpha=0.8):
+    def __init__(self, in_features, alpha=0.8, dropout=0.5):
         super(MetapathAggrLayer, self).__init__()
         # self.dropout = dropout
         self.in_features = in_features
         self.out_features = in_features
         self.alpha = alpha
+        self.dropout = dropout
+
         self.a = nn.Parameter(torch.zeros(size=(in_features, 1)))
         nn.init.xavier_uniform_(self.a.data, gain=1.414)
         self.leakyrelu = nn.LeakyReLU(self.alpha)

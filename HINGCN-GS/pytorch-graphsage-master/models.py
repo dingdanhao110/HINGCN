@@ -31,7 +31,7 @@ class HINGCN_GS(nn.Module):
                  edgeupt_class,
                  prep_class,
                  sampler_class,
-                 schemes,
+                 n_mp,
                  problem,
                  lr_init=0.01,
                  weight_decay=0.0,
@@ -48,12 +48,15 @@ class HINGCN_GS(nn.Module):
         # self.adjs = problem.adj
 
         self.register_buffer('feats', problem.feats)
-        self.register_buffer('edge_emb', problem.edge_emb)
-        self.register_buffer('adjs', problem.adj)
+
+        for i,key in enumerate(problem.edge_emb):
+            self.register_buffer('edge_emb_{}'.format(i), problem.edge_emb[key])
+        for i,key in enumerate(problem.adj):
+            self.register_buffer('adjs_{}'.format(i), problem.adj[key])
 
         # Define network
-        # self.schemes = schemes
-        self.register_buffer('schemes', schemes)
+        self.n_mp = n_mp
+        # self.register_buffer('schemes', schemes)
         self.dropout = dropout
 
         # Sampler
@@ -69,7 +72,7 @@ class HINGCN_GS(nn.Module):
         # Network
         self.para_layers = []
         self.emb_layers = []
-        for mp in range(len(schemes)):
+        for mp in range(self.n_mp):
             agg_layers = []
             edge_layers = []
             input_dim = self.input_dim
@@ -122,15 +125,15 @@ class HINGCN_GS(nn.Module):
 
         output = []
         tmp_ids = ids
-        for mp in range(len(self.schemes)):
+        for mp in range(self.n_mp):
             ids = tmp_ids
             tmp_feats = self.feats[ids] if has_feats else None
             all_feats = [self.prep(ids, tmp_feats, layer_idx=0)]
             all_edges = []
             for layer_idx, sampler_fn in enumerate(sample_fns):
-                neigh, edges = sampler_fn(adj=self.adjs[self.schemes[mp]], ids=ids)
+                neigh, edges = sampler_fn(adj=getattr(self,'adjs_{}'.format(mp)), ids=ids)
 
-                all_edges.append(self.edge_emb[self.schemes[mp]][edges.contiguous().view(-1)])
+                all_edges.append(getattr(self,'edge_emb_{}'.format(mp))[edges.contiguous().view(-1)])
 
                 ids = neigh.contiguous().view(-1)
                 tmp_feats = self.feats[ids] if has_feats else None

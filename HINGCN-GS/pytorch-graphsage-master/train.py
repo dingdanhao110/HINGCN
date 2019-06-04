@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
         "input_dim" : problem.feats_dim,
         "edge_dim"  : problem.edge_dim,
-        "schemes"   : problem.schemes,
+        "n_mp"   : len(schemes),
         "n_nodes"   : problem.n_nodes,
         "n_classes" : problem.n_classes,
         "layer_specs" : [

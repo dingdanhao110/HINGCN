@@ -467,12 +467,13 @@ class IdEdgeAggregator(nn.Module):
 
 
 class ResEdge(nn.Module):
-    def __init__(self, input_dim, edge_dim, activation):
+    def __init__(self, input_dim, edge_dim, activation, dropout=0.5,):
         super(ResEdge, self).__init__()
 
         self.input_dim = input_dim
         self.edge_dim = edge_dim
         self.activation = activation
+        self.dropout = dropout
 
         self.W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
         nn.init.xavier_uniform_(self.W1.data, gain=1.414)

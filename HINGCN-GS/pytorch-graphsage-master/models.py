@@ -110,6 +110,7 @@ class HINGCN_GS(nn.Module):
     def forward(self, ids, train=True):
 
         print("\tIn Model: input size ", ids.shape)
+        ids.to(self.feats.device)
 
         # Sample neighbors
         sample_fns = self.train_sample_fns if train else self.val_sample_fns

@@ -408,12 +408,13 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
 
 class EdgeAggregator(nn.Module):
-    def __init__(self, input_dim, edge_dim, activation):
+    def __init__(self, input_dim, edge_dim, activation,dropout=0.5):
         super(EdgeAggregator, self).__init__()
 
         self.input_dim = input_dim
         self.edge_dim = edge_dim
         self.activation = activation
+        self.dropout = dropout
 
         self.W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
         nn.init.xavier_uniform_(self.W1.data, gain=1.414)
@@ -464,6 +465,49 @@ class IdEdgeAggregator(nn.Module):
         return edge_emb
 
 
+
+class ResEdge(nn.Module):
+    def __init__(self, input_dim, edge_dim, activation):
+        super(ResEdge, self).__init__()
+
+        self.input_dim = input_dim
+        self.edge_dim = edge_dim
+        self.activation = activation
+
+        self.W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
+        nn.init.xavier_uniform_(self.W1.data, gain=1.414)
+
+        self.W2 = nn.Parameter(torch.zeros(size=(edge_dim, edge_dim)))
+        nn.init.xavier_uniform_(self.W2.data, gain=1.414)
+
+    def forward(self, x, neibs, edge_emb):
+        # update edge embedding:
+        # e = sigma(W1*x+W1*neibs+W2*e) + e
+
+        # n = edge_emb.shape[0]
+        n_sample = int(edge_emb.shape[0] / x.shape[0])
+
+        x_input = torch.mm(x, self.W1).repeat(n_sample, 1)
+
+        n_input = torch.mm(neibs, self.W1)
+
+        e_input = torch.mm(edge_emb, self.W2)
+
+        a_input = e_input + n_input + x_input
+
+        a_input = F.dropout(a_input, self.dropout, training=self.training)
+
+        if self.activation:
+            a_input = self.activation(a_input)
+        emb = a_input + edge_emb
+        return emb
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim)\
+               + ' -> ' + str(self.edge_dim) + ')'
+
+
+
 class MetapathAggrLayer(nn.Module):
     """
     metapath attention layer.
@@ -510,4 +554,5 @@ aggregator_lookup = {
     "edge_emb_attn": EdgeEmbAttentionAggregator,
     "IDedge": IdEdgeAggregator,
     "edge": EdgeAggregator,
+    "res_edge":ResEdge,
 }

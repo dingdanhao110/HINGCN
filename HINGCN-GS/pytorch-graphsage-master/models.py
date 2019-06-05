@@ -56,6 +56,7 @@ class HINGCN_GS(nn.Module):
 
         # Define network
         self.n_mp = n_mp
+        self.deepth = len(layer_specs)
         self.dropout = dropout
 
         # Sampler
@@ -69,8 +70,6 @@ class HINGCN_GS(nn.Module):
         self.input_dim = self.prep.output_dim
 
         # Network
-        self.para_layers = []
-        self.emb_layers = []
         for mp in range(self.n_mp):
             agg_layers = []
             edge_layers = []
@@ -97,9 +96,6 @@ class HINGCN_GS(nn.Module):
 
                 self.add_module('agg_{}_{}'.format(mp, i), agg)
                 self.add_module('edge_{}_{}'.format(mp, i), edge)
-
-            self.para_layers.append(agg_layers)
-            self.emb_layers.append(edge_layers)
 
         self.mp_agg = mpaggr_class(input_dim)
 
@@ -135,12 +131,12 @@ class HINGCN_GS(nn.Module):
 
             # Sequentially apply layers, per original (little weird, IMO)
             # Each iteration reduces length of array by one
-            for i in range(len(self.para_layers[mp])):
-                all_feats = [self.para_layers[mp][i](all_feats[k], all_feats[k + 1],
+            for i in range(self.deepth):
+                all_feats = [getattr(self,'agg_{}_{}'.format(mp, i))(all_feats[k], all_feats[k + 1],
                                                      all_edges[k]
                                                      ) for k in range(len(all_feats) - 1)]
                 all_feats = [F.dropout(i, self.dropout, training=self.training) for i in all_feats]
-                all_edges = [self.emb_layers[mp][i](all_feats[k], all_feats[k + 1],
+                all_edges = [getattr(self,'edge_{}_{}'.format(mp, i))(all_feats[k], all_feats[k + 1],
                                                     all_edges[k]
                                                     ) for k in range(len(all_edges) - 1)]
                 all_edges = [F.dropout(i, self.dropout, training=self.training) for i in all_edges]

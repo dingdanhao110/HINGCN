@@ -177,7 +177,7 @@ if __name__ == "__main__":
     lr = lr_scheduler(0.0)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=args.weight_decay)
 
-    print(model, file=sys.stderr)
+    print(model, file=sys.stdout)
 
     # --
     # Train

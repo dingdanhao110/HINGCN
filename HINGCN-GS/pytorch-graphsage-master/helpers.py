@@ -152,3 +152,30 @@ def sparse_mx_to_torch_sparse_tensor(sparse_mx):
     values = torch.from_numpy(sparse_mx.data)
     shape = torch.Size(sparse_mx.shape)
     return torch.sparse.FloatTensor(indices, values, shape)
+
+
+
+def read_mpindex_yelp(path="../../data/yelp/"):
+    label_file = "true_cluster"
+    feat_file = "attributes"
+
+    # print("{}{}.txt".format(path, PA_file))
+    feat = np.genfromtxt("{}{}.txt".format(path, feat_file),
+                       dtype=np.float)
+
+    features = feat[:,:2]
+
+    labels = np.genfromtxt("{}{}.txt".format(path, label_file),
+                               dtype=np.int32)
+
+    reordered = np.random.permutation(labels)
+    total_labeled = labels.shape[0]
+
+    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
+    idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
+
+    folds = {'train':idx_train,'val':idx_val,'test':idx_test}
+
+    return features, labels, folds
+

@@ -17,7 +17,7 @@ from torch.nn import functional as F
 
 from helpers import load_edge_emb
 
-from helpers import read_mpindex_dblp,sparse_mx_to_torch_sparse_tensor
+from helpers import read_mpindex_dblp,sparse_mx_to_torch_sparse_tensor,read_mpindex_yelp
 
 # --
 # Helper classes
@@ -70,6 +70,7 @@ class ProblemMetrics:
 
 read_feat_lookup = {
     "dblp":read_mpindex_dblp,
+    "yelp":read_mpindex_yelp,
 }
 
 class NodeProblem(object):
@@ -84,7 +85,7 @@ class NodeProblem(object):
                                              n_dim=16)
 
         self.task      = 'classification'
-        self.n_classes = 4 # !!
+        self.n_classes = max(labels)+1 # !!
 
         #input: features, homograph, edge embedding
         self.feats = features

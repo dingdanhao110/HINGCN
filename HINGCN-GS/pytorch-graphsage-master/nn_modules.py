@@ -604,9 +604,17 @@ aggregator_lookup = {
     "lstm": LSTMAggregator,
     "attention": AttentionAggregator,
 
-    "metapath": MetapathAggrLayer,
+
     "edge_emb_attn": EdgeEmbAttentionAggregator,
-    "IDedge": IdEdgeAggregator,
-    "edge": EdgeAggregator,
-    "res_edge":ResEdge,
+
+}
+
+metapath_aggregator_lookup={
+    "attention": MetapathAggrLayer,
+}
+
+edge_aggregator_lookup={
+    "identity": IdEdgeAggregator,
+    "attention": EdgeAggregator,
+    "residual":ResEdge,
 }

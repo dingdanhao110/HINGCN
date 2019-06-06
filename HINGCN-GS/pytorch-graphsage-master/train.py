@@ -82,7 +82,7 @@ def parse_args():
     # Architecture params
     parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
     parser.add_argument('--aggregator-class', type=str, default='edge_emb_attn')
-    parser.add_argument('--prep-class', type=str, default='identity')
+    parser.add_argument('--prep-class', type=str, default='node_embedding') # identity
     parser.add_argument('--mpaggr-class', type=str, default='metapath')
     parser.add_argument('--edgeupt-class', type=str, default='res_edge')
     parser.add_argument('--concat-node', action="store_true")

@@ -341,11 +341,12 @@ class AttentionAggregator(nn.Module, AggregatorMixin):
 
 class EdgeEmbAttentionAggregator(nn.Module):
     def __init__(self, input_dim, output_dim, edge_dim, activation, dropout=0.5, alpha=0.8,
-                 concat_node=True, concat_edge=True):
+                 concat_node=True, concat_edge=True, batchnorm=False):
         super(EdgeEmbAttentionAggregator, self).__init__()
         self.input_dim = input_dim
         self.edge_dim = edge_dim
         self.dropout = dropout
+        self.batchnorm = batchnorm
         self.alpha = alpha
         self.concat_node = concat_node
         if concat_node:
@@ -370,6 +371,9 @@ class EdgeEmbAttentionAggregator(nn.Module):
         a = nn.Parameter(torch.zeros(size=(2 * output_dim + edge_dim, 1)))
         nn.init.xavier_uniform_(a.data, gain=1.414)
         self.register_parameter('a', a)
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.output_dim)
 
     def forward(self, input, neigh_feat, edge_emb):
         # Compute attention weights
@@ -400,6 +404,10 @@ class EdgeEmbAttentionAggregator(nn.Module):
             output = torch.cat([output,
                                 torch.bmm(attention, edge_emb.view(N, n_sample, -1)).squeeze()],
                                dim=1)
+
+        if self.batchnorm:
+            output = self.bn(output)
+
         if self.activation:
             output = self.activation(output)
 
@@ -411,13 +419,14 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
 
 class EdgeAggregator(nn.Module):
-    def __init__(self, input_dim, edge_dim, activation,dropout=0.5):
+    def __init__(self, input_dim, edge_dim, activation,dropout=0.5, batchnorm=False):
         super(EdgeAggregator, self).__init__()
 
         self.input_dim = input_dim
         self.edge_dim = edge_dim
         self.activation = activation
         self.dropout = dropout
+        self.batchnorm = batchnorm
 
         W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
         nn.init.xavier_uniform_(W1.data, gain=1.414)
@@ -430,6 +439,9 @@ class EdgeAggregator(nn.Module):
         B = nn.Parameter(torch.zeros(size=(1, edge_dim)))
         nn.init.xavier_uniform_(B.data, gain=1.414)
         self.register_parameter('B', B)
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.edge_dim)
 
     def forward(self, x, neibs, edge_emb):
         # update edge embedding:
@@ -452,6 +464,9 @@ class EdgeAggregator(nn.Module):
 
         a_input = F.dropout(a_input, self.dropout, training=self.training)
 
+        if self.batchnorm:
+            a_input = self.bn(a_input)
+
         if self.activation:
             a_input = self.activation(a_input)
         emb = a_input * edge_emb
@@ -462,12 +477,14 @@ class EdgeAggregator(nn.Module):
                + ' -> ' + str(self.edge_dim) + ')'
 
 class IdEdgeAggregator(nn.Module):
-    def __init__(self, input_dim, edge_dim, activation):
+    def __init__(self, input_dim, edge_dim, activation, dropout=0.5, batchnorm=False):
         super(IdEdgeAggregator, self).__init__()
 
         self.input_dim = input_dim
         self.activation = activation
         self.edge_dim = edge_dim
+        self.batchnorm = batchnorm
+        self.dropout = dropout
 
     def forward(self, x, neibs, edge_emb):
         # identical mapping
@@ -477,13 +494,14 @@ class IdEdgeAggregator(nn.Module):
 
 
 class ResEdge(nn.Module):
-    def __init__(self, input_dim, edge_dim, activation, dropout=0.5,):
+    def __init__(self, input_dim, edge_dim, activation, dropout=0.5, batchnorm=False):
         super(ResEdge, self).__init__()
 
         self.input_dim = input_dim
         self.edge_dim = edge_dim
         self.activation = activation
         self.dropout = dropout
+        self.batchnorm = batchnorm
 
         W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
         nn.init.xavier_uniform_(W1.data, gain=1.414)
@@ -492,6 +510,9 @@ class ResEdge(nn.Module):
         W2 = nn.Parameter(torch.zeros(size=(edge_dim, edge_dim)))
         nn.init.xavier_uniform_(W2.data, gain=1.414)
         self.register_parameter('W2', W2)
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.edge_dim)
 
     def forward(self, x, neibs, edge_emb):
         # update edge embedding:
@@ -513,6 +534,9 @@ class ResEdge(nn.Module):
 
         a_input = F.dropout(a_input, self.dropout, training=self.training)
 
+        if self.batchnorm:
+            a_input = self.bn(a_input)
+
         if self.activation:
             a_input = self.activation(a_input)
         emb = a_input + edge_emb
@@ -529,19 +553,23 @@ class MetapathAggrLayer(nn.Module):
     metapath attention layer.
     """
 
-    def __init__(self, in_features, alpha=0.8, dropout=0.5):
+    def __init__(self, in_features, alpha=0.8, dropout=0.5, batchnorm=False):
         super(MetapathAggrLayer, self).__init__()
         # self.dropout = dropout
         self.in_features = in_features
         self.out_features = in_features
         self.alpha = alpha
         self.dropout = dropout
+        self.batchnorm = batchnorm
 
         a = nn.Parameter(torch.zeros(size=(in_features, 1)))
         nn.init.xavier_uniform_(a.data, gain=1.414)
         self.register_parameter('a', a)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.out_features)
 
     def forward(self, input):
         # input: tensor(nmeta,N,in_features)
@@ -559,7 +587,11 @@ class MetapathAggrLayer(nn.Module):
         e = F.dropout(e, self.dropout, training=self.training)
 
         output = torch.bmm(e, input).squeeze()
-        return output
+
+        if self.batchnorm:
+            output = self.bn(output)
+
+        return F.relu(output)
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'

@@ -21,43 +21,42 @@ from lr import LRSchedule
 
 class HINGCN_GS(nn.Module):
     def __init__(self,
-                 input_dim,
-                 edge_dim,
-                 n_nodes,
-                 n_classes,
+                 n_mp,
+                 problem,
                  layer_specs,
                  aggregator_class,
                  mpaggr_class,
                  edgeupt_class,
                  prep_class,
                  sampler_class,
-                 n_mp,
-                 problem,
-                 lr_init=0.01,
-                 weight_decay=0.0,
-                 lr_schedule='constant',
-                 dropout=0.5,
+                 dropout,
+                 batchnorm,
                  ):
 
         super(HINGCN_GS, self).__init__()
 
         # --
-        # Graph Data
-        # self.feats = problem.feats
-        # self.edge_emb = problem.edge_emb
-        # self.adjs = problem.adj
+        # Input Data
+        self.edge_dim = problem.edge_dim
+        self.input_dim = problem.feats_dim
+        self.n_nodes = problem.n_nodes,
+        self.n_classes = problem.n_classes,
 
+        # self.feats
         self.register_buffer('feats', problem.feats)
 
+        # self.edge_emb_mp
         for i,key in enumerate(problem.edge_emb):
             self.register_buffer('edge_emb_{}'.format(i), problem.edge_emb[key])
+        # self.adjs_mp
         for i,key in enumerate(problem.adj):
             self.register_buffer('adjs_{}'.format(i), problem.adj[key])
 
         # Define network
         self.n_mp = n_mp
-        self.deepth = len(layer_specs)
+        self.depth = len(layer_specs)
         self.dropout = dropout
+        self.batchnorm = batchnorm
 
         # Sampler
         self.train_sampler = sampler_class()
@@ -66,7 +65,7 @@ class HINGCN_GS(nn.Module):
         self.val_sample_fns = [partial(self.val_sampler, n_samples=s['n_val_samples']) for s in layer_specs]
 
         # Prep
-        self.prep = prep_class(input_dim=input_dim, n_nodes=n_nodes)
+        self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes)
         self.input_dim = self.prep.output_dim
 
         # Network
@@ -77,29 +76,32 @@ class HINGCN_GS(nn.Module):
             for i, spec in enumerate(layer_specs):
                 agg = aggregator_class(
                     input_dim=input_dim,
-                    edge_dim=edge_dim,
+                    edge_dim=problem.edge_dim,
                     output_dim=spec['output_dim'],
                     activation=spec['activation'],
                     concat_node=spec['concat_node'],
                     concat_edge=spec['concat_edge'],
                     dropout=self.dropout,
+                    batchnorm=self.batchnorm,
                 )
                 agg_layers.append(agg)
                 input_dim = agg.output_dim  # May not be the same as spec['output_dim']
 
                 edge = edgeupt_class(
                     input_dim=input_dim,
-                    edge_dim=edge_dim,
+                    edge_dim=self.edge_dim,
                     activation=spec['activation'],
+                    dropout=self.dropout,
+                    batchnorm=self.batchnorm,
                 )
                 edge_layers.append(edge)
 
                 self.add_module('agg_{}_{}'.format(mp, i), agg)
                 self.add_module('edge_{}_{}'.format(mp, i), edge)
 
-        self.mp_agg = mpaggr_class(input_dim)
+        self.mp_agg = mpaggr_class(input_dim,dropout=self.dropout,batchnorm=self.batchnorm,)
 
-        self.fc = nn.Linear(input_dim, n_classes, bias=True)
+        self.fc = nn.Linear(input_dim, problem.n_classes, bias=True)
 
 
     # We only want to forward IDs to facilitate nn.DataParallelism
@@ -131,7 +133,7 @@ class HINGCN_GS(nn.Module):
 
             # Sequentially apply layers, per original (little weird, IMO)
             # Each iteration reduces length of array by one
-            for i in range(self.deepth):
+            for i in range(self.depth):
                 all_feats = [getattr(self,'agg_{}_{}'.format(mp, i))(all_feats[k], all_feats[k + 1],
                                                      all_edges[k]
                                                      ) for k in range(len(all_feats) - 1)]
@@ -145,11 +147,11 @@ class HINGCN_GS(nn.Module):
             output.append(all_feats[0].unsqueeze(0))
         output = torch.cat(output)
         output = self.mp_agg(output)
+
         output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
         output = F.dropout(output, self.dropout, training=self.training)
 
         return self.fc(output)
-
 
 
 class MyDataParallel(nn.DataParallel):

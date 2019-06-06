@@ -76,6 +76,8 @@ def parse_args():
     parser.add_argument('--lr-init', type=float, default=0.01)
     parser.add_argument('--lr-schedule', type=str, default='constant')
     parser.add_argument('--weight-decay', type=float, default=0.0)
+    parser.add_argument('--dropout', type=float, default=0.0)
+    parser.add_argument('--batchnorm', action="store_true")
     
     # Architecture params
     parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
@@ -124,6 +126,7 @@ if __name__ == "__main__":
     output_dims = list(map(int,args.output_dims.split(',') ))
     model = HINGCN_GS(**{
         "problem" : problem,
+        "n_mp" : len(schemes),
         "sampler_class" : sampler_lookup[args.sampler_class],
         
         "prep_class" : prep_lookup[args.prep_class],
@@ -131,11 +134,6 @@ if __name__ == "__main__":
         "mpaggr_class": aggregator_lookup[args.mpaggr_class],
         "edgeupt_class": aggregator_lookup[args.edgeupt_class],
 
-        "input_dim" : problem.feats_dim,
-        "edge_dim"  : problem.edge_dim,
-        "n_mp"   : len(schemes),
-        "n_nodes"   : problem.n_nodes,
-        "n_classes" : problem.n_classes,
         "layer_specs" : [
             {
                 "n_train_samples" : n_train_samples[0],
@@ -158,6 +156,8 @@ if __name__ == "__main__":
         # "lr_init" : args.lr_init,
         # "lr_schedule" : args.lr_schedule,
         # "weight_decay" : args.weight_decay,
+        "dropout" : args.dropout,
+        "batchnorm" :args.batchnorm,
     })
     
     if args.cuda:

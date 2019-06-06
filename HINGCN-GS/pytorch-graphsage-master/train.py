@@ -67,6 +67,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     
     parser.add_argument('--problem-path', type=str, required=True)
+    parser.add_argument('--problem', type=str, required=True)
     parser.add_argument('--no-cuda', action="store_true")
     
     # Optimization params
@@ -113,7 +114,7 @@ if __name__ == "__main__":
     # Load problem
     schemes = ['APA']# ,'APAPA','APCPA'
     device = torch.device("cuda:0" if torch.cuda.is_available() and args.cuda else "cpu")
-    problem = NodeProblem(problem_path=args.problem_path, device=device, schemes=schemes)
+    problem = NodeProblem(problem_path=args.problem_path,problem=args.problem, device=device, schemes=schemes)
     
     # --
     # Define model

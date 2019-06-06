@@ -68,12 +68,16 @@ class ProblemMetrics:
 # --
 # Problem definition
 
+read_feat_lookup = {
+    "dblp":read_mpindex_dblp,
+}
+
 class NodeProblem(object):
-    def __init__(self, problem_path, schemes, device):
+    def __init__(self, problem_path, problem, schemes, device):
         
         print('NodeProblem: loading started')
 
-        features, labels, folds = read_mpindex_dblp(path=problem_path)
+        features, labels, folds = read_feat_lookup[problem](path=problem_path)
 
         edge_index, edge_emb = load_edge_emb(path=problem_path,
                                              schemes=schemes,

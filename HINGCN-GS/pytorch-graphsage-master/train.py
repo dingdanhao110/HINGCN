@@ -165,10 +165,7 @@ if __name__ == "__main__":
         "batchnorm": args.batchnorm,
     })
 
-    if args.cuda:
-        print("Let's use", torch.cuda.device_count(), "GPUs!")
-        model = MyDataParallel(model)
-        model = model.to(device)
+
 
     # --
     # Define optimizer
@@ -176,6 +173,11 @@ if __name__ == "__main__":
     lr_scheduler = partial(getattr(LRSchedule, args.lr_schedule), lr_init=args.lr_init)
     lr = lr_scheduler(0.0)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=args.weight_decay)
+
+    if args.cuda:
+        print("Let's use", torch.cuda.device_count(), "GPUs!")
+        model = MyDataParallel(model)
+        model = model.to(device)
 
     print(model, file=sys.stdout)
 
@@ -186,6 +188,7 @@ if __name__ == "__main__":
 
     start_time = time()
     val_metric = None
+    #TODO: early stopping
     for epoch in range(args.epochs):
         train_loss = 0
         # Train

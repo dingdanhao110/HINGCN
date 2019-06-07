@@ -39,20 +39,23 @@ def train_step(model, optimizer, ids, targets, loss_fn):
     preds = model(ids, train=True)
     loss = loss_fn(preds, targets.squeeze())
     loss.backward()
-    torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
+    # torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
     optimizer.step()
     return loss, preds
 
 
-def evaluate(model, problem, batch_size, mode='val'):
+def evaluate(model, problem, batch_size, loss_fn, mode='val'):
     assert mode in ['test', 'val']
     preds, acts = [], []
+    loss=0
     for (ids, targets, _) in problem.iterate(mode=mode, shuffle=False, batch_size=batch_size):
         # print(ids.shape,targets.shape)
-        preds.append(to_numpy(model(ids, train=False)))
+        pred = model(ids, train=False)
+        loss += loss_fn(pred, targets.squeeze()).item()
+        preds.append(to_numpy(pred))
         acts.append(to_numpy(targets))
     #
-    return problem.metric_fn(np.vstack(acts), np.vstack(preds))
+    return loss, problem.metric_fn(np.vstack(acts), np.vstack(preds))
 
 
 # def evaluate(model, problem, batch_size, mode='val'):
@@ -220,13 +223,13 @@ if __name__ == "__main__":
         # Evaluate
         if epoch % args.log_interval == 0:
             _ = model.eval()
-            val_metric = evaluate(model, problem, batch_size=args.batch_size, mode='val')
-
+            loss, val_metric = evaluate(model, problem, batch_size=args.batch_size, mode='val',loss_fn=problem.loss_fn,)
+            _, test_metric =evaluate(model, problem, batch_size=args.batch_size, mode='test',loss_fn=problem.loss_fn,)
             print(json.dumps({
                 "epoch": epoch,
-                "train_loss": train_loss,
+                "val_loss": loss,
                 "val_metric": val_metric,
-                "test_metric": evaluate(model, problem, batch_size=args.batch_size, mode='test')
+                "test_metric": test_metric,
             }, double_precision=5))
             sys.stdout.flush()
 
@@ -241,5 +244,5 @@ if __name__ == "__main__":
 
     if args.show_test:
         print(json.dumps({
-            "test_metric": evaluate(model, problem, batch_size=args.batch_size, mode='test')
+            "test_metric": evaluate(model, problem, batch_size=args.batch_size, mode='test',loss_fn=problem.loss_fn,)
         }, double_precision=5))

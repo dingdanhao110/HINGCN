@@ -95,9 +95,9 @@ def parse_args():
     parser.add_argument('--concat-node', action="store_true")
     parser.add_argument('--concat-edge', action="store_true")
 
-    parser.add_argument('--n-train-samples', type=str, default='8,8')
-    parser.add_argument('--n-val-samples', type=str, default='8,8')
-    parser.add_argument('--output-dims', type=str, default='16,16')
+    parser.add_argument('--n-train-samples', type=str, default='8,8,8')
+    parser.add_argument('--n-val-samples', type=str, default='8,8,8')
+    parser.add_argument('--output-dims', type=str, default='16,16,16')
 
     # Logging
     parser.add_argument('--log-interval', default=10, type=int)
@@ -156,6 +156,14 @@ if __name__ == "__main__":
                 "n_val_samples": n_val_samples[1],
                 "output_dim": output_dims[1],
                 "activation": F.relu,  # lambda x: x
+                "concat_node": args.concat_node,
+                "concat_edge": args.concat_edge,
+            },
+            {
+                "n_train_samples": n_train_samples[2],
+                "n_val_samples": n_val_samples[2],
+                "output_dim": output_dims[2],
+                "activation": lambda x: x,  # lambda x: x
                 "concat_node": args.concat_node,
                 "concat_edge": args.concat_edge,
             },
@@ -243,6 +251,7 @@ if __name__ == "__main__":
     sys.stdout.flush()
 
     if args.show_test:
+        _ = model.eval()
         print(json.dumps({
             "test_metric": evaluate(model, problem, batch_size=args.batch_size, mode='test',loss_fn=problem.loss_fn,)
         }, double_precision=5))

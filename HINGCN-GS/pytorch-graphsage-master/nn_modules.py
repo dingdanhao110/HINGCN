@@ -127,7 +127,7 @@ sampler_lookup = {
 # Preprocessers
 
 class IdentityPrep(nn.Module):
-    def __init__(self, input_dim, n_nodes=None):
+    def __init__(self, input_dim, n_nodes=None, embedding_dim=64):
         """ Example of preprocessor -- doesn't do anything """
         super(IdentityPrep, self).__init__()
         self.input_dim = input_dim
@@ -173,7 +173,7 @@ class NodeEmbeddingPrep(nn.Module):
 
 
 class LinearPrep(nn.Module):
-    def __init__(self, input_dim, n_nodes, output_dim=32):
+    def __init__(self, input_dim, n_nodes, output_dim=32, embedding_dim=64):
         """ adds node embedding """
         super(LinearPrep, self).__init__()
         self.fc = nn.Linear(input_dim, output_dim, bias=False)

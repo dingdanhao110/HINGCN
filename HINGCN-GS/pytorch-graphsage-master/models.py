@@ -23,6 +23,7 @@ class HINGCN_GS(nn.Module):
     def __init__(self,
                  n_mp,
                  problem,
+                 prep_len,
                  layer_specs,
                  aggregator_class,
                  mpaggr_class,
@@ -65,7 +66,7 @@ class HINGCN_GS(nn.Module):
         self.val_sample_fns = [partial(self.val_sampler, n_samples=s['n_val_samples']) for s in layer_specs]
 
         # Prep
-        self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes)
+        self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes, embedding_dim = prep_len)
         self.input_dim = self.prep.output_dim
 
         # Network

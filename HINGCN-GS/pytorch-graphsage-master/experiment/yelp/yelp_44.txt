@@ -245,5 +245,4 @@ DataParallel(
 {"epoch":63,"epoch_progress":0.0,"train_metric":{"accuracy":0.43254,"micro":0.43254,"macro":0.23363},"time":899.8191}
 {"epoch":63,"time":899.8192,"train_loss":1.05048}
 {"epoch":63,"val_loss":1.03197,"val_metric":{"accuracy":0.3891,"micro":0.3891,"macro":0.18674},"test_metric":{"accuracy":0.39962,"micro":0.39962,"macro":0.19035}}
-{"epoch":64,"epoch_progress":0.0,"train_metric":{"accuracy":0.42488,"micro":0.42488,"macro":0.2235},"time":913.82318}
-{"epoch":64,"time":913.82325,"train_loss":1.04941}
+

@@ -95,6 +95,8 @@ def parse_args():
     parser.add_argument('--concat-node', action="store_true")
     parser.add_argument('--concat-edge', action="store_true")
 
+    parser.add_argument('--prep-len', type=int, default=16)
+
     parser.add_argument('--n-train-samples', type=str, default='8,8')
     parser.add_argument('--n-val-samples', type=str, default='8,8')
     parser.add_argument('--output-dims', type=str, default='16,16')
@@ -138,6 +140,7 @@ if __name__ == "__main__":
         "sampler_class": sampler_lookup[args.sampler_class],
 
         "prep_class": prep_lookup[args.prep_class],
+        "prep_len": args.prep_len,
         "aggregator_class": aggregator_lookup[args.aggregator_class],
         "mpaggr_class": metapath_aggregator_lookup[args.mpaggr_class],
         "edgeupt_class": edge_aggregator_lookup[args.edgeupt_class],

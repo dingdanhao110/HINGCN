@@ -48,6 +48,8 @@ parser.add_argument('--embedding_file', type=str, default='APA',
                     help='Dataset')
 parser.add_argument('--label_file', type=str, default='author_label',
                     help='Dataset')
+parser.add_argument('--prep-dim', type=int, default=32,
+                    help='Dataset')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -226,6 +228,8 @@ def read_graph_yelp(path="./data/yelp/", dataset="homograph",
     features = torch.FloatTensor(features[:,:2])
     features = torch.cat([features,embedding], dim=1)
 
+    # features = torch.FloatTensor(embedding)
+
     # build graph
     # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
     # idx_map = {j: i for i, j in enumerate(idx)}
@@ -271,7 +275,7 @@ model = GCN(n_nodes=features.shape[0],
             nclass=labels.max().item() + 1,
             dropout=args.dropout,
             prep=True,
-            emb_dim=128,
+            emb_dim=16, #args.prep_dim
             )
 optimizer = optim.Adam(model.parameters(),
                        lr=args.lr, weight_decay=args.weight_decay)
@@ -302,7 +306,7 @@ def train(epoch):
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
         model.eval()
-        output = model(features)
+        output = model(features,adj)
 
     loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     acc_val = accuracy(output[idx_val], labels[idx_val])
@@ -323,6 +327,7 @@ def test():
           "loss= {:.4f}".format(loss_test.item()),
           "accuracy= {:.4f}".format(acc_test.item()))
 
+print(model)
 
 # Train model
 t_total = time.time()

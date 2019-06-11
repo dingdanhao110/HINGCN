@@ -617,11 +617,7 @@ aggregator_lookup = {
     "mean_pool": MeanPoolAggregator,
     "lstm": LSTMAggregator,
     "attention": AttentionAggregator,
-
-
     "edge_emb_attn": EdgeEmbAttentionAggregator,
-    # "vertex_attn": EdgeAttentionAggregator,
-
 }
 
 metapath_aggregator_lookup={

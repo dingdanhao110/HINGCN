@@ -1,0 +1,59 @@
+import sys
+import argparse
+import ujson as json
+import matplotlib.pyplot as plt
+
+from time import time
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('--log-file', type=str, required=True)
+
+    args = parser.parse_args()
+
+    return args
+
+if __name__ == "__main__":
+    args = parse_args()
+
+    epoches = []
+    val_loss = []
+    train_loss = []
+    val_acc = []
+    train_acc = []
+
+    with open(args.log_file, mode='r') as f:
+        for line in f:
+            if '{' not in line:
+                continue
+
+            line = json.loads(line)
+            if 'train_loss' in line:
+
+                train_loss.append(line['train_loss'])
+            if 'val_loss' in line:
+                epoches.append(line['epoch'])
+                val_loss.append(line['val_loss'])
+
+            if 'train_metric' in line:
+                train_acc.append(line['train_metric']['accuracy'])
+            if 'val_metric' in line:
+                val_acc.append(line['val_metric']['accuracy'])
+
+
+    plt.figure()
+    plt.subplot(211)
+    plt.plot(epoches, train_loss, 'r', label='train')
+    plt.plot(epoches, val_loss, 'g', label='val')
+    plt.ylabel('loss')
+    plt.xlabel('epoches')
+    plt.legend(loc='upper right')
+
+    plt.subplot(212)
+    plt.plot(epoches, train_acc, 'r', label='train')
+    plt.plot(epoches, val_acc, 'g', label='val')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoches')
+    plt.legend(loc='lower right')
+    plt.show()

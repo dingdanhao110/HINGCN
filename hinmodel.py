@@ -6,14 +6,24 @@ from inductive_modules import *
 
 
 class GCN(nn.Module):
-    def __init__(self, nfeat, nhid, nclass, dropout):
+    def __init__(self, n_nodes, nfeat, nhid, nclass, dropout, prep=True, emb_dim=64):
         super(GCN, self).__init__()
+
+        self.n_nodes=n_nodes
+        self.dropout = dropout
+
+        if prep:
+            self.prep = NodeEmbeddingPrep(nfeat, n_nodes, embedding_dim=emb_dim)
+            nfeat += emb_dim
+        else:
+            self.prep = None
 
         self.gc1 = GraphConvolution(nfeat, nhid)
         self.gc2 = GraphConvolution(nhid, nclass)
-        self.dropout = dropout
 
     def forward(self, x, adj):
+        if self.prep:
+            x = self.prep(torch.arange(self.n_nodes),x)
         x = F.relu(self.gc1(x, adj))
         x = F.dropout(x, self.dropout, training=self.training)
         x = self.gc2(x, adj)

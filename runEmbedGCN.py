@@ -198,18 +198,80 @@ def read_graph2(path="./data/dblp/", dataset="homograph", label_file="author_lab
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
+
+def read_graph_yelp(path="./data/yelp/", dataset="homograph",
+                    label_file="true_cluster", emb_file="RBUK_16"):
+    print('Loading {} dataset...'.format(dataset))
+
+    with open("{}{}.emb".format(path, emb_file)) as f:
+        n_nodes, n_feature = map(int, f.readline().strip().split())
+    print("number of nodes:{}, embedding size:{}".format(n_nodes, n_feature))
+
+    embedding = np.loadtxt("{}{}.emb".format(path, emb_file),
+                           dtype=np.int32, skiprows=1)
+    emd_index = {}
+    for i in range(n_nodes):
+        emd_index[embedding[i, 0]] = i
+
+    embedding = np.asarray([embedding[emd_index[i], 1:] for i in range(n_nodes)])
+
+    assert embedding.shape[1] == n_feature
+    assert embedding.shape[0] == n_nodes
+    embedding = torch.FloatTensor(embedding)
+
+    features = np.genfromtxt("{}{}.txt".format(path, 'attributes'),
+                                    dtype=np.float)
+    features = np.pad(features, ((0, embedding.shape[0] - features.shape[0]), (0, 0)), 'constant', constant_values=0)
+
+    features = torch.FloatTensor(features[:,:2])
+    features = torch.cat([features,embedding], dim=1)
+
+    # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    edges = np.genfromtxt("{}{}.txt".format(path, dataset),
+                                    dtype=np.int32)
+    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+                       shape=(n_nodes, n_nodes),
+                       dtype=np.float32)
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+
+    # features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    labels = np.genfromtxt("{}{}.txt".format(path, label_file),
+                           dtype=np.int32)
+    reordered = np.random.permutation(np.arange(labels.shape[0]))
+    total_labeled = labels.shape[0]
+
+    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
+    idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
+
+    idx_train = torch.LongTensor(idx_train)
+    idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+    labels = torch.LongTensor(labels)
+
+    return adj, features, labels, idx_train, idx_val, idx_test
+
 # Load data
 adj, features, labels, idx_train, idx_val, idx_test = \
-    read_graph2(path=args.dataset_path,
-               dataset=args.dataset, label_file=args.label_file, emb_file=args.embedding_file)
+    read_graph_yelp()
 
 print('Read data finished!')
 
 # Model and optimizer
-model = GCN(nfeat=features.shape[1],
+model = GCN(n_nodes=features.shape[0],
+            nfeat=features.shape[1],
             nhid=args.hidden,
             nclass=labels.max().item() + 1,
             dropout=args.dropout,
+            prep=True,
+            emb_dim=128,
             )
 optimizer = optim.Adam(model.parameters(),
                        lr=args.lr, weight_decay=args.weight_decay)

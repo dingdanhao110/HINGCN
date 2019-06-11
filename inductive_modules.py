@@ -339,3 +339,36 @@ aggregator_lookup = {
     "eged_attention": EdgeAttentionAggregator,
     "edge_emb_attn": EdgeEmbAttentionAggregator,
 }
+
+
+
+class NodeEmbeddingPrep(nn.Module):
+    def __init__(self, input_dim, n_nodes, embedding_dim=64):
+        """ adds node embedding """
+        super(NodeEmbeddingPrep, self).__init__()
+
+        self.n_nodes = n_nodes
+        self.input_dim = input_dim
+        self.embedding_dim = embedding_dim
+        self.embedding = nn.Embedding(num_embeddings=n_nodes + 1, embedding_dim=embedding_dim)
+        self.fc = nn.Linear(embedding_dim, embedding_dim)  # Affine transform, for changing scale + location
+
+    @property
+    def output_dim(self):
+        if self.input_dim:
+            return self.input_dim + self.embedding_dim
+        else:
+            return self.embedding_dim
+
+    def forward(self, ids, feats, layer_idx=0):
+        if layer_idx > 0:
+            embs = self.embedding(ids)
+        else:
+            # Don't look at node's own embedding for prediction, or you'll probably overfit a lot
+            embs = self.embedding(Variable(ids.clone().data.zero_() + self.n_nodes))
+
+        embs = self.fc(embs)
+        if self.input_dim:
+            return torch.cat([feats, embs], dim=1)
+        else:
+            return embs

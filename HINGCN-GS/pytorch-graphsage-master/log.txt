@@ -1,0 +1,11 @@
+NodeProblem: loading started
+Traceback (most recent call last):
+  File "./train.py", line 91, in <module>
+    problem = NodeProblem(problem_path=args.problem_path, cuda=args.cuda, schemes=schemes)
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/problem.py", line 80, in __init__
+    n_dim=16)
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/helpers.py", line 123, in load_edge_emb
+    data = np.load("{}edge{}.npz".format(path, n_dim))
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/npyio.py", line 415, in load
+    fid = open(os_fspath(file), "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '../../data/dblp/edge16.npz'

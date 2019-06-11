@@ -1,0 +1,54 @@
+NodeProblem: loading started
+loading edge embedding for BRURB complete
+loading edge embedding for BRKRB complete
+NodeProblem: loading finished
+Let's use 2 GPUs!
+DataParallel(
+  (module): HINGCN_GS(
+    (prep): NodeEmbeddingPrep(
+      (embedding): Embedding(2615, 64)
+      (fc): Linear(in_features=64, out_features=64, bias=True)
+    )
+    (agg_0_0): EdgeEmbAttentionAggregator (66 + 16 -> 16)
+    (edge_0_0): IdEdgeAggregator()
+    (agg_0_1): EdgeEmbAttentionAggregator (16 + 16 -> 16)
+    (edge_0_1): IdEdgeAggregator()
+    (agg_0_2): EdgeEmbAttentionAggregator (16 + 16 -> 16)
+    (edge_0_2): IdEdgeAggregator()
+    (agg_1_0): EdgeEmbAttentionAggregator (66 + 16 -> 16)
+    (edge_1_0): IdEdgeAggregator()
+    (agg_1_1): EdgeEmbAttentionAggregator (16 + 16 -> 16)
+    (edge_1_1): IdEdgeAggregator()
+    (agg_1_2): EdgeEmbAttentionAggregator (16 + 16 -> 16)
+    (edge_1_2): IdEdgeAggregator()
+    (mp_agg): MetapathAggrLayer (16 -> 16)
+    (fc): Linear(in_features=16, out_features=3, bias=True)
+  )
+)
+{"epoch":0,"epoch_progress":0.0,"train_metric":{"accuracy":0.42297,"micro":0.42297,"macro":0.20054},"time":52.15351}
+{"epoch":0,"time":52.15371,"train_loss":1.08351}
+{"epoch":0,"val_loss":1.06432,"val_metric":{"accuracy":0.40918,"micro":0.40918,"macro":0.26161},"test_metric":{"accuracy":0.39962,"micro":0.39962,"macro":0.25321}}
+{"epoch":1,"epoch_progress":0.0,"train_metric":{"accuracy":0.43923,"micro":0.43923,"macro":0.27362},"time":186.54742}
+{"epoch":1,"time":186.5476,"train_loss":1.05821}
+{"epoch":1,"val_loss":1.04853,"val_metric":{"accuracy":0.41587,"micro":0.41587,"macro":0.25942},"test_metric":{"accuracy":0.413,"micro":0.413,"macro":0.24818}}
+{"epoch":2,"epoch_progress":0.0,"train_metric":{"accuracy":0.44211,"micro":0.44211,"macro":0.26558},"time":325.89475}
+{"epoch":2,"time":325.89484,"train_loss":1.04996}
+{"epoch":2,"val_loss":1.03833,"val_metric":{"accuracy":0.39771,"micro":0.39771,"macro":0.22499},"test_metric":{"accuracy":0.413,"micro":0.413,"macro":0.24582}}
+{"epoch":3,"epoch_progress":0.0,"train_metric":{"accuracy":0.44689,"micro":0.44689,"macro":0.25098},"time":466.02545}
+{"epoch":3,"time":466.02554,"train_loss":1.03512}
+{"epoch":3,"val_loss":1.03371,"val_metric":{"accuracy":0.39962,"micro":0.39962,"macro":0.21797},"test_metric":{"accuracy":0.41491,"micro":0.41491,"macro":0.23103}}
+{"epoch":4,"epoch_progress":0.0,"train_metric":{"accuracy":0.44402,"micro":0.44402,"macro":0.235},"time":604.34871}
+{"epoch":4,"time":604.3488,"train_loss":1.03744}
+{"epoch":4,"val_loss":1.03066,"val_metric":{"accuracy":0.41109,"micro":0.41109,"macro":0.24794},"test_metric":{"accuracy":0.40918,"micro":0.40918,"macro":0.23171}}
+{"epoch":5,"epoch_progress":0.0,"train_metric":{"accuracy":0.46316,"micro":0.46316,"macro":0.27677},"time":743.84614}
+{"epoch":5,"time":743.84634,"train_loss":1.02919}
+{"epoch":5,"val_loss":1.01577,"val_metric":{"accuracy":0.46176,"micro":0.46176,"macro":0.31807},"test_metric":{"accuracy":0.43403,"micro":0.43403,"macro":0.29571}}
+{"epoch":6,"epoch_progress":0.0,"train_metric":{"accuracy":0.46699,"micro":0.46699,"macro":0.30993},"time":882.05453}
+{"epoch":6,"time":882.05464,"train_loss":1.02383}
+{"epoch":6,"val_loss":1.00996,"val_metric":{"accuracy":0.51816,"micro":0.51816,"macro":0.37603},"test_metric":{"accuracy":0.47801,"micro":0.47801,"macro":0.35278}}
+{"epoch":7,"epoch_progress":0.0,"train_metric":{"accuracy":0.5244,"micro":0.5244,"macro":0.38354},"time":1021.05002}
+{"epoch":7,"time":1021.05011,"train_loss":1.01844}
+{"epoch":7,"val_loss":1.00261,"val_metric":{"accuracy":0.52964,"micro":0.52964,"macro":0.38245},"test_metric":{"accuracy":0.4761,"micro":0.4761,"macro":0.35245}}
+{"epoch":8,"epoch_progress":0.0,"train_metric":{"accuracy":0.49282,"micro":0.49282,"macro":0.36361},"time":1157.18679}
+{"epoch":8,"time":1157.18688,"train_loss":1.02185}
+{"epoch":8,"val_loss":0.99404,"val_metric":{"accuracy":0.52008,"micro":0.52008,"macro":0.37723},"test_metric":{"accuracy":0.46845,"micro":0.46845,"macro":0.34496}}

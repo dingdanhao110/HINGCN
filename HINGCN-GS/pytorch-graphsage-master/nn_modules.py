@@ -300,8 +300,10 @@ class LSTMAggregator(nn.Module, AggregatorMixin):
         return out
 
 
-class AttentionAggregator(nn.Module, AggregatorMixin):
-    def __init__(self, input_dim, output_dim, activation, hidden_dim=32, combine_fn=lambda x: torch.cat(x, dim=1)):
+class AttentionAggregator(nn.Module):
+    def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=32,
+                 dropout=0.5, alpha=0.8,
+                 concat_node=True, concat_edge=True, batchnorm=False):
         super(AttentionAggregator, self).__init__()
 
         self.att = nn.Sequential(*[
@@ -312,11 +314,15 @@ class AttentionAggregator(nn.Module, AggregatorMixin):
         self.fc_x = nn.Linear(input_dim, output_dim, bias=False)
         self.fc_neib = nn.Linear(input_dim, output_dim, bias=False)
 
-        self.output_dim_ = output_dim
+        self.dropout = dropout
+        self.batchnorm = batchnorm
+        self.output_dim = output_dim
         self.activation = activation
-        self.combine_fn = combine_fn
 
-    def forward(self, x, neibs):
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.output_dim)
+
+    def forward(self, x, neibs, edge_emb):
         # Compute attention weights
         neib_att = self.att(neibs)
         x_att = self.att(x)
@@ -324,11 +330,17 @@ class AttentionAggregator(nn.Module, AggregatorMixin):
         x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
         ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
 
+        ws = F.dropout(ws, self.dropout, training=self.training)
+
         # Weighted average of neighbors
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))
         agg_neib = torch.sum(agg_neib * ws.unsqueeze(-1), dim=1)
 
-        out = self.combine_fn([self.fc_x(x), self.fc_neib(agg_neib)])
+        out = self.fc_x(x)+ self.fc_neib(agg_neib)
+
+        if self.batchnorm:
+            output = self.bn(out)
+
         if self.activation:
             out = self.activation(out)
 
@@ -608,6 +620,7 @@ aggregator_lookup = {
 
 
     "edge_emb_attn": EdgeEmbAttentionAggregator,
+    # "vertex_attn": EdgeAttentionAggregator,
 
 }
 

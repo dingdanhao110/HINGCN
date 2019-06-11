@@ -48,6 +48,8 @@ parser.add_argument('--embedding_file', type=str, default='APA',
                     help='Dataset')
 parser.add_argument('--label_file', type=str, default='author_label',
                     help='Dataset')
+parser.add_argument('--prep-dim', type=int, default=32,
+                    help='Dataset')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -198,18 +200,82 @@ def read_graph2(path="./data/dblp/", dataset="homograph", label_file="author_lab
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
+
+def read_graph_yelp(path="./data/yelp/", dataset="homograph",
+                    label_file="true_cluster", emb_file="RBUK_16"):
+    print('Loading {} dataset...'.format(dataset))
+
+    with open("{}{}.emb".format(path, emb_file)) as f:
+        n_nodes, n_feature = map(int, f.readline().strip().split())
+    print("number of nodes:{}, embedding size:{}".format(n_nodes, n_feature))
+
+    embedding = np.loadtxt("{}{}.emb".format(path, emb_file),
+                           dtype=np.int32, skiprows=1)
+    emd_index = {}
+    for i in range(n_nodes):
+        emd_index[embedding[i, 0]] = i
+
+    embedding = np.asarray([embedding[emd_index[i], 1:] for i in range(n_nodes)])
+
+    assert embedding.shape[1] == n_feature
+    assert embedding.shape[0] == n_nodes
+    embedding = torch.FloatTensor(embedding)
+
+    features = np.genfromtxt("{}{}.txt".format(path, 'attributes'),
+                                    dtype=np.float)
+    features = np.pad(features, ((0, embedding.shape[0] - features.shape[0]), (0, 0)), 'constant', constant_values=0)
+
+    features = torch.FloatTensor(features[:,:2])
+    features = torch.cat([features,embedding], dim=1)
+
+    # features = torch.FloatTensor(embedding)
+
+    # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    edges = np.genfromtxt("{}{}.txt".format(path, dataset),
+                                    dtype=np.int32)
+    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+                       shape=(n_nodes, n_nodes),
+                       dtype=np.float32)
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+
+    # features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    labels = np.genfromtxt("{}{}.txt".format(path, label_file),
+                           dtype=np.int32)
+    reordered = np.random.permutation(np.arange(labels.shape[0]))
+    total_labeled = labels.shape[0]
+
+    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
+    idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
+
+    idx_train = torch.LongTensor(idx_train)
+    idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+    labels = torch.LongTensor(labels)
+
+    return adj, features, labels, idx_train, idx_val, idx_test
+
 # Load data
 adj, features, labels, idx_train, idx_val, idx_test = \
-    read_graph2(path=args.dataset_path,
-               dataset=args.dataset, label_file=args.label_file, emb_file=args.embedding_file)
+    read_graph_yelp()
 
 print('Read data finished!')
 
 # Model and optimizer
-model = GCN(nfeat=features.shape[1],
+model = GCN(n_nodes=features.shape[0],
+            nfeat=features.shape[1],
             nhid=args.hidden,
             nclass=labels.max().item() + 1,
             dropout=args.dropout,
+            prep=True,
+            emb_dim=16, #args.prep_dim
             )
 optimizer = optim.Adam(model.parameters(),
                        lr=args.lr, weight_decay=args.weight_decay)
@@ -240,7 +306,7 @@ def train(epoch):
         # Evaluate validation set performance separately,
         # deactivates dropout during validation run.
         model.eval()
-        output = model(features)
+        output = model(features,adj)
 
     loss_val = F.nll_loss(output[idx_val], labels[idx_val])
     acc_val = accuracy(output[idx_val], labels[idx_val])
@@ -261,6 +327,7 @@ def test():
           "loss= {:.4f}".format(loss_test.item()),
           "accuracy= {:.4f}".format(acc_test.item()))
 
+print(model)
 
 # Train model
 t_total = time.time()

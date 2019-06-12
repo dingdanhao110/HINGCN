@@ -317,6 +317,6 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
     pass
 
 
-# gen_homograph()
+# gen_homograph(path='../../../data/freebase/')
 
-dump_yago_edge_emb()
+dump_yago_edge_emb(path='../../../data/freebase/')

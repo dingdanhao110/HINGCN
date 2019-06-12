@@ -43,6 +43,15 @@ if __name__ == "__main__":
             if 'val_metric' in line:
                 val_acc.append(line['val_metric']['accuracy'])
 
+    l = min(len(train_loss),len(val_loss),len(val_acc),len(train_acc))
+    if len(train_loss)>l:
+        train_loss=train_loss[:-1]
+    if len(val_loss)>l:
+        val_loss=val_loss[:-1]
+    if len(train_acc)>l:
+        train_acc=train_acc[:-1]
+    if len(val_acc)>l:
+        val_acc=val_acc[:-1]
 
     plt.figure()
     plt.title(args.log_file)

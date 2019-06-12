@@ -179,3 +179,38 @@ def read_mpindex_yelp(path="../../data/yelp/"):
 
     return features, labels, folds
 
+
+def read_mpindex_yago(path="../../data/yago/", label_file = "labels"):
+
+    movies = []
+    with open('{}{}.txt'.format(path, "movies"), mode='r', encoding='UTF-8') as f:
+        for line in f:
+            movies.append(line.split()[0])
+
+    n_movie = len(movies)
+    movie_dict = {a: i for (i, a) in enumerate(movies)}
+
+    features = np.zeros(n_movie).reshape(-1,1)
+
+    labels_raw = []
+    with open('{}{}.txt'.format(path, label_file), 'r', encoding='UTF-8') as f:
+        for line in f:
+            arr = line.split()
+            labels_raw.append([int(movie_dict[arr[0]]), int(arr[1])])
+    labels_raw = np.asarray(labels_raw)
+
+    labels = np.zeros(n_movie)
+    labels[labels_raw[:, 0]] = labels_raw[:, 1]
+
+    reordered = np.random.permutation(labels_raw[:, 0])
+    total_labeled = labels_raw.shape[0]
+
+    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
+    idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
+
+    folds = {'train': idx_train, 'val': idx_val, 'test': idx_test}
+
+    return features, labels, folds
+
+features, labels, folds = read_mpindex_yago()

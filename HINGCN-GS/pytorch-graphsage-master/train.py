@@ -85,6 +85,7 @@ def parse_args():
     parser.add_argument('--weight-decay', type=float, default=0.0)
     parser.add_argument('--dropout', type=float, default=0.0)
     parser.add_argument('--batchnorm', action="store_true")
+    parser.add_argument('--tolerance', type=int, default=100)
 
     # Architecture params
     parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
@@ -102,7 +103,7 @@ def parse_args():
     parser.add_argument('--output-dims', type=str, default='16,16')
 
     # Logging
-    parser.add_argument('--log-interval', default=10, type=int)
+    parser.add_argument('--log-interval', default=1, type=int)
     parser.add_argument('--seed', default=42, type=int)
     parser.add_argument('--show-test', action="store_true")
 
@@ -200,8 +201,13 @@ if __name__ == "__main__":
 
     start_time = time()
     val_metric = None
-    #TODO: early stopping
+    tolerance = 0
+    best_val_loss=100000
+    best_result = None
     for epoch in range(args.epochs):
+        # early stopping
+        if tolerance > args.tolerance:
+            break
         train_loss = 0
         # Train
         _ = model.train()
@@ -241,20 +247,28 @@ if __name__ == "__main__":
                 "val_loss": loss,
                 "val_metric": val_metric,
                 "test_metric": test_metric,
+                "tolerance:": tolerance,
             }, double_precision=5))
             sys.stdout.flush()
 
+            if loss < best_val_loss:
+                tolerance = 0
+                best_val_loss = loss
+                best_result = json.dumps({
+                "epoch": epoch,
+                "val_loss": loss,
+                "val_metric": val_metric,
+                "test_metric": test_metric,
+            }, double_precision=5)
+            else:
+                tolerance+=1
+
     print('-- done --', file=sys.stderr)
-    print(json.dumps({
-        "epoch": epoch,
-        "train_metric": train_metric,
-        "val_metric": val_metric,
-        "time": time() - start_time,
-    }, double_precision=5))
+    print(best_result)
     sys.stdout.flush()
 
-    if args.show_test:
-        _ = model.eval()
-        print(json.dumps({
-            "test_metric": evaluate(model, problem, batch_size=args.batch_size, mode='test',loss_fn=problem.loss_fn,)
-        }, double_precision=5))
+    # if args.show_test:
+    #     _ = model.eval()
+    #     print(json.dumps({
+    #         "test_metric": evaluate(model, problem, batch_size=args.batch_size, mode='test',loss_fn=problem.loss_fn,)
+    #     }, double_precision=5))

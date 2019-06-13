@@ -3080,10 +3080,4 @@ DataParallel(
 {"epoch":999,"epoch_progress":0.0,"train_metric":{"accuracy":0.71991,"micro":0.71991,"macro":0.53452},"time":15844.28194}
 {"epoch":999,"time":15844.28208,"train_loss":0.62231}
 {"epoch":999,"val_loss":1.97419,"val_metric":{"accuracy":0.5247,"micro":0.5247,"macro":0.3837},"test_metric":{"accuracy":0.53648,"micro":0.53648,"macro":0.39033}}
-{"epoch":999,"train_metric":{"accuracy":0.71991,"micro":0.71991,"macro":0.53452},"val_metric":{"accuracy":0.5247,"micro":0.5247,"macro":0.3837},"time":15853.51183}
-/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/nn_modules.py:331: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
-  ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
-/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
-  'precision', 'predicted', average, warn_for)
--- done --
-{"test_metric":[1.90797,{"accuracy":0.53648,"micro":0.53648,"macro":0.39046}]}
+

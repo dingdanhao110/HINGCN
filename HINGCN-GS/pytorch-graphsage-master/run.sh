@@ -3,48 +3,35 @@
 # run.sh
 
 # --
-# Small
+#
 
-time ./train.py \
-    --problem-path ./data/reddit/problem.h5 \
-    --aggregator-class mean
+lr="0.01 0.003 0.001"
+prep="node_embedding"
+aggr="attention edge_emb_attn"
+edge="identity residual attention"
 
-# >>
-# Test sparse sampler for reddit
-time python ./train.py \
-    --problem-path ./data/reddit/sparse-problem.h5 \
-    --aggregator-class mean \
-    --sampler-class sparse_uniform_neighbor_sampler
+count="10"
+for l in $lr; do
+for p in $prep; do
+for a in $aggr; do
+for e in $edge; do
+python3 ./train.py \
+    --problem-path ../../data/freebase \
+    --problem yago \
+    --epochs 1000 \
+    --batch-size 2048 \
+    --lr-init $l \
+    --lr-schedule constant\
+    --dropout 0.5\
+    --batchnorm\
+    --prep-class $prep \
+    --edgeupt-class $edge \
+    --aggregator-class $aggr \
+    --log-interval 1\
+    > "experiment/freebase/fb_"$count".txt" &
+let count++
+done
+done
+done
+done
 
-time python ./train.py \
-    --problem-path ./data/reddit/sparse-full-problem.h5 \
-    --aggregator-class mean \
-    --sampler-class sparse_uniform_neighbor_sampler
-
-# <<
-
-time ./train.py \
-    --problem-path ./data/cora/problem.h5 \
-    --aggregator-class mean
-
-time ./train.py \
-    --problem-path ./data/pokec/problem.h5 \
-    --aggregator-class mean \
-    --prep-class node_embedding \
-    --epochs 3
-
-# >>
-# Sparse sampler for pokec
-
-time ./train.py \
-    --problem-path ./data/pokec/problem.h5 \
-    --aggregator-class mean \
-    --prep-class node_embedding \
-    --sampler-class sparse_uniform_neighbor_sampler \
-    --epochs 3
-
-# <<
-
-python ./train.py \
-    --problem-path ./data/example_data/problem.h5 \
-    --aggregator-class mean

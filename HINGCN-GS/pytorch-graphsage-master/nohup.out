@@ -1,0 +1,42 @@
+/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/nn_modules.py:331: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+-- done --
+/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/nn_modules.py:331: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+-- done --
+/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/nn_modules.py:331: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+-- done --
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+-- done --
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+-- done --
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+-- done --
+/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/nn_modules.py:331: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+-- done --
+/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/nn_modules.py:331: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+-- done --
+/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/nn_modules.py:331: UserWarning: Implicit dimension choice for softmax has been deprecated. Change the call to include dim=X as an argument.
+  ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+-- done --
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+-- done --

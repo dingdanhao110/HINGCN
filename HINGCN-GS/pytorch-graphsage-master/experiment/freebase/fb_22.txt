@@ -1,0 +1,84 @@
+NodeProblem: loading started
+loading edge embedding for MAM complete
+loading edge embedding for MDM complete
+loading edge embedding for MWM complete
+NodeProblem: loading finished
+Let's use 2 GPUs!
+DataParallel(
+  (module): HINGCN_GS(
+    (prep): NodeEmbeddingPrep(
+      (embedding): Embedding(3493, 16)
+      (fc): Linear(in_features=16, out_features=16, bias=True)
+    )
+    (agg_0_0): AttentionAggregator(
+      (att): Sequential(
+        (0): Linear(in_features=17, out_features=32, bias=False)
+        (1): Tanh()
+        (2): Linear(in_features=32, out_features=32, bias=False)
+      )
+      (fc_x): Linear(in_features=17, out_features=16, bias=False)
+      (fc_neib): Linear(in_features=17, out_features=16, bias=False)
+      (bn): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (edge_0_0): IdEdgeAggregator()
+    (agg_0_1): AttentionAggregator(
+      (att): Sequential(
+        (0): Linear(in_features=16, out_features=32, bias=False)
+        (1): Tanh()
+        (2): Linear(in_features=32, out_features=32, bias=False)
+      )
+      (fc_x): Linear(in_features=16, out_features=16, bias=False)
+      (fc_neib): Linear(in_features=16, out_features=16, bias=False)
+      (bn): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (edge_0_1): IdEdgeAggregator()
+    (agg_1_0): AttentionAggregator(
+      (att): Sequential(
+        (0): Linear(in_features=17, out_features=32, bias=False)
+        (1): Tanh()
+        (2): Linear(in_features=32, out_features=32, bias=False)
+      )
+      (fc_x): Linear(in_features=17, out_features=16, bias=False)
+      (fc_neib): Linear(in_features=17, out_features=16, bias=False)
+      (bn): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (edge_1_0): IdEdgeAggregator()
+    (agg_1_1): AttentionAggregator(
+      (att): Sequential(
+        (0): Linear(in_features=16, out_features=32, bias=False)
+        (1): Tanh()
+        (2): Linear(in_features=32, out_features=32, bias=False)
+      )
+      (fc_x): Linear(in_features=16, out_features=16, bias=False)
+      (fc_neib): Linear(in_features=16, out_features=16, bias=False)
+      (bn): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (edge_1_1): IdEdgeAggregator()
+    (agg_2_0): AttentionAggregator(
+      (att): Sequential(
+        (0): Linear(in_features=17, out_features=32, bias=False)
+        (1): Tanh()
+        (2): Linear(in_features=32, out_features=32, bias=False)
+      )
+      (fc_x): Linear(in_features=17, out_features=16, bias=False)
+      (fc_neib): Linear(in_features=17, out_features=16, bias=False)
+      (bn): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (edge_2_0): IdEdgeAggregator()
+    (agg_2_1): AttentionAggregator(
+      (att): Sequential(
+        (0): Linear(in_features=16, out_features=32, bias=False)
+        (1): Tanh()
+        (2): Linear(in_features=32, out_features=32, bias=False)
+      )
+      (fc_x): Linear(in_features=16, out_features=16, bias=False)
+      (fc_neib): Linear(in_features=16, out_features=16, bias=False)
+      (bn): BatchNorm1d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    )
+    (edge_2_1): IdEdgeAggregator()
+    (mp_agg): MetapathAggrLayer (16 -> 16)
+    (fc): Linear(in_features=16, out_features=3, bias=True)
+  )
+)
+{"epoch":0,"epoch_progress":0.0,"train_metric":{"accuracy":0.24427,"micro":0.24427,"macro":0.2271},"time":33.96285}
+{"epoch":0,"time":33.96296,"train_loss":1.13741}

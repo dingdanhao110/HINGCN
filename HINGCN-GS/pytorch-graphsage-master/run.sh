@@ -28,7 +28,7 @@ python3 ./train.py \
     --edgeupt-class $e \
     --aggregator-class $a \
     --log-interval 1\
-    > "experiment/freebase/fb_"$count".txt" &
+    > "experiment/freebase/fb_"$count".txt" 
 let count++
 done
 done

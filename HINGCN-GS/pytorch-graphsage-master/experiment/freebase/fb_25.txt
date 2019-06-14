@@ -1,0 +1,28 @@
+NodeProblem: loading started
+loading edge embedding for MAM complete
+loading edge embedding for MDM complete
+loading edge embedding for MWM complete
+NodeProblem: loading finished
+Let's use 2 GPUs!
+DataParallel(
+  (module): HINGCN_GS(
+    (prep): NodeEmbeddingPrep(
+      (embedding): Embedding(3493, 16)
+      (fc): Linear(in_features=16, out_features=16, bias=True)
+    )
+    (agg_0_0): EdgeEmbAttentionAggregator (17 + 16 -> 16)
+    (edge_0_0): IdEdgeAggregator()
+    (agg_0_1): EdgeEmbAttentionAggregator (16 + 16 -> 16)
+    (edge_0_1): IdEdgeAggregator()
+    (agg_1_0): EdgeEmbAttentionAggregator (17 + 16 -> 16)
+    (edge_1_0): IdEdgeAggregator()
+    (agg_1_1): EdgeEmbAttentionAggregator (16 + 16 -> 16)
+    (edge_1_1): IdEdgeAggregator()
+    (agg_2_0): EdgeEmbAttentionAggregator (17 + 16 -> 16)
+    (edge_2_0): IdEdgeAggregator()
+    (agg_2_1): EdgeEmbAttentionAggregator (16 + 16 -> 16)
+    (edge_2_1): IdEdgeAggregator()
+    (mp_agg): MetapathAggrLayer (16 -> 16)
+    (fc): Linear(in_features=16, out_features=3, bias=True)
+  )
+)

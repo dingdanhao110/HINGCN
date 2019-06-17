@@ -90,7 +90,7 @@ class NodeProblem(object):
 
         #input: features, homograph, edge embedding
         if features.shape[1]>1:
-            self.feats = features
+            self.feats = np.pad(features,((0,1),(0,0)),'constant')
         else:
             self.feats = None
         self.adj = edge_index
@@ -103,7 +103,7 @@ class NodeProblem(object):
 
         self.feats_dim = self.feats.shape[1] if self.feats is not None else None
         self.edge_dim = edge_emb[schemes[0]].shape[1]
-        self.n_nodes   = features.shape[0]
+        self.n_nodes   = features.shape[0]+1
         self.device      = device
         self.__to_torch()
         

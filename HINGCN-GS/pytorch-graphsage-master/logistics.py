@@ -70,6 +70,7 @@ def parse_args():
 
     parser.add_argument('--problem-path', type=str, required=True)
     parser.add_argument('--problem', type=str, required=True)
+    parser.add_argument('--feat', type=str, required=True)
     parser.add_argument('--no-cuda', action="store_true")
 
     # Optimization params
@@ -104,13 +105,13 @@ if __name__ == "__main__":
 
     # --
     # Load problem
-    schemes = ['MAM','MDM','MWM']  # ,'APAPA','APCPA'  yelp: 'BRURB', 'BRKRB'; YAGO: 'MAM','MDM','MWM'
+    schemes = ['BRURB','BRKRB']  # ,'APAPA','APCPA'  yelp: 'BRURB', 'BRKRB'; YAGO: 'MAM','MDM','MWM'
     device = torch.device("cuda:0" if torch.cuda.is_available() and args.cuda else "cpu")
     problem = NodeProblem(problem_path=args.problem_path, problem=args.problem, device=device, schemes=schemes)
 
     #load embeddings as features
     features, n_nodes, n_feature = read_embed(path=args.problem_path,
-                                              emb_file='MADW_16')
+                                              emb_file=args.feat)
     features = torch.FloatTensor(features)
     # --
     # Define model

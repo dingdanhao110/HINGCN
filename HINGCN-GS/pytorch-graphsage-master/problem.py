@@ -89,7 +89,10 @@ class NodeProblem(object):
         self.n_classes = int(max(labels)+1) # !!
 
         #input: features, homograph, edge embedding
-        self.feats = features
+        if features.shape[1]>1:
+            self.feats = features
+        else:
+            self.feats = None
         self.adj = edge_index
         self.edge_emb = edge_emb
 
@@ -116,7 +119,8 @@ class NodeProblem(object):
         print('NodeProblem: loading finished')
     
     def __to_torch(self):
-        self.feats = torch.FloatTensor(self.feats)
+        if self.feats is not None:
+            self.feats = torch.FloatTensor(self.feats)
 
         # if not sparse.issparse(self.adj):
         if self.device!="cpu":

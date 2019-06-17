@@ -259,18 +259,21 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
     for v in MAMi:
         result = {}
         for m in MAMi[v]:
+            np1 = len(MAMi[v][m])
             edge1 = [node_emb[p] for p in MAMi[v][m]]
             edge1 = np.sum(np.vstack(edge1), axis=0)  # edge1: the emd between v and a1
-
+            edge1 /= np1
+            edge1 += node_emb[v] + node_emb[m]
             if m not in result:
                 result[m] = edge1
             else:
                 result[m] += edge1
 
-        for m in result:
             if v < m:
-                MAM_emb.append(np.concatenate(([v, m], result[m])))
+                MAM_emb.append(np.concatenate(([v, m], result[m], [np1])))
     MAM_emb = np.asarray(MAM_emb)
+    m = np.max(MAM_emb[:,-1])
+    MAM_emb[:,-1]/=m
     print("compute edge embeddings {} complete".format('MAM'))
 
     # MDM;
@@ -278,18 +281,21 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
     for v in MDMi:
         result = {}
         for m in MDMi[v]:
+            np1 = len(MDMi[v][m])
             edge1 = [node_emb[p] for p in MDMi[v][m]]
             edge1 = np.sum(np.vstack(edge1), axis=0)  # edge1: the emd between v and a1
-
+            edge1 /= np1
+            edge1 += node_emb[v] + node_emb[m]
             if m not in result:
                 result[m] = edge1
             else:
                 result[m] += edge1
 
-        for m in result:
             if v < m:
-                MDM_emb.append(np.concatenate(([v, m], result[m])))
+                MDM_emb.append(np.concatenate(([v, m], result[m], [np1])))
     MDM_emb = np.asarray(MDM_emb)
+    m = np.max(MDM_emb[:, -1])
+    MDM_emb[:, -1] /= m
     print("compute edge embeddings {} complete".format('MDM'))
 
     # MWM;
@@ -297,20 +303,24 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
     for v in MWMi:
         result = {}
         for m in MWMi[v]:
+            np1 = len(MWMi[v][m])
             edge1 = [node_emb[p] for p in MWMi[v][m]]
             edge1 = np.sum(np.vstack(edge1), axis=0)  # edge1: the emd between v and a1
-
+            edge1 /= np1
+            edge1 += node_emb[v] + node_emb[m]
             if m not in result:
                 result[m] = edge1
             else:
                 result[m] += edge1
 
-        for m in result:
             if v < m:
-                MWM_emb.append(np.concatenate(([v, m], result[m])))
+                MWM_emb.append(np.concatenate(([v, m], result[m], [np1])))
     MWM_emb = np.asarray(MWM_emb)
+    m = np.max(MWM_emb[:, -1])
+    MWM_emb[:, -1] /= m
     print("compute edge embeddings {} complete".format('MWM'))
 
+    emb_len = MWM_emb.shape[1]-2
     np.savez("{}edge{}.npz".format(path, emb_len),
              MAM=MAM_emb, MDM=MDM_emb, MWM=MWM_emb)
     print('dump npz file {}edge{}.npz complete'.format(path, emb_len))
@@ -459,7 +469,7 @@ def gen_yago_randomwalk(path='../../../data/yago/',
 
 # gen_homograph(path='../../../data/freebase/')
 
-# dump_yago_edge_emb(path='../../../data/freebase/')
+dump_yago_edge_emb(path='../../../data/freebase/')
 
-gen_yago_randomwalk(path='../../../data/freebase/',
-                    walk_length=80,n_walks=10)
+# gen_yago_randomwalk(path='../../../data/freebase/',
+#                     walk_length=80,n_walks=10)

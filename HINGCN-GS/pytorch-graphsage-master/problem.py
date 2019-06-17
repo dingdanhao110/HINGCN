@@ -83,12 +83,13 @@ class NodeProblem(object):
 
         edge_index, edge_emb = load_edge_emb(path=problem_path,
                                              schemes=schemes,
-                                             n_dim=16)
+                                             n_dim=17)
 
         self.task      = 'classification'
         self.n_classes = int(max(labels)+1) # !!
 
-        #input: features, homograph, edge embedding
+        #input: features, homogr
+        # aph, edge embedding
         if features.shape[1]>1:
             self.feats = np.pad(features,((0,1),(0,0)),'constant')
         else:

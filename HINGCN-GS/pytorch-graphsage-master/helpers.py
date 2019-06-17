@@ -119,7 +119,7 @@ def read_mpindex_dblp(path="./data/dblp/"):
     return features, labels, folds
 
 
-def load_edge_emb(path, schemes, n_dim=16, n_author=20000):
+def load_edge_emb(path, schemes, n_dim=17, n_author=20000):
     data = np.load("{}edge{}.npz".format(path, n_dim))
     index = {}
     emb = {}
@@ -213,4 +213,4 @@ def read_mpindex_yago(path="../../data/yago/", label_file = "labels"):
 
     return features, labels, folds
 
-features, labels, folds = read_mpindex_yago()
+# features, labels, folds = read_mpindex_yago()

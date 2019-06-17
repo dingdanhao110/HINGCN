@@ -317,6 +317,149 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
     pass
 
 
+def gen_yago_randomwalk(path='../../../data/yago/',
+                        walk_length=80,n_walks=10):
+    # dump APA
+    label_file = "labels"
+    MA_file = "movie_actor"
+    MD_file = "movie_director"
+    MW_file = "movie_writer"
+
+    movies = []
+    actors = []
+    directors = []
+    writers = []
+
+    with open('{}{}.txt'.format(path, "movies"), mode='r', encoding='UTF-8') as f:
+        for line in f:
+            movies.append(line.split()[0])
+
+    with open('{}{}.txt'.format(path, "actors"), mode='r', encoding='UTF-8') as f:
+        for line in f:
+            actors.append(line.split()[0])
+
+    with open('{}{}.txt'.format(path, "directors"), mode='r', encoding='UTF-8') as f:
+        for line in f:
+            directors.append(line.split()[0])
+
+    with open('{}{}.txt'.format(path, "writers"), mode='r', encoding='UTF-8') as f:
+        for line in f:
+            writers.append(line.split()[0])
+
+    n_movie = len(movies)  # 1465
+    n_actor = len(actors)  # 4019
+    n_director = len(directors)  # 1093
+    n_writer = len(writers)  # 1458
+
+    movie_dict = {a: i for (i, a) in enumerate(movies)}
+    actor_dict = {a: i + n_movie for (i, a) in enumerate(actors)}
+    director_dict = {a: i + n_movie + n_actor for (i, a) in enumerate(directors)}
+    writer_dict = {a: i + n_movie + n_actor + n_director for (i, a) in enumerate(writers)}
+
+    MA = []
+    with open('{}{}.txt'.format(path, MA_file), 'r', encoding='UTF-8') as f:
+        for line in f:
+            arr = line.split()
+            MA.append([movie_dict[arr[0]], actor_dict[arr[1]]])
+
+    MD = []
+    with open('{}{}.txt'.format(path, MD_file), 'r', encoding='UTF-8') as f:
+        for line in f:
+            arr = line.split()
+            MD.append([movie_dict[arr[0]], director_dict[arr[1]]])
+
+    MW = []
+    with open('{}{}.txt'.format(path, MW_file), 'r', encoding='UTF-8') as f:
+        for line in f:
+            arr = line.split()
+            MW.append([movie_dict[arr[0]], writer_dict[arr[1]]])
+
+    MA = np.asarray(MA)
+    MD = np.asarray(MD)
+    MW = np.asarray(MW)
+
+    #--
+    #build index for 2hop adjs
+
+    MAi={}
+    MDi={}
+    MWi={}
+    AMi={}
+    DMi={}
+    WMi={}
+
+    for i in range(MA.shape[0]):
+        m=MA[i,0]
+        a=MA[i,1]
+
+        if m not in MAi:
+            MAi[m]=set()
+        if a not in AMi:
+            AMi[a]=set()
+
+        MAi[m].add(a)
+        AMi[a].add(m)
+
+    for i in range(MD.shape[0]):
+        m = MD[i, 0]
+        d = MD[i, 1]
+
+        if m not in MDi:
+            MDi[m] = set()
+        if d not in DMi:
+            DMi[d] = set()
+
+        MDi[m].add(d)
+        DMi[d].add(m)
+
+    for i in range(MW.shape[0]):
+        m = MW[i, 0]
+        w = MW[i, 1]
+
+        if m not in MWi:
+            MWi[m] = set()
+        if w not in WMi:
+            WMi[w] = set()
+
+        MWi[m].add(w)
+        WMi[w].add(m)
+
+    index={}
+    index['AM'] = AMi
+    index['DM'] = DMi
+    index['WM'] = WMi
+    index['MA'] = MAi
+    index['MD'] = MDi
+    index['MW'] = MWi
+
+    schemes=["MWM","MAM","MDM"]
+
+    for scheme in schemes:
+        ind1 = index[scheme[:2]]
+        ind2 = index[scheme[1:]]
+        with open('{}{}.walk'.format(path,scheme),'w') as f:
+
+            for v in ind1:
+
+                for n in range(n_walks):
+                    out="{}".format(v)
+
+                    m = v
+                    for w in range(int(walk_length/2)):
+                        a = np.random.choice(tuple(ind1[m]))
+                        out += " {}".format(a)
+                        m = np.random.choice(tuple(ind2[a]))
+                        out += " {}".format(m)
+
+                    f.write(out+"\n")
+            pass
+
+        pass
+
+
 # gen_homograph(path='../../../data/freebase/')
 
-dump_yago_edge_emb(path='../../../data/freebase/')
+# dump_yago_edge_emb(path='../../../data/freebase/')
+
+gen_yago_randomwalk(path='../../../data/freebase/',
+                    walk_length=80,n_walks=10)

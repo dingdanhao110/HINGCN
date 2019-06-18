@@ -43,24 +43,27 @@ def evaluate(model, problem, batch_size, loss_fn, mode='val'):
     #
     return loss, problem.metric_fn(np.vstack(acts), np.vstack(preds))
 
-def read_embed(path="./data/freebase/",
-               emb_file="RUBK"):
+def read_embed(n_target, path="./data/freebase/",
+               emb_file="MAM", ):
     with open("{}{}.emb".format(path, emb_file)) as f:
         n_nodes, n_feature = map(int, f.readline().strip().split())
     print("number of nodes:{}, embedding size:{}".format(n_nodes, n_feature))
 
+    # n_nodes-=1
     embedding = np.loadtxt("{}{}.emb".format(path, emb_file),
-                           dtype=np.float32, skiprows=1)
+                           dtype=np.float32, skiprows=1,encoding='latin-1')
     emb_index = {}
     for i in range(n_nodes):
+        # if type(embedding[i, 0]) is not int:
+        #     continue
         emb_index[embedding[i, 0]] = i
 
-    features = np.asarray([embedding[emb_index[i], 1:] for i in range(n_nodes)])
+    features = np.asarray([embedding[emb_index[i], 1:] for i in range(n_target)])
 
-    assert features.shape[1] == n_feature
-    assert features.shape[0] == n_nodes
+    # assert features.shape[1] == n_feature
+    # assert features.shape[0] == n_nodes
 
-    return features, n_nodes, n_feature
+    return features, n_target, n_feature
 
 # # --
 # Args
@@ -105,12 +108,14 @@ if __name__ == "__main__":
 
     # --
     # Load problem
-    schemes = ['BRURB','BRKRB']  # ,'APAPA','APCPA'  yelp: 'BRURB', 'BRKRB'; YAGO: 'MAM','MDM','MWM'
+    schemes = ['MAM',]  # ,'APAPA','APCPA'  yelp: 'BRURB', 'BRKRB'; YAGO: 'MAM','MDM','MWM'
     device = torch.device("cuda:0" if torch.cuda.is_available() and args.cuda else "cpu")
     problem = NodeProblem(problem_path=args.problem_path, problem=args.problem, device=device, schemes=schemes)
 
+    n_targets = problem.targets.shape[0]
     #load embeddings as features
-    features, n_nodes, n_feature = read_embed(path=args.problem_path,
+    features, n_nodes, n_feature = read_embed(n_targets,
+                                              path=args.problem_path,
                                               emb_file=args.feat)
     features = torch.FloatTensor(features)
     # --
@@ -211,6 +216,54 @@ if __name__ == "__main__":
     print('-- done --', file=sys.stderr)
     print(best_result)
     sys.stdout.flush()
+
+    print('-- sklearn --', file=sys.stderr)
+
+    features = features.numpy()
+    for ids, targets, epoch_progress in problem.iterate(mode='train', shuffle=True, batch_size=999999):
+        x_train = features[ids]
+        y_train = targets
+    for ids, targets, epoch_progress in problem.iterate(mode='val', shuffle=True, batch_size=999999):
+        x_val = features[ids]
+        y_val = targets
+    for ids, targets, epoch_progress in problem.iterate(mode='test', shuffle=True, batch_size=999999):
+        x_test = features[ids]
+        y_test = targets
+
+    from sklearn.linear_model import LogisticRegression
+
+    logreg = LogisticRegression()
+    logreg.fit(x_train, y_train)
+    # fpr, tpr, thresholds = metrics.roc_curve(y_test, y_scores, pos_label=2)
+    # plot_roc_curve(fpr,tpr,'ROC')
+    y_train_scores = logreg.predict_proba(x_train)[:, 1]
+    y_test_scores = logreg.predict_proba(x_test)[:, 1]
+    print('Accuracy of Logistic regression classifier on training set: {:.2f}'
+          .format(logreg.score(x_train, y_train)))
+    print('Accuracy of Logistic regression classifier on test set: {:.2f}'
+          .format(logreg.score(x_test, y_test)))
+
+    from sklearn.neighbors import KNeighborsClassifier
+
+    knn = KNeighborsClassifier()
+    knn.fit(x_train, y_train)
+    y_train_scores = knn.predict_proba(x_train)[:, 1]
+    y_test_scores = knn.predict_proba(x_test)[:, 1]
+    print('Accuracy of K-NN classifier on training set: {:.2f}'
+          .format(knn.score(x_train, y_train)))
+    print('Accuracy of K-NN classifier on test set: {:.2f}'
+          .format(knn.score(x_test, y_test)))
+
+    from sklearn.svm import SVC
+
+    svm = SVC(probability=True)
+    svm.fit(x_train, y_train)
+    y_train_scores = svm.predict_proba(x_train)[:, 1]
+    y_test_scores = svm.predict_proba(x_test)[:, 1]
+    print('Accuracy of SVM classifier on training set: {:.2f}'
+          .format(svm.score(x_train, y_train)))
+    print('Accuracy of SVM classifier on test set: {:.2f}'
+          .format(svm.score(x_test, y_test)))
 
 
 

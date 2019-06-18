@@ -469,7 +469,7 @@ def gen_yago_randomwalk(path='../../../data/yago/',
 
 # gen_homograph(path='../../../data/freebase/')
 
-dump_yago_edge_emb(path='../../../data/freebase/')
+# dump_yago_edge_emb(path='../../../data/freebase/')
 
-# gen_yago_randomwalk(path='../../../data/freebase/',
-#                     walk_length=80,n_walks=10)
+gen_yago_randomwalk(path='../../../data/freebase/',
+                    walk_length=80,n_walks=10)

@@ -330,16 +330,17 @@ class AttentionAggregator(nn.Module):
         x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
         ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
 
-        ws = self.dropout(ws)
-
         # Weighted average of neighbors
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))
         agg_neib = torch.sum(agg_neib * ws.unsqueeze(-1), dim=1)
 
         out = self.fc_x(x)+ self.fc_neib(agg_neib)
 
+
         if self.batchnorm:
-            output = self.bn(out)
+            out = self.bn(out)
+
+        out = self.dropout(out)
 
         if self.activation:
             out = self.activation(out)
@@ -400,11 +401,11 @@ class EdgeEmbAttentionAggregator(nn.Module):
         attention = F.softmax(e, dim=1)
         attention = attention.view(N, 1, n_sample)
         # attention = attention.squeeze(2)
-        attention = self.dropout(attention)
 
         # h_prime = [torch.matmul(attention[i], neigh_feat.view(N, n_sample, -1)[i]) for i in range(N)]
         h_prime = torch.bmm(attention, neighs.view(N, n_sample, -1)).squeeze()
 
+        h_prime = self.dropout(h_prime)
 
         if self.batchnorm:
             h_prime = self.bn(h_prime)
@@ -477,10 +478,10 @@ class EdgeAggregator(nn.Module):
         if self.batchnorm:
             a_input = self.bn(a_input)
 
-        emb = a_input * edge_emb
-
         if self.activation:
-            emb = self.activation(emb)
+            a_input = self.activation(a_input)
+
+        emb = a_input * edge_emb
 
         return emb
 
@@ -549,10 +550,10 @@ class ResEdge(nn.Module):
         if self.batchnorm:
             a_input = self.bn(a_input)
 
-        emb = a_input + edge_emb
-
         if self.activation:
-            emb = self.activation(emb)
+            a_input = self.activation(a_input)
+
+        emb = a_input + edge_emb
 
         return emb
 
@@ -598,9 +599,9 @@ class MetapathAggrLayer(nn.Module):
         e = self.leakyrelu(torch.matmul(input, self.a).squeeze(2))
         e = F.softmax(e, dim=1).view(N, 1, n_meta)
 
-        e = self.dropout(e)
-
         output = torch.bmm(e, input).squeeze()
+
+        output = self.dropout(output)
 
         if self.batchnorm:
             output = self.bn(output)

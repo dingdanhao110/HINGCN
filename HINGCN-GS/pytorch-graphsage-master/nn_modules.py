@@ -314,7 +314,7 @@ class AttentionAggregator(nn.Module):
         self.fc_x = nn.Linear(input_dim, output_dim, bias=False)
         self.fc_neib = nn.Linear(input_dim, output_dim, bias=False)
 
-        self.dropout = dropout
+        self.dropout = nn.Dropout(p=dropout)
         self.batchnorm = batchnorm
         self.output_dim = output_dim
         self.activation = activation
@@ -330,16 +330,17 @@ class AttentionAggregator(nn.Module):
         x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
         ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
 
-        ws = F.dropout(ws, self.dropout, training=self.training)
-
         # Weighted average of neighbors
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))
         agg_neib = torch.sum(agg_neib * ws.unsqueeze(-1), dim=1)
 
         out = self.fc_x(x)+ self.fc_neib(agg_neib)
 
+
         if self.batchnorm:
-            output = self.bn(out)
+            out = self.bn(out)
+
+        out = self.dropout(out)
 
         if self.activation:
             out = self.activation(out)
@@ -353,7 +354,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
         super(EdgeEmbAttentionAggregator, self).__init__()
         self.input_dim = input_dim
         self.edge_dim = edge_dim
-        self.dropout = dropout
+        self.dropout = nn.Dropout(p=dropout)
         self.batchnorm = batchnorm
         self.alpha = alpha
         self.concat_node = concat_node
@@ -381,7 +382,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
         self.register_parameter('a', a)
 
         if self.batchnorm:
-            self.bn = nn.BatchNorm1d(self.output_dim)
+            self.bn = nn.BatchNorm1d(output_dim)
 
     def forward(self, input, neigh_feat, edge_emb):
         # Compute attention weights
@@ -400,22 +401,24 @@ class EdgeEmbAttentionAggregator(nn.Module):
         attention = F.softmax(e, dim=1)
         attention = attention.view(N, 1, n_sample)
         # attention = attention.squeeze(2)
-        attention = F.dropout(attention, self.dropout, training=self.training)
 
         # h_prime = [torch.matmul(attention[i], neigh_feat.view(N, n_sample, -1)[i]) for i in range(N)]
         h_prime = torch.bmm(attention, neighs.view(N, n_sample, -1)).squeeze()
+
+        h_prime = self.dropout(h_prime)
+
+        if self.batchnorm:
+            h_prime = self.bn(h_prime)
+
         if self.concat_node:
             output = torch.cat([x, h_prime], dim=1)
         else:
             output = h_prime + x
+
         if self.concat_edge:
             output = torch.cat([output,
                                 torch.bmm(attention, edge_emb.view(N, n_sample, -1)).squeeze()],
                                dim=1)
-
-        if self.batchnorm:
-            output = self.bn(output)
-
         if self.activation:
             output = self.activation(output)
 
@@ -433,7 +436,7 @@ class EdgeAggregator(nn.Module):
         self.input_dim = input_dim
         self.edge_dim = edge_dim
         self.activation = activation
-        self.dropout = dropout
+        self.dropout = nn.Dropout(p=dropout)
         self.batchnorm = batchnorm
 
         W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
@@ -470,14 +473,16 @@ class EdgeAggregator(nn.Module):
 
         a_input = e_input + n_input + x_input + self.B.repeat(n, 1)
 
-        a_input = F.dropout(a_input, self.dropout, training=self.training)
+        a_input = self.dropout(a_input)
 
         if self.batchnorm:
             a_input = self.bn(a_input)
 
         if self.activation:
             a_input = self.activation(a_input)
+
         emb = a_input * edge_emb
+
         return emb
 
     def __repr__(self):
@@ -492,7 +497,7 @@ class IdEdgeAggregator(nn.Module):
         self.activation = activation
         self.edge_dim = edge_dim
         self.batchnorm = batchnorm
-        self.dropout = dropout
+        self.dropout = nn.Dropout(p=dropout)
 
     def forward(self, x, neibs, edge_emb):
         # identical mapping
@@ -508,7 +513,7 @@ class ResEdge(nn.Module):
         self.input_dim = input_dim
         self.edge_dim = edge_dim
         self.activation = activation
-        self.dropout = dropout
+        self.dropout = nn.Dropout(p=dropout)
         self.batchnorm = batchnorm
 
         W1 = nn.Parameter(torch.zeros(size=(input_dim, edge_dim)))
@@ -540,14 +545,16 @@ class ResEdge(nn.Module):
 
         a_input = e_input + n_input + x_input
 
-        a_input = F.dropout(a_input, self.dropout, training=self.training)
+        a_input = self.dropout(a_input)
 
         if self.batchnorm:
             a_input = self.bn(a_input)
 
         if self.activation:
             a_input = self.activation(a_input)
+
         emb = a_input + edge_emb
+
         return emb
 
     def __repr__(self):
@@ -567,7 +574,7 @@ class MetapathAggrLayer(nn.Module):
         self.in_features = in_features
         self.out_features = in_features
         self.alpha = alpha
-        self.dropout = dropout
+        self.dropout = nn.Dropout(p=dropout)
         self.batchnorm = batchnorm
 
         a = nn.Parameter(torch.zeros(size=(in_features, 1)))
@@ -592,9 +599,9 @@ class MetapathAggrLayer(nn.Module):
         e = self.leakyrelu(torch.matmul(input, self.a).squeeze(2))
         e = F.softmax(e, dim=1).view(N, 1, n_meta)
 
-        e = F.dropout(e, self.dropout, training=self.training)
-
         output = torch.bmm(e, input).squeeze()
+
+        output = self.dropout(output)
 
         if self.batchnorm:
             output = self.bn(output)

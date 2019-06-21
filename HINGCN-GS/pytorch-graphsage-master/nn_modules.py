@@ -334,7 +334,7 @@ class AttentionAggregator(nn.Module):
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))
         agg_neib = torch.sum(agg_neib * ws.unsqueeze(-1), dim=1)
 
-        out = self.fc_x(x)+ self.fc_neib(agg_neib)
+        out = self.fc_x(x) + self.fc_neib(agg_neib)
 
 
         if self.batchnorm:

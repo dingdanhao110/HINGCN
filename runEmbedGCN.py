@@ -22,9 +22,9 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
 parser.add_argument('--fastmode', action='store_true', default=True,
                     help='Validate during training pass.')
 parser.add_argument('--seed', type=int, default=42, help='Random seed.')
-parser.add_argument('--epochs', type=int, default=100,
+parser.add_argument('--epochs', type=int, default=1000,
                     help='Number of epochs to train.')
-parser.add_argument('--lr', type=float, default=0.1,
+parser.add_argument('--lr', type=float, default=0.01,
                     help='Initial learning rate.')
 parser.add_argument('--weight_decay', type=float, default=5e-4,
                     help='Weight decay (L2 loss on parameters).')
@@ -262,9 +262,81 @@ def read_graph_yelp(path="./data/yelp/", dataset="homograph",
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
+def read_graph_yago(path="./data/freebase/", dataset="homograph",
+                    label_file="labels", emb_file="MADW_16"):
+    print('Loading {} dataset...'.format(dataset))
+
+    with open("{}{}.emb".format(path, emb_file)) as f:
+        n_nodes, n_feature = map(int, f.readline().strip().split())
+    print("number of nodes:{}, embedding size:{}".format(n_nodes, n_feature))
+
+    # n_nodes-=1
+    embedding = np.loadtxt("{}{}.emb".format(path, emb_file),
+                           dtype=np.float32, skiprows=1,encoding='latin-1')
+    emb_index = {}
+    for i in range(n_nodes):
+        # if type(embedding[i, 0]) is not int:
+        #     continue
+        emb_index[embedding[i, 0]] = i
+
+    features = np.asarray([embedding[emb_index[i], 1:] for i in range(embedding.shape[0])])
+
+    features = torch.FloatTensor(features)
+    features = torch.zeros((embedding.shape[0],1))
+
+
+    # build graph
+    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
+    # idx_map = {j: i for i, j in enumerate(idx)}
+    edges = np.genfromtxt("{}{}.txt".format(path, dataset),
+                                    dtype=np.int32)
+    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+                       shape=(n_nodes, n_nodes),
+                       dtype=np.float32)
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+
+    # features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    movies = []
+    with open('{}{}.txt'.format(path, "movies"), mode='r', encoding='UTF-8') as f:
+        for line in f:
+            movies.append(line.split()[0])
+
+    n_movie = len(movies)
+    movie_dict = {a: i for (i, a) in enumerate(movies)}
+
+    # features = np.zeros(n_movie).reshape(-1, 1)
+
+    labels_raw = []
+    with open('{}{}.txt'.format(path, label_file), 'r', encoding='UTF-8') as f:
+        for line in f:
+            arr = line.split()
+            labels_raw.append([int(movie_dict[arr[0]]), int(arr[1])])
+    labels_raw = np.asarray(labels_raw)
+
+    labels = np.zeros(n_movie)
+    labels[labels_raw[:, 0]] = labels_raw[:, 1]
+
+    reordered = np.random.permutation(labels_raw[:, 0])
+    total_labeled = labels_raw.shape[0]
+
+    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
+    idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
+    idx_train = torch.LongTensor(idx_train)
+    idx_val = torch.LongTensor(idx_val)
+    idx_test = torch.LongTensor(idx_test)
+    labels = torch.LongTensor(labels)
+
+    return adj, features, labels, idx_train, idx_val, idx_test
+
 # Load data
 adj, features, labels, idx_train, idx_val, idx_test = \
-    read_graph_yelp()
+    read_graph_yago()
 
 print('Read data finished!')
 

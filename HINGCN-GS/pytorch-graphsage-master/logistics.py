@@ -44,7 +44,7 @@ def evaluate(model, problem, batch_size, loss_fn, mode='val'):
     return loss, problem.metric_fn(np.vstack(acts), np.vstack(preds))
 
 def read_embed(n_target, path="./data/freebase/",
-               emb_file="MAM", ):
+               emb_file="MADW_16", ):
     with open("{}{}.emb".format(path, emb_file)) as f:
         n_nodes, n_feature = map(int, f.readline().strip().split())
     print("number of nodes:{}, embedding size:{}".format(n_nodes, n_feature))
@@ -77,11 +77,11 @@ def parse_args():
     parser.add_argument('--no-cuda', action="store_true")
 
     # Optimization params
-    parser.add_argument('--batch-size', type=int, default=512)
+    parser.add_argument('--batch-size', type=int, default=999999)
     parser.add_argument('--epochs', type=int, default=10000)
     parser.add_argument('--lr-init', type=float, default=0.01)
     parser.add_argument('--lr-schedule', type=str, default='constant')
-    parser.add_argument('--tolerance', type=int, default=100)
+    parser.add_argument('--tolerance', type=int, default=10)
     parser.add_argument('--weight-decay', type=float, default=0.0)
 
     parser.add_argument('--n-train-samples', type=str, default='8,8')

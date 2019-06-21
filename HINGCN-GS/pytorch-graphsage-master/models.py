@@ -24,6 +24,7 @@ class HINGCN_GS(nn.Module):
                  n_mp,
                  problem,
                  prep_len,
+                 n_head,
                  layer_specs,
                  aggregator_class,
                  mpaggr_class,
@@ -42,6 +43,7 @@ class HINGCN_GS(nn.Module):
         self.input_dim = problem.feats_dim
         self.n_nodes = problem.n_nodes,
         self.n_classes = problem.n_classes,
+        self.n_head = n_head
 
         # self.feats
         self.register_buffer('feats', problem.feats)
@@ -71,11 +73,11 @@ class HINGCN_GS(nn.Module):
 
         # Network
         for mp in range(self.n_mp):
-            agg_layers = []
-            edge_layers = []
+            # agg_layers = []
+            # edge_layers = []
             input_dim = self.input_dim
             for i, spec in enumerate(layer_specs):
-                agg = aggregator_class(
+                agg = nn.ModuleList( [ aggregator_class(
                     input_dim=input_dim,
                     edge_dim=problem.edge_dim,
                     output_dim=spec['output_dim'],
@@ -84,9 +86,9 @@ class HINGCN_GS(nn.Module):
                     concat_edge=spec['concat_edge'],
                     dropout=self.dropout,
                     batchnorm=self.batchnorm,
-                )
-                agg_layers.append(agg)
-                input_dim = agg.output_dim  # May not be the same as spec['output_dim']
+                ) for _ in range(n_head) ])
+                # agg_layers.append(agg)
+                input_dim = agg[0].output_dim * n_head  # May not be the same as spec['output_dim']
 
                 edge = edgeupt_class(
                     input_dim=input_dim,
@@ -95,7 +97,7 @@ class HINGCN_GS(nn.Module):
                     dropout=self.dropout,
                     batchnorm=self.batchnorm,
                 )
-                edge_layers.append(edge)
+                # edge_layers.append(edge)
 
                 self.add_module('agg_{}_{}'.format(mp, i), agg)
                 self.add_module('edge_{}_{}'.format(mp, i), edge)
@@ -135,9 +137,9 @@ class HINGCN_GS(nn.Module):
             # Sequentially apply layers, per original (little weird, IMO)
             # Each iteration reduces length of array by one
             for i in range(self.depth):
-                all_feats = [getattr(self,'agg_{}_{}'.format(mp, i))(all_feats[k], all_feats[k + 1],
-                                                     all_edges[k]
-                                                     ) for k in range(len(all_feats) - 1)]
+                all_feats = [ torch.cat([getattr(self,'agg_{}_{}'.format(mp, i))[h] (all_feats[k], all_feats[k + 1],
+                                                     all_edges[k]) for h in range(self.n_head)], dim=1)
+                              for k in range(len(all_feats) - 1)]
                 all_feats = [F.dropout(i, self.dropout, training=self.training) for i in all_feats]
                 all_edges = [getattr(self,'edge_{}_{}'.format(mp, i))(all_feats[k], all_feats[k + 1],
                                                     all_edges[k]

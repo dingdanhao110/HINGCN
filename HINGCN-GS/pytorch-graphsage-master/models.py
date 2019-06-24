@@ -104,7 +104,7 @@ class HINGCN_GS(nn.Module):
 
         self.mp_agg = mpaggr_class(input_dim,dropout=self.dropout,batchnorm=self.batchnorm,)
 
-        self.fc = nn.Linear(self.mp_agg.out_features, problem.n_classes, bias=True)
+        self.fc = nn.Linear(self.mp_agg.output_dim, problem.n_classes, bias=True)
 
 
     # We only want to forward IDs to facilitate nn.DataParallelism

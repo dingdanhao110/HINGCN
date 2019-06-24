@@ -89,7 +89,7 @@ def parse_args():
 
     # Architecture params
     parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
-    parser.add_argument('--aggregator-class', type=str, default='edge_emb_attn')
+    parser.add_argument('--aggregator-class', type=str, default='attention2')
     parser.add_argument('--prep-class', type=str, default='node_embedding')  # identity
     parser.add_argument('--mpaggr-class', type=str, default='attention')
     parser.add_argument('--edgeupt-class', type=str, default='residual')
@@ -156,14 +156,14 @@ if __name__ == "__main__":
                 "concat_node": args.concat_node,
                 "concat_edge": args.concat_edge,
             },
-            {
-                "n_train_samples": n_train_samples[1],
-                "n_val_samples": n_val_samples[1],
-                "output_dim": output_dims[1],
-                "activation": F.relu,  # lambda x: x
-                "concat_node": args.concat_node,
-                "concat_edge": args.concat_edge,
-            },
+            # {
+            #     "n_train_samples": n_train_samples[1],
+            #     "n_val_samples": n_val_samples[1],
+            #     "output_dim": output_dims[1],
+            #     "activation": F.relu,  # lambda x: x
+            #     "concat_node": args.concat_node,
+            #     "concat_edge": args.concat_edge,
+            # },
             # {
             #     "n_train_samples": n_train_samples[2],
             #     "n_val_samples": n_val_samples[2],

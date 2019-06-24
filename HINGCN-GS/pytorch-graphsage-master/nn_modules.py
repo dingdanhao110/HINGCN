@@ -416,18 +416,81 @@ class EdgeEmbAttentionAggregator(nn.Module):
             output = h_prime + x
 
         if self.concat_edge:
-            output = torch.cat([output,
-                                torch.bmm(attention, edge_emb.view(N, n_sample, -1)).squeeze()],
-                               dim=1)
+            e = torch.bmm(attention, edge_emb.view(N, n_sample, -1)).squeeze()
+            output = torch.cat([output,e],dim=1)
         if self.activation:
             output = self.activation(output)
-
         return output
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim)\
                + ' -> ' + str(self.output_dim) + ')'
 
+
+class AttentionAggregator2(nn.Module):
+    def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=32,
+                 dropout=0.5,
+                 concat_node=True, concat_edge=True, batchnorm=False):
+        super(AttentionAggregator2, self).__init__()
+
+        self.att = nn.Sequential(*[
+            nn.Linear(input_dim, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim, bias=False),
+        ])
+
+        self.att2 = nn.Sequential(*[
+            nn.Linear(input_dim+edge_dim, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim, bias=False),
+        ])
+
+        self.fc_x = nn.Linear(input_dim, output_dim, bias=False)
+        self.fc_neib = nn.Linear(input_dim+edge_dim, output_dim, bias=False)
+        self.concat_node = concat_node
+
+        self.dropout = nn.Dropout(p=dropout)
+        self.batchnorm = batchnorm
+
+        if concat_node:
+            self.output_dim = output_dim * 2
+        else:
+            self.output_dim = output_dim
+        self.activation = activation
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.output_dim)
+
+    def forward(self, x, neibs, edge_emb):
+        # Compute attention weights
+        neibs = torch.cat([neibs,edge_emb],dim=1)
+
+        neib_att = self.att2(neibs)
+        x_att = self.att(x)
+
+        neib_att = neib_att.view(x.size(0), -1, neib_att.size(1))
+        x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
+
+        ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+
+        # Weighted average of neighbors
+        agg_neib = neibs.view(x.size(0), -1, neibs.size(1))
+        agg_neib = torch.sum(agg_neib * ws.unsqueeze(-1), dim=1)
+
+        if self.concat_node:
+            out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)],dim=1)
+        else:
+            out = self.fc_x(x) + self.fc_neib(agg_neib)
+
+        if self.batchnorm:
+            out = self.bn(out)
+
+        out = self.dropout(out)
+
+        if self.activation:
+            out = self.activation(out)
+
+        return out
 
 class EdgeAggregator(nn.Module):
     def __init__(self, input_dim, edge_dim, activation,dropout=0.5, batchnorm=False):
@@ -568,16 +631,28 @@ class MetapathAggrLayer(nn.Module):
     metapath attention layer.
     """
 
-    def __init__(self, in_features, alpha=0.8, dropout=0.5, batchnorm=False):
+    def __init__(self, in_features, alpha=0.8, dropout=0.5,hidden_dim=64, batchnorm=False):
         super(MetapathAggrLayer, self).__init__()
         # self.dropout = dropout
-        self.in_features = in_features
-        self.out_features = in_features
+        self.input_dim = in_features
+        self.output_dim = in_features
         self.alpha = alpha
         self.dropout = nn.Dropout(p=dropout)
         self.batchnorm = batchnorm
 
-        a = nn.Parameter(torch.zeros(size=(in_features, 1)))
+        self.att = nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim, bias=False),
+        ])
+
+        self.mlp = nn.Sequential(*[
+            nn.Linear(hidden_dim, in_features, bias=False),
+            nn.Tanh(),
+            nn.Linear(in_features, in_features, bias=False),
+        ])
+
+        a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))
         nn.init.xavier_uniform_(a.data, gain=1.414)
         self.register_parameter('a', a)
 
@@ -593,6 +668,11 @@ class MetapathAggrLayer(nn.Module):
         n_meta = input.shape[0]
         input = input.transpose(0, 1)  # tensor(N,nmeta,in_features)
         N = input.size()[0]
+        input_dim = input.shape[2]
+        input = input.contiguous()
+        input = self.att(input.view(-1,input_dim))\
+            .view(N,n_meta,-1)
+
 
         # a_input = torch.cat([input.repeat(1,1,self.nmeta).view(N, self.nmeta*self.nmeta, -1),
         #                      input.repeat(1,self.nmeta, 1)], dim=2).view(N, -1, 2 * self.in_features)
@@ -606,10 +686,10 @@ class MetapathAggrLayer(nn.Module):
         if self.batchnorm:
             output = self.bn(output)
 
-        return F.relu(output)
+        return F.relu(self.mlp(output))
 
     def __repr__(self):
-        return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
 
 
 prep_lookup = {
@@ -624,6 +704,7 @@ aggregator_lookup = {
     "mean_pool": MeanPoolAggregator,
     "lstm": LSTMAggregator,
     "attention": AttentionAggregator,
+    "attention2": AttentionAggregator2,
     "edge_emb_attn": EdgeEmbAttentionAggregator,
 }
 

@@ -336,7 +336,7 @@ def read_graph_yago(path="./data/freebase/", dataset="homograph",
 
 # Load data
 adj, features, labels, idx_train, idx_val, idx_test = \
-    read_graph_yago()
+    read_graph_yelp()
 
 print('Read data finished!')
 
@@ -388,6 +388,7 @@ def train(epoch):
           'loss_val: {:.4f}'.format(loss_val.item()),
           'acc_val: {:.4f}'.format(acc_val.item()),
           'time: {:.4f}s'.format(time.time() - t))
+    test()
 
 
 def test():

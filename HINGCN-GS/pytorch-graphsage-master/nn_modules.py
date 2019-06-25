@@ -647,9 +647,9 @@ class MetapathAggrLayer(nn.Module):
         ])
 
         self.mlp = nn.Sequential(*[
-            nn.Linear(hidden_dim, in_features, bias=False),
-            nn.Tanh(),
-            nn.Linear(in_features, in_features, bias=False),
+            nn.Linear(hidden_dim, in_features),
+            nn.ReLU(),
+            nn.Linear(in_features, in_features),
         ])
 
         a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))

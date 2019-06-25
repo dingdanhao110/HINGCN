@@ -33,6 +33,7 @@ class HINGCN_GS(nn.Module):
                  sampler_class,
                  dropout,
                  batchnorm,
+                 bias=True,
                  ):
 
         super(HINGCN_GS, self).__init__()
@@ -44,6 +45,7 @@ class HINGCN_GS(nn.Module):
         self.n_nodes = problem.n_nodes,
         self.n_classes = problem.n_classes,
         self.n_head = n_head
+        self.bias = bias
 
         # self.feats
         self.register_buffer('feats', problem.feats)
@@ -101,7 +103,12 @@ class HINGCN_GS(nn.Module):
 
                 self.add_module('agg_{}_{}'.format(mp, i), agg)
                 self.add_module('edge_{}_{}'.format(mp, i), edge)
-
+        if self.bias:
+            self.background=nn.Sequential(*[
+            nn.Linear(self.input_dim, 64, bias=False),
+            nn.Tanh(),
+            nn.Linear(64, input_dim, bias=False),
+        ])
         self.mp_agg = mpaggr_class(input_dim,dropout=self.dropout,batchnorm=self.batchnorm,)
 
         self.fc = nn.Linear(self.mp_agg.output_dim, problem.n_classes, bias=True)
@@ -148,6 +155,10 @@ class HINGCN_GS(nn.Module):
 
             assert len(all_feats) == 1, "len(all_feats) != 1"
             output.append(all_feats[0].unsqueeze(0))
+        if self.bias:
+            tmp_feats = self.feats[tmp_ids] if has_feats else None
+            all_feats = self.prep(tmp_ids, tmp_feats, layer_idx=1)
+            output.append(self.background(all_feats).unsqueeze(0))
         output = torch.cat(output)
         output = self.mp_agg(output)
 

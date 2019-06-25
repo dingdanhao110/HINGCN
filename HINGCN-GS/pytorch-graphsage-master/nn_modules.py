@@ -691,7 +691,7 @@ class MetapathAggrLayer(nn.Module):
 
         weight = torch.sum(e.view(N,n_meta),dim=0)/N
 
-        return F.relu(self.mlp(output)), weight.detach().numpy()
+        return F.relu(self.mlp(output)), weight.cpu().detach().numpy()
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'

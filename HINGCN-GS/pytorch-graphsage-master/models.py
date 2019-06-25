@@ -168,8 +168,8 @@ class HINGCN_GS(nn.Module):
             output.append(all_feats[0].unsqueeze(0))
         if self.bias:
             tmp_feats = None
-            all_feats = self.prep(torch.arange(self.n_nodes).to(ids.device()), tmp_feats, layer_idx=1)
-            back_ids = torch.arange(self.n_homo_nodes-self.n_nodes).to(ids.device())
+            all_feats = self.prep(torch.arange(self.n_nodes).to(ids.device), tmp_feats, layer_idx=1)
+            back_ids = torch.arange(self.n_homo_nodes-self.n_nodes).to(ids.device)
             all_feats = torch.cat([all_feats,self.back_emb(back_ids)],dim=0)
             output.append(self.background(all_feats)[tmp_ids].unsqueeze(0))
         output = torch.cat(output)

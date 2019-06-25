@@ -17,7 +17,7 @@ from torch.nn import functional as F
 
 from helpers import load_edge_emb
 
-from helpers import read_mpindex_dblp,sparse_mx_to_torch_sparse_tensor,read_mpindex_yelp,read_mpindex_yago
+from helpers import read_mpindex_dblp,read_homograph,read_mpindex_yelp,read_mpindex_yago
 
 # --
 # Helper classes
@@ -97,6 +97,7 @@ class NodeProblem(object):
         self.adj = edge_index
         self.edge_emb = edge_emb
 
+
         self.schemes=schemes
 
         self.folds     = folds
@@ -104,7 +105,10 @@ class NodeProblem(object):
 
         self.feats_dim = self.feats.shape[1] if self.feats is not None else None
         self.edge_dim = edge_emb[schemes[0]].shape[1]
-        self.n_nodes   = features.shape[0]+1
+        self.n_nodes   = features.shape[0]
+
+        self.homo_adj, self.homo_feat = read_homograph(path=problem_path)
+
         self.device      = device
         self.__to_torch()
         
@@ -128,6 +132,8 @@ class NodeProblem(object):
                 for i in self.adj:
                     self.adj[i]=self.adj[i].to(self.device)
                     # print(torch.cuda.memory_allocated())
+                self.homo_adj = self.homo_adj.to(self.device)
+                self.homo_feat = self.homo_feat.to(self.device)
                 for i in self.edge_emb:
                     if torch.is_tensor(self.edge_emb[i]):
                         self.edge_emb[i] = self.edge_emb[i].to(self.device)

@@ -15,6 +15,7 @@ from torch.nn import functional as F
 
 from lr import LRSchedule
 
+from nn_modules import GraphConvolution
 
 # --
 # Model
@@ -42,8 +43,8 @@ class HINGCN_GS(nn.Module):
         # Input Data
         self.edge_dim = problem.edge_dim
         self.input_dim = problem.feats_dim
-        self.n_nodes = problem.n_nodes,
-        self.n_classes = problem.n_classes,
+        self.n_nodes = problem.n_nodes
+        self.n_classes = problem.n_classes
         self.n_head = n_head
         self.bias = bias
 
@@ -104,10 +105,19 @@ class HINGCN_GS(nn.Module):
                 self.add_module('agg_{}_{}'.format(mp, i), agg)
                 self.add_module('edge_{}_{}'.format(mp, i), edge)
         if self.bias:
+            self.n_homo_nodes = problem.homo_feat.shape[0]
+            self.back_emb = nn.Embedding(self.n_homo_nodes-problem.n_nodes,
+                                         prep_len)
+            self.back_emb.from_pretrained(problem.homo_feat[problem.n_nodes+1:-1])
+
             self.background=nn.Sequential(*[
-            nn.Linear(self.input_dim, 64, bias=False),
-            nn.Tanh(),
-            nn.Linear(64, input_dim, bias=False),
+            GraphConvolution(self.input_dim, 64, adj=problem.homo_adj),
+            nn.ReLU(), nn.Dropout(self.dropout),
+            GraphConvolution(64, 32, adj=problem.homo_adj),
+            nn.ReLU(), nn.Dropout(self.dropout),
+            GraphConvolution(32, 16, adj=problem.homo_adj),
+            nn.ReLU(), nn.Dropout(self.dropout),
+            nn.Linear(16, input_dim),
         ])
         self.mp_agg = mpaggr_class(input_dim,dropout=self.dropout,batchnorm=self.batchnorm,)
 
@@ -156,16 +166,18 @@ class HINGCN_GS(nn.Module):
             assert len(all_feats) == 1, "len(all_feats) != 1"
             output.append(all_feats[0].unsqueeze(0))
         if self.bias:
-            tmp_feats = self.feats[tmp_ids] if has_feats else None
-            all_feats = self.prep(tmp_ids, tmp_feats, layer_idx=1)
-            output.append(self.background(all_feats).unsqueeze(0))
+            tmp_feats = None
+            all_feats = self.prep(torch.arange(self.n_nodes), tmp_feats, layer_idx=1)
+            back_ids = torch.arange(self.n_homo_nodes-self.n_nodes)
+            all_feats = torch.cat([all_feats,self.back_emb(back_ids)],dim=0)
+            output.append(self.background(all_feats)[tmp_ids].unsqueeze(0))
         output = torch.cat(output)
-        output = self.mp_agg(output)
+        output, weights = self.mp_agg(output)
 
         output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
         output = F.dropout(output, self.dropout, training=self.training)
 
-        return self.fc(output)
+        return self.fc(output), weights
 
 
 class MyDataParallel(nn.DataParallel):

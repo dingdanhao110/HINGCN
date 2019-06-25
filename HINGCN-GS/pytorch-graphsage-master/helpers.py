@@ -46,6 +46,14 @@ def read_embed(path="./data/dblp/",
 
     return features, n_nodes, n_feature
 
+def normalize(mx):
+    """Row-normalize sparse matrix"""
+    rowsum = np.array(mx.sum(1))
+    r_inv = np.power(rowsum, -1).flatten()
+    r_inv[np.isinf(r_inv)] = 0.
+    r_mat_inv = sp.diags(r_inv)
+    mx = r_mat_inv.dot(mx)
+    return mx
 
 def load_2hop_index(path="./data/dblp/", file="APA"):
     index = {}
@@ -212,5 +220,36 @@ def read_mpindex_yago(path="../../data/yago/", label_file = "labels"):
     folds = {'train': idx_train, 'val': idx_val, 'test': idx_test}
 
     return features, labels, folds
+
+def read_homograph(path="../../data/yago/", problem='yago',):
+    dataset = "homograph"
+    emb_file = {'yago':'MADW_16'}
+    with open("{}{}.emb".format(path, emb_file[problem])) as f:
+        n_nodes, n_feature = map(int, f.readline().strip().split())
+    embedding = np.loadtxt("{}{}.emb".format(path, emb_file[problem]),
+                           dtype=np.float32, skiprows=1, encoding='latin-1')
+    emb_index = {}
+    for i in range(n_nodes):
+        # if type(embedding[i, 0]) is not int:
+        #     continue
+        emb_index[embedding[i, 0]] = i
+
+    features = np.asarray([embedding[emb_index[i], 1:] for i in range(embedding.shape[0])])
+    features = torch.FloatTensor(features)
+
+    edges = np.genfromtxt("{}{}.txt".format(path, dataset),
+                          dtype=np.int32)
+    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+                        shape=(n_nodes, n_nodes),
+                        dtype=np.float32)
+
+    # build symmetric adjacency matrix
+    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+
+    # features = normalize(features)
+    adj = normalize(adj + sp.eye(adj.shape[0]))
+    adj = sparse_mx_to_torch_sparse_tensor(adj)
+
+    return adj, features
 
 # features, labels, folds = read_mpindex_yago()

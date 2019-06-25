@@ -108,7 +108,7 @@ class HINGCN_GS(nn.Module):
             self.n_homo_nodes = problem.homo_feat.shape[0]
             self.back_emb = nn.Embedding(self.n_homo_nodes-problem.n_nodes,
                                          prep_len)
-            self.back_emb.from_pretrained(problem.homo_feat[problem.n_nodes+1:-1])
+            self.back_emb.from_pretrained(problem.homo_feat[problem.n_nodes+1:-1],freeze=False)
 
             self.background=nn.Sequential(*[
             GraphConvolution(self.input_dim, 64, adj=problem.homo_adj),
@@ -174,7 +174,7 @@ class HINGCN_GS(nn.Module):
         output = torch.cat(output)
         output, weights = self.mp_agg(output)
 
-        output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
+        # output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
         output = F.dropout(output, self.dropout, training=self.training)
 
         return self.fc(output), weights

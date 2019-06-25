@@ -141,7 +141,7 @@ class IdentityPrep(nn.Module):
 
 
 class NodeEmbeddingPrep(nn.Module):
-    def __init__(self, input_dim, n_nodes, embedding_dim=64):
+    def __init__(self, input_dim, n_nodes,pre_trained=None, embedding_dim=64):
         """ adds node embedding """
         super(NodeEmbeddingPrep, self).__init__()
 
@@ -150,6 +150,9 @@ class NodeEmbeddingPrep(nn.Module):
         self.embedding_dim = embedding_dim
         self.embedding = nn.Embedding(num_embeddings=n_nodes + 1, embedding_dim=embedding_dim)
         self.fc = nn.Linear(embedding_dim, embedding_dim)  # Affine transform, for changing scale + location
+
+        if pre_trained is not None:
+            self.embedding.from_pretrained(pre_trained,padding_idx=0)
 
     @property
     def output_dim(self):

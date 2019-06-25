@@ -106,9 +106,10 @@ class HINGCN_GS(nn.Module):
                 self.add_module('edge_{}_{}'.format(mp, i), edge)
         if self.bias:
             self.n_homo_nodes = problem.homo_feat.shape[0]
-            self.back_emb = nn.Embedding(self.n_homo_nodes-problem.n_nodes,
+            back_emb = nn.Embedding(self.n_homo_nodes-problem.n_nodes,
                                          prep_len)
-            self.back_emb.from_pretrained(problem.homo_feat[problem.n_nodes+1:-1],freeze=False)
+            back_emb.from_pretrained(problem.homo_feat[problem.n_nodes+1:-1],freeze=False)
+            self.add_module('back_emb', back_emb)
 
             self.background=nn.Sequential(*[
             GraphConvolution(self.input_dim, 64, adj=problem.homo_adj),

@@ -107,7 +107,7 @@ class NodeProblem(object):
         self.edge_dim = edge_emb[schemes[0]].shape[1]
         self.n_nodes   = features.shape[0]
 
-        self.homo_adj, self.homo_feat = read_homograph(path=problem_path)
+        self.homo_adj, self.homo_feat = read_homograph(path=problem_path,problem=problem)
 
         self.device      = device
         self.__to_torch()

@@ -34,7 +34,7 @@ class HINGCN_GS(nn.Module):
                  sampler_class,
                  dropout,
                  batchnorm,
-                 bias=True,
+                 bias=False,
                  ):
 
         super(HINGCN_GS, self).__init__()

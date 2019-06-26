@@ -223,7 +223,7 @@ def read_mpindex_yago(path="../../data/yago/", label_file = "labels"):
 
 def read_homograph(path="../../data/yago/", problem='yago',):
     dataset = "homograph"
-    emb_file = {'yago':'MADW_16'}
+    emb_file = {'yago':'MADW_16','dblp':'APC_16','yelp':'RBUK_16'}
     with open("{}{}.emb".format(path, emb_file[problem])) as f:
         n_nodes, n_feature = map(int, f.readline().strip().split())
     embedding = np.loadtxt("{}{}.emb".format(path, emb_file[problem]),

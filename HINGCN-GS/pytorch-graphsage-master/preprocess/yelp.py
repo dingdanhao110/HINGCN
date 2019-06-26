@@ -191,6 +191,7 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
     BRURB_emb = []
     for v in range(n_busi):
         result = {}
+        count = {}
         if v not in BRUi.keys():
             # print (v)
             continue
@@ -209,11 +210,16 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
                     result[b] += node_emb[u] * (np2 * np1)
                 result[b] += edge1 * np2
                 result[b] += edge2 * np1
+                if b not in count:
+                    count[b]=0
+                count[b] += np1*np2
 
         for b in result:
             if v < b:
-                BRURB_emb.append(np.concatenate(([v, b], result[b])))
+                BRURB_emb.append(np.concatenate(([v, b], result[b], [count[b]])))
     BRURB_emb = np.asarray(BRURB_emb)
+    m = np.max(BRURB_emb[:, -1])
+    BRURB_emb[:, -1] /= m
     print("compute edge embeddings {} complete".format('BRURB'))
 
     #  brkrb
@@ -221,6 +227,7 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
 
     for v in range(n_busi):
         result = {}
+        count = {}
         if v not in BRKi.keys():
             # print (v)
             continue
@@ -237,15 +244,19 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
                     result[b] = node_emb[k] * (np2 * np1)
                 else:
                     result[b] += node_emb[k] * (np2 * np1)
+                if b not in count:
+                    count[b]=0
                 result[b] += edge1 * np2
                 result[b] += edge2 * np1
-
+                count[b] += np1*np2
         for b in result:
             if v < b:
-                BRKRB_emb.append(np.concatenate(([v, b], result[b])))
+                BRKRB_emb.append(np.concatenate(([v, b], result[b], [count[b]] )))
     BRKRB_emb = np.asarray(BRKRB_emb)
+    m = np.max(BRKRB_emb[:, -1])
+    BRKRB_emb[:, -1] /= m
     print("compute edge embeddings {} complete".format('BRKRB'))
-
+    emb_len = BRKRB_emb.shape[1] - 2
     np.savez("{}edge{}.npz".format(path, emb_len),
              BRURB=BRURB_emb, BRKRB=BRKRB_emb)
     print('dump npz file {}edge{}.npz complete'.format(path, emb_len))

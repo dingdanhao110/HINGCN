@@ -483,7 +483,7 @@ class AttentionAggregator2(nn.Module):
         if self.concat_node:
             out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)],dim=1)
         else:
-            out = self.fc_x(x) + self.fc_neib(agg_neib)
+            out = self.fc_x(x) + self.fc_neib(F.leaky_relu(agg_neib))
 
         if self.batchnorm:
             out = self.bn(out)

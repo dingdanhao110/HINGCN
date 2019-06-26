@@ -1,0 +1,38 @@
+Regularization:
+Cross Validation
+Early stopping
+--Dropout
+--Weight decay
+
+
+--Batch normalization
+Crop augmentaion
+ensemble averaging
+
+
+
+
+
+TODO:
+metapath2vec
+
+1. GCN layer:             sigma(W(aggr))  -> MLP (aggr)               Powerful GNN
+2. Jump net:              L1-L2-ouput -> output=L1||L2/maxpool(L1,L2)  Jump Knowledge Net
+3. MetaPath aggr layer:   Concat? Max-pooling? Sum?             Jump Knowledge Net
+
+6. Logistic disagreement loss on features..?  Loss+logistic(feat)+disagreement(log(feat),output)  Semisupervised graph classification: Hierachical graph
+
+
+9. Overfitting issue?? x+neigh(x)...?
+
+10. Two APAPA layer--- long tail metapath! NOT informative
+
+
+Done:
+( ) node2vec -> GCN,GAT
+( ) concat edge
+(4) Attention head, concat multiple attention result in node aggregation    GAT
+(5) change dimension     128->64->16->3
+(7) use node2vec as initial embedding: as good as logtistics(node2vec) on GCN
+(8) tanh() attention layer   MLP before attention calculation..
+Datasets:

@@ -169,7 +169,7 @@ class NodeEmbeddingPrep(nn.Module):
             embs = self.embedding(Variable(ids.clone().data.zero_() + self.n_nodes))
 
         embs = self.fc(embs)
-        if self.input_dim:
+        if self.input_dim or feats is None:
             return torch.cat([feats, embs], dim=1)
         else:
             return embs

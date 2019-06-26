@@ -474,7 +474,7 @@ class AttentionAggregator2(nn.Module):
         neib_att = neib_att.view(x.size(0), -1, neib_att.size(1))
         x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
 
-        ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+        ws = F.softmax(torch.bmm(neib_att, x_att).squeeze(),dim=1)
 
         # Weighted average of neighbors
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))

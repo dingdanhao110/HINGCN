@@ -112,7 +112,7 @@ class HINGCN_GS(nn.Module):
             self.add_module('back_emb', back_emb)
 
             self.background=nn.Sequential(*[
-            GraphConvolution(self.input_dim, 64, adj=problem.homo_adj),
+            GraphConvolution(problem.homo_feat.shape[1], 64, adj=problem.homo_adj),
             nn.ReLU(), nn.Dropout(self.dropout),
             GraphConvolution(64, 32, adj=problem.homo_adj),
             nn.ReLU(), nn.Dropout(self.dropout),

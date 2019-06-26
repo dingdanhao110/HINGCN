@@ -173,12 +173,13 @@ class HINGCN_GS(nn.Module):
             all_feats = torch.cat([all_feats,self.back_emb(back_ids)],dim=0)
             output.append(self.background(all_feats)[tmp_ids].unsqueeze(0))
         output = torch.cat(output)
-        output, weights = self.mp_agg(output)
 
+        output, weights = self.mp_agg(output)
+        print(weights)
         # output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
         output = F.dropout(output, self.dropout, training=self.training)
 
-        return self.fc(output), weights
+        return self.fc(output)
 
 
 class MyDataParallel(nn.DataParallel):

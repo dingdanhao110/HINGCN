@@ -117,7 +117,10 @@ class SpUniformNeighborSampler(object):
 
                     neigh.append(nonz[1, n[idx]])
                     edges.append(values[n[idx]])
-                    mask.append(torch.LongTensor([0]).repeat(n_samples))
+                    if cuda:
+                        mask.append(torch.cuda.LongTensor([0]).repeat(n_samples))
+                    else:
+                        mask.append(torch.LongTensor([0]).repeat(n_samples))
                 else:
 
                     if cuda:

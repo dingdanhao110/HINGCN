@@ -144,7 +144,7 @@ def load_edge_emb(path, schemes, n_dim=17, n_author=20000):
         # ind = sp.coo_matrix(ind)
 
         ind = ind + ind.transpose()
-        ind = sparse_mx_to_torch_sparse_tensor(ind)
+        ind = sparse_mx_to_torch_sparse_tensor(ind).to_dense()
 
         # nonz = ind._indices()
         # values = ind._values()

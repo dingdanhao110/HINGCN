@@ -83,7 +83,8 @@ class NodeProblem(object):
 
         edge_index, edge_emb = load_edge_emb(path=problem_path,
                                              schemes=schemes,
-                                             n_dim=17)
+                                             n_dim=17,
+                                             n_author=features.shape[0])
 
         self.task      = 'classification'
         self.n_classes = int(max(labels)+1) # !!

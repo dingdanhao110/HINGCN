@@ -141,10 +141,46 @@ class SpUniformNeighborSampler(object):
 
         return neigh, edges, mask
 
+class DenseMask(object):
+    """
+        Samples from a "sparse 2D edgelist", which looks like
+
+            [
+                [0, 1, 2, ..., 4],
+                [0, 0, 5, ..., 10],
+                ...
+            ]
+
+        stored as torch.LongTensor.
+
+        Adj[a1,a2]=id, where the edge embedding of edge (a1,a2) is stored at emb[id]
+
+        If a node does not have a neighbor, sample itself n_sample times and
+        return emb[0]. * emb[0] is the padding zero embedding.
+
+        We didn't apply the optimization from GraphSage
+    """
+
+    def __init__(self):
+        pass
+
+    def __call__(self, adj, ids, n_samples=16):
+
+        cuda = adj.is_cuda
+
+        neigh = []
+        edges = adj[ids]
+        if cuda:
+            mask = torch.where(adj == 0, torch.cuda.FloatTensor([1]), torch.cuda.FloatTensor([0]))
+        else:
+            mask = torch.where(adj==0,torch.FloatTensor([1]),torch.FloatTensor([0]))
+
+        return neigh, edges, mask[ids]
 
 sampler_lookup = {
     "uniform_neighbor_sampler": UniformNeighborSampler,
     "sparse_uniform_neighbor_sampler": SpUniformNeighborSampler,
+    "dense_mask": DenseMask,
 }
 
 
@@ -529,6 +565,97 @@ class AttentionAggregator2(nn.Module):
         return out
 
 
+
+class AttentionAggregator3(nn.Module):
+    def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=32,
+                 dropout=0.5,
+                 concat_node=True, concat_edge=True, batchnorm=False):
+        super(AttentionAggregator3, self).__init__()
+
+        self.att_x = nn.Sequential(*[
+            nn.Linear(input_dim, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim, bias=False),
+            nn.ReLU(),
+            nn.Linear(hidden_dim,1)
+        ])
+
+        self.att_neigh = nn.Sequential(*[
+            nn.Linear(input_dim, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim, bias=False),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1)
+        ])
+
+        self.att_edge = nn.Sequential(*[
+            nn.Linear(edge_dim, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim, bias=False),
+            nn.ReLU(),
+            nn.Linear(hidden_dim,1)
+        ])
+
+        self.fc_x = nn.Linear(input_dim, output_dim)
+        self.fc_neib = nn.Linear(input_dim, output_dim)
+        self.fc_edge = nn.Linear(edge_dim, output_dim)
+        self.concat_node = concat_node
+
+        self.dropout = nn.Dropout(p=dropout)
+        self.batchnorm = batchnorm
+
+        if concat_node:
+            self.output_dim = output_dim * 2
+        else:
+            self.output_dim = output_dim
+        self.activation = activation
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.output_dim)
+
+    def forward(self, x, neibs, edge_emb, mask):
+        '''
+        :param x: (N,input_dim)
+        :param neibs: (n_nodes,input_dim)
+        :param edge_emb: (N*n_nodes,edge_dim)
+        :param mask: (N, n_nodes)
+        :return:
+        '''
+        N = x.shape[0]
+
+        neib_att = self.att_neigh(neibs)
+        x_att = self.att_x(x)
+        edge_att = self.att_edge(edge_emb)
+
+        ws = x_att+neib_att.view(1,-1) #+edge_att.view(N,-1)
+
+        ws += -9999999 * mask
+        ws = F.softmax(ws,dim=1)
+
+
+        # Weighted average of neighbors
+        agg_neib = torch.mm(ws,neibs)
+
+        # agg_edge = edge_emb.view(N, -1, edge_emb.size(-1))
+        # agg_edge = torch.sum(agg_edge * ws.unsqueeze(-1), dim=1)
+
+        if self.concat_node:
+            out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)],dim=1)
+        else:
+            out = self.fc_x(x) + self.fc_neib(agg_neib)
+
+        if self.batchnorm:
+            out = self.bn(out)
+
+        out = self.dropout(out)
+
+        if self.activation:
+            out = self.activation(out)
+
+        return out
+
+
+
 class EdgeAggregator(nn.Module):
     def __init__(self, input_dim, edge_dim, activation,dropout=0.5, batchnorm=False):
         super(EdgeAggregator, self).__init__()
@@ -744,6 +871,7 @@ aggregator_lookup = {
     "lstm": LSTMAggregator,
     "attention": AttentionAggregator,
     "attention2": AttentionAggregator2,
+    "attention3": AttentionAggregator3,
     "edge_emb_attn": EdgeEmbAttentionAggregator,
 }
 

@@ -18,7 +18,7 @@ import torch
 from torch.autograd import Variable
 from torch.nn import functional as F
 
-from models import HINGCN_GS, MyDataParallel
+from models import HINGCN_GS, MyDataParallel,HINGCN_Dense
 from problem import NodeProblem
 from helpers import set_seeds, to_numpy
 from nn_modules import aggregator_lookup, prep_lookup, sampler_lookup, edge_aggregator_lookup, \
@@ -88,8 +88,8 @@ def parse_args():
     parser.add_argument('--tolerance', type=int, default=100)
 
     # Architecture params
-    parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
-    parser.add_argument('--aggregator-class', type=str, default='attention2')
+    parser.add_argument('--sampler-class', type=str, default='dense_mask')
+    parser.add_argument('--aggregator-class', type=str, default='attention3')
     parser.add_argument('--prep-class', type=str, default='node_embedding')  # identity
     parser.add_argument('--mpaggr-class', type=str, default='attention')
     parser.add_argument('--edgeupt-class', type=str, default='residual')
@@ -140,7 +140,7 @@ if __name__ == "__main__":
     n_train_samples = list(map(int, args.n_train_samples.split(',')))
     n_val_samples = list(map(int, args.n_val_samples.split(',')))
     output_dims = list(map(int, args.output_dims.split(',')))
-    model = HINGCN_GS(**{
+    model = HINGCN_Dense(**{
         "problem": problem,
         "n_mp": len(schemes),
         "sampler_class": sampler_lookup[args.sampler_class],

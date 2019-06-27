@@ -102,11 +102,11 @@ class SpUniformNeighborSampler(object):
             if (len(n) == 0):
                 # no neighbor, only sample from itself
                 # for edge embedding... PADDING with all-zero embedding at edge_emb[0]
-                # if cuda:
-                #     neigh.append(torch.cuda.LongTensor([v]).repeat(n_samples))
-                #     edges.append(torch.cuda.LongTensor([0]).repeat(n_samples))
-                #     mask.append(torch.cuda.LongTensor([1]).repeat(n_samples))
-                # else:
+                if cuda:
+                    neigh.append(torch.cuda.LongTensor([v]).repeat(n_samples))
+                    edges.append(torch.cuda.LongTensor([0]).repeat(n_samples))
+                    mask.append(torch.cuda.LongTensor([1]).repeat(n_samples))
+                else:
                     neigh.append(torch.LongTensor([v]).repeat(n_samples))
                     edges.append(torch.LongTensor([0]).repeat(n_samples))
                     mask.append(torch.LongTensor([1]).repeat(n_samples))
@@ -120,12 +120,12 @@ class SpUniformNeighborSampler(object):
                     mask.append(torch.LongTensor([0]).repeat(n_samples))
                 else:
 
-                    # if cuda:
-                    #     neigh.append(torch.cat([nonz[1, n], torch.cuda.LongTensor([v]).repeat(n_samples - n.shape[0])]))
-                    #     edges.append(torch.cat([values[n], torch.cuda.LongTensor([v]).repeat(n_samples - n.shape[0])]))
-                    #     mask.append(torch.cat([torch.cuda.LongTensor([0]).repeat(n.shape[0]),
-                    #                            torch.cuda.LongTensor([1]).repeat(n_samples - n.shape[0])]))
-                    # else:
+                    if cuda:
+                        neigh.append(torch.cat([nonz[1, n], torch.cuda.LongTensor([v]).repeat(n_samples - n.shape[0])]))
+                        edges.append(torch.cat([values[n], torch.cuda.LongTensor([v]).repeat(n_samples - n.shape[0])]))
+                        mask.append(torch.cat([torch.cuda.LongTensor([0]).repeat(n.shape[0]),
+                                               torch.cuda.LongTensor([1]).repeat(n_samples - n.shape[0])]))
+                    else:
                         neigh.append(torch.cat([nonz[1, n], torch.LongTensor([v]).repeat(n_samples - n.shape[0])]))
                         edges.append(torch.cat([values[n], torch.LongTensor([0]).repeat(n_samples - n.shape[0])]))
                         mask.append(torch.cat([torch.LongTensor([0]).repeat(n.shape[0]),
@@ -133,11 +133,6 @@ class SpUniformNeighborSampler(object):
         neigh = torch.stack(neigh).long().view(-1)
         edges = torch.stack(edges).long().view(-1)
         mask = torch.stack(mask).float()
-
-        if cuda:
-            neigh = neigh.cuda()
-            edges = edges.cuda()
-            mask = mask.cuda()
 
         return neigh, edges, mask
 

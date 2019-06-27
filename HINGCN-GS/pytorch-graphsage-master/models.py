@@ -360,7 +360,7 @@ class HINGCN_Dense(nn.Module):
 
         output, weights = self.mp_agg(output)
         # print(weights)
-        output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
+        # output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
         output = F.dropout(output, self.dropout, training=self.training)
 
         return self.fc(output)

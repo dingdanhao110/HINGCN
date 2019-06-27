@@ -573,25 +573,25 @@ class AttentionAggregator3(nn.Module):
         super(AttentionAggregator3, self).__init__()
 
         self.att_x = nn.Sequential(*[
-            nn.Linear(input_dim, hidden_dim, bias=False),
+            nn.Linear(input_dim, hidden_dim, bias=True),
             nn.Tanh(),
-            nn.Linear(hidden_dim, hidden_dim, bias=False),
+            nn.Linear(hidden_dim, hidden_dim, bias=True),
             nn.ReLU(),
             nn.Linear(hidden_dim,1)
         ])
 
         self.att_neigh = nn.Sequential(*[
-            nn.Linear(input_dim, hidden_dim, bias=False),
+            nn.Linear(input_dim, hidden_dim, bias=True),
             nn.Tanh(),
-            nn.Linear(hidden_dim, hidden_dim, bias=False),
+            nn.Linear(hidden_dim, hidden_dim, bias=True),
             nn.ReLU(),
             nn.Linear(hidden_dim, 1)
         ])
 
         self.att_edge = nn.Sequential(*[
-            nn.Linear(edge_dim, hidden_dim, bias=False),
+            nn.Linear(edge_dim, hidden_dim, bias=True),
             nn.Tanh(),
-            nn.Linear(hidden_dim, hidden_dim, bias=False),
+            nn.Linear(hidden_dim, hidden_dim, bias=True),
             nn.ReLU(),
             nn.Linear(hidden_dim,1)
         ])

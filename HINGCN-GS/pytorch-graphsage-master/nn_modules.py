@@ -110,6 +110,9 @@ class SpUniformNeighborSampler(object):
                     neigh.append(torch.LongTensor([v]).repeat(n_samples))
                     edges.append(torch.LongTensor([0]).repeat(n_samples))
                     mask.append(torch.LongTensor([1]).repeat(n_samples))
+                # neigh.append(np.repeat([v],n_samples))
+                # edges.append(np.repeat([0],n_samples))
+                # mask.append(np.repeat([1],n_samples))
             else:
                 # np.random.choice(nonz.shape[0], n_samples)
                 if n.shape[0]>=n_samples:
@@ -121,11 +124,15 @@ class SpUniformNeighborSampler(object):
                         mask.append(torch.cuda.LongTensor([0]).repeat(n_samples))
                     else:
                         mask.append(torch.LongTensor([0]).repeat(n_samples))
+
+                    # neigh.append(nonz[1, n[idx]].numpy())
+                    # edges.append(values[n[idx]].numpy())
+                    # mask.append(np.repeat([0],n_samples))
                 else:
 
                     if cuda:
                         neigh.append(torch.cat([nonz[1, n], torch.cuda.LongTensor([v]).repeat(n_samples - n.shape[0])]))
-                        edges.append(torch.cat([values[n], torch.cuda.LongTensor([v]).repeat(n_samples - n.shape[0])]))
+                        edges.append(torch.cat([values[n], torch.cuda.LongTensor([0]).repeat(n_samples - n.shape[0])]))
                         mask.append(torch.cat([torch.cuda.LongTensor([0]).repeat(n.shape[0]),
                                                torch.cuda.LongTensor([1]).repeat(n_samples - n.shape[0])]))
                     else:
@@ -133,6 +140,11 @@ class SpUniformNeighborSampler(object):
                         edges.append(torch.cat([values[n], torch.LongTensor([0]).repeat(n_samples - n.shape[0])]))
                         mask.append(torch.cat([torch.LongTensor([0]).repeat(n.shape[0]),
                                            torch.LongTensor([1]).repeat(n_samples-n.shape[0])]))
+
+                    # neigh.append(np.hstack([nonz[1, n].numpy(), np.repeat([v],n_samples - n.shape[0])]))
+                    # neigh.append(np.hstack([values[n].numpy(), np.repeat([0], n_samples - n.shape[0])]))
+                    # neigh.append(np.hstack([np.repeat([0], n.shape[0]), np.repeat([1], n_samples - n.shape[0])]))
+
         neigh = torch.stack(neigh).long().view(-1)
         edges = torch.stack(edges).long().view(-1)
         mask = torch.stack(mask).float()

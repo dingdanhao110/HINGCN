@@ -143,10 +143,12 @@ class HINGCN_GS(nn.Module):
             tmp_feats = self.feats[ids] if has_feats else None
             all_feats = [self.prep(ids, tmp_feats, layer_idx=0)]
             all_edges = []
+            all_masks = []
             for layer_idx, sampler_fn in enumerate(sample_fns):
-                neigh, edges = sampler_fn(adj=getattr(self,'adjs_{}'.format(mp)), ids=ids)
+                neigh, edges, mask = sampler_fn(adj=getattr(self,'adjs_{}'.format(mp)), ids=ids)
 
                 all_edges.append(getattr(self,'edge_emb_{}'.format(mp))[edges.contiguous().view(-1)])
+                all_masks.append(mask)
 
                 ids = neigh.contiguous().view(-1)
                 tmp_feats = self.feats[ids] if has_feats else None
@@ -156,11 +158,11 @@ class HINGCN_GS(nn.Module):
             # Each iteration reduces length of array by one
             for i in range(self.depth):
                 all_feats = [ torch.cat([getattr(self,'agg_{}_{}'.format(mp, i))[h] (all_feats[k], all_feats[k + 1],
-                                                     all_edges[k]) for h in range(self.n_head)], dim=1)
+                                                     all_edges[k], mask=all_masks[k]) for h in range(self.n_head)], dim=1)
                               for k in range(len(all_feats) - 1)]
                 all_feats = [F.dropout(i, self.dropout, training=self.training) for i in all_feats]
                 all_edges = [getattr(self,'edge_{}_{}'.format(mp, i))(all_feats[k], all_feats[k + 1],
-                                                    all_edges[k]
+                                                    all_edges[k], mask=all_masks[k]
                                                     ) for k in range(len(all_edges) - 1)]
                 all_edges = [F.dropout(i, self.dropout, training=self.training) for i in all_edges]
 
@@ -176,7 +178,7 @@ class HINGCN_GS(nn.Module):
 
         output, weights = self.mp_agg(output)
         # print(weights)
-        # output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
+        output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
         output = F.dropout(output, self.dropout, training=self.training)
 
         return self.fc(output)

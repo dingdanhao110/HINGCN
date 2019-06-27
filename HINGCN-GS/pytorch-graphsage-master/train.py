@@ -80,7 +80,7 @@ def parse_args():
     # Optimization params
     parser.add_argument('--batch-size', type=int, default=2048)
     parser.add_argument('--epochs', type=int, default=10000)
-    parser.add_argument('--lr-init', type=float, default=0.01)
+    parser.add_argument('--lr-init', type=float, default=0.001)
     parser.add_argument('--lr-schedule', type=str, default='constant')
     parser.add_argument('--weight-decay', type=float, default=5e-4)
     parser.add_argument('--dropout', type=float, default=0.5)
@@ -96,11 +96,11 @@ def parse_args():
     parser.add_argument('--concat-node', action="store_true")
     parser.add_argument('--concat-edge', action="store_true")
 
-    parser.add_argument('--prep-len', type=int, default=16)
+    parser.add_argument('--prep-len', type=int, default=128)
     parser.add_argument('--n-head', type=int, default=4)
     parser.add_argument('--n-train-samples', type=str, default='8,8')
     parser.add_argument('--n-val-samples', type=str, default='8,8')
-    parser.add_argument('--output-dims', type=str, default='16,16')
+    parser.add_argument('--output-dims', type=str, default='64,16')
 
 
     # Logging

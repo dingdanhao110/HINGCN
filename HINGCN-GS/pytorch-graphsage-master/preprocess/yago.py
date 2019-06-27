@@ -269,7 +269,7 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
             else:
                 result[m] += edge1
 
-            if v < m:
+            if v <= m:
                 MAM_emb.append(np.concatenate(([v, m], result[m], [np1])))
     MAM_emb = np.asarray(MAM_emb)
     m = np.max(MAM_emb[:,-1])
@@ -291,7 +291,7 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
             else:
                 result[m] += edge1
 
-            if v < m:
+            if v <= m:
                 MDM_emb.append(np.concatenate(([v, m], result[m], [np1])))
     MDM_emb = np.asarray(MDM_emb)
     m = np.max(MDM_emb[:, -1])
@@ -313,7 +313,7 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
             else:
                 result[m] += edge1
 
-            if v < m:
+            if v <= m:
                 MWM_emb.append(np.concatenate(([v, m], result[m], [np1])))
     MWM_emb = np.asarray(MWM_emb)
     m = np.max(MWM_emb[:, -1])
@@ -469,7 +469,7 @@ def gen_yago_randomwalk(path='../../../data/yago/',
 
 # gen_homograph(path='../../../data/freebase/')
 
-# dump_yago_edge_emb(path='../../../data/freebase/')
+dump_yago_edge_emb(path='../../../data/freebase/')
 
-gen_yago_randomwalk(path='../../../data/freebase/',
-                    walk_length=80,n_walks=10)
+# gen_yago_randomwalk(path='../../../data/freebase/',
+#                     walk_length=80,n_walks=10)

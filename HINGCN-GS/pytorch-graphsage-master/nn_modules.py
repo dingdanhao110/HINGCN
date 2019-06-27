@@ -44,6 +44,7 @@ class UniformNeighborSampler(object):
         cuda = adj.is_cuda
 
         neigh = []
+        mask = []
         for v in ids:
             nonz = torch.nonzero(adj[v]).view(-1)
             if (len(nonz) == 0):
@@ -60,7 +61,7 @@ class UniformNeighborSampler(object):
         edges = adj[
             ids.view(-1, 1).repeat(1, n_samples).view(-1),
             neigh]
-        return neigh, edges
+        return neigh, edges, mask
 
 
 class SpUniformNeighborSampler(object):
@@ -93,6 +94,7 @@ class SpUniformNeighborSampler(object):
         nonz = adj._indices()
         values = adj._values()
 
+        mask = []
         neigh = []
         edges = []
         for v in ids:
@@ -103,18 +105,36 @@ class SpUniformNeighborSampler(object):
                 if cuda:
                     neigh.append(torch.cuda.LongTensor([v]).repeat(n_samples))
                     edges.append(torch.cuda.LongTensor([0]).repeat(n_samples))
+                    mask.append(torch.cuda.LongTensor([1]).repeat(n_samples))
                 else:
                     neigh.append(torch.LongTensor([v]).repeat(n_samples))
                     edges.append(torch.LongTensor([0]).repeat(n_samples))
+                    mask.append(torch.LongTensor([1]).repeat(n_samples))
             else:
                 # np.random.choice(nonz.shape[0], n_samples)
-                idx = torch.randint(0, n.shape[0], (n_samples,))
+                if n.shape[0]>=n_samples:
+                    idx = torch.randint(0, n.shape[0], (n_samples,))
 
-                neigh.append(nonz[1, n[idx]])
-                edges.append(values[n[idx]])
+                    neigh.append(nonz[1, n[idx]])
+                    edges.append(values[n[idx]])
+                    mask.append(torch.LongTensor([0]).repeat(n_samples))
+                else:
+
+                    if cuda:
+                        neigh.append(torch.cat([nonz[1, n], torch.cuda.LongTensor([v]).repeat(n_samples - n.shape[0])]))
+                        edges.append(torch.cat([values[n], torch.cuda.LongTensor([v]).repeat(n_samples - n.shape[0])]))
+                        mask.append(torch.cat([torch.cuda.LongTensor([0]).repeat(n.shape[0]),
+                                               torch.cuda.LongTensor([1]).repeat(n_samples - n.shape[0])]))
+                    else:
+                        neigh.append(torch.cat([nonz[1, n], torch.LongTensor([v]).repeat(n_samples - n.shape[0])]))
+                        edges.append(torch.cat([values[n], torch.LongTensor([v]).repeat(n_samples - n.shape[0])]))
+                        mask.append(torch.cat([torch.LongTensor([0]).repeat(n.shape[0]),
+                                           torch.LongTensor([1]).repeat(n_samples-n.shape[0])]))
         neigh = torch.stack(neigh).long().view(-1)
         edges = torch.stack(edges).long().view(-1)
-        return neigh, edges
+        mask = torch.stack(mask).float()
+
+        return neigh, edges, mask
 
 
 sampler_lookup = {
@@ -325,13 +345,17 @@ class AttentionAggregator(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.output_dim)
 
-    def forward(self, x, neibs, edge_emb):
+    def forward(self, x, neibs, edge_emb, mask):
         # Compute attention weights
         neib_att = self.att(neibs)
         x_att = self.att(x)
         neib_att = neib_att.view(x.size(0), -1, neib_att.size(1))
         x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
-        ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+        # ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+
+        ws = torch.bmm(neib_att, x_att).squeeze()
+        ws += -9999999 * mask
+        ws = F.softmax(ws, dim=1)
 
         # Weighted average of neighbors
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))
@@ -387,7 +411,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(output_dim)
 
-    def forward(self, input, neigh_feat, edge_emb):
+    def forward(self, input, neigh_feat, edge_emb, mask):
         # Compute attention weights
         N = input.size()[0]
 
@@ -401,6 +425,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
                              edge_emb.view(N, n_sample, -1)], dim=2)
 
         e = self.leakyrelu(torch.matmul(a_input, self.a))
+        e += -9999999 * mask
         attention = F.softmax(e, dim=1)
         attention = attention.view(N, 1, n_sample)
         # attention = attention.squeeze(2)
@@ -464,7 +489,7 @@ class AttentionAggregator2(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.output_dim)
 
-    def forward(self, x, neibs, edge_emb):
+    def forward(self, x, neibs, edge_emb, mask):
         # Compute attention weights
         neibs = torch.cat([neibs,edge_emb],dim=1)
 
@@ -474,7 +499,10 @@ class AttentionAggregator2(nn.Module):
         neib_att = neib_att.view(x.size(0), -1, neib_att.size(1))
         x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
 
-        ws = F.softmax(torch.bmm(neib_att, x_att).squeeze(),dim=1)
+        ws = torch.bmm(neib_att, x_att).squeeze()
+        ws += -9999999 * mask
+        ws = F.softmax(ws,dim=1)
+
 
         # Weighted average of neighbors
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))
@@ -483,7 +511,7 @@ class AttentionAggregator2(nn.Module):
         if self.concat_node:
             out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)],dim=1)
         else:
-            out = self.fc_x(x) + self.fc_neib(F.leaky_relu(agg_neib))
+            out = self.fc_x(x) + self.fc_neib(agg_neib)
 
         if self.batchnorm:
             out = self.bn(out)
@@ -494,6 +522,7 @@ class AttentionAggregator2(nn.Module):
             out = self.activation(out)
 
         return out
+
 
 class EdgeAggregator(nn.Module):
     def __init__(self, input_dim, edge_dim, activation,dropout=0.5, batchnorm=False):
@@ -520,7 +549,7 @@ class EdgeAggregator(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.edge_dim)
 
-    def forward(self, x, neibs, edge_emb):
+    def forward(self, x, neibs, edge_emb, mask):
         # update edge embedding:
         # e = sigma(w1*x+W2*neibs+b) @ e
 
@@ -565,7 +594,7 @@ class IdEdgeAggregator(nn.Module):
         self.batchnorm = batchnorm
         self.dropout = nn.Dropout(p=dropout)
 
-    def forward(self, x, neibs, edge_emb):
+    def forward(self, x, neibs, edge_emb, mask):
         # identical mapping
         # e = sigma(w1*x+W2*neibs+b) @ e
         return edge_emb
@@ -593,7 +622,7 @@ class ResEdge(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.edge_dim)
 
-    def forward(self, x, neibs, edge_emb):
+    def forward(self, x, neibs, edge_emb, mask):
         # update edge embedding:
         # e = sigma(W1*x+W1*neibs+W2*e) + e
 

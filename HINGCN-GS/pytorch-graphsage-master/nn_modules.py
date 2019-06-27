@@ -576,8 +576,8 @@ class AttentionAggregator3(nn.Module):
             nn.Linear(input_dim, hidden_dim, bias=True),
             nn.Tanh(),
             nn.Linear(hidden_dim, hidden_dim, bias=True),
-            nn.ReLU(),
-            nn.Linear(hidden_dim,1)
+            # nn.ReLU(),
+            # nn.Linear(hidden_dim,1)
         ])
 
         self.att_neigh = nn.Sequential(*[

@@ -642,7 +642,7 @@ class AttentionAggregator3(nn.Module):
             out = torch.cat([x, agg_neib], dim=1)
             out = self.fc_x(out)
             out = F.sigmoid(out)
-            
+
         if self.batchnorm:
             out = self.bn(out)
 

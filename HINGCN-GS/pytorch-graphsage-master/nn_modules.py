@@ -596,7 +596,7 @@ class AttentionAggregator3(nn.Module):
             # nn.Linear(hidden_dim,1)
         ])
 
-        self.fc_x = nn.Linear(input_dim, output_dim)
+        self.fc_x = nn.Linear(2*input_dim, output_dim)
         self.fc_neib = nn.Linear(input_dim, output_dim)
         self.fc_edge = nn.Linear(edge_dim, output_dim)
         self.concat_node = concat_node
@@ -628,19 +628,22 @@ class AttentionAggregator3(nn.Module):
         edge_att = self.att_edge(edge_emb)
 
         ws = x_att.mm(neib_att.t()) #+edge_att.view(N,-1)
-
-        ws += -9999999 * mask
+        # ws = F.leaky_relu(ws)
+        ws = ws * mask
         ws = F.softmax(ws,dim=1)
 
 
         # Weighted average of neighbors
         agg_neib = torch.mm(ws,neibs)
-
+        agg_neib = F.sigmoid(agg_neib)
         # agg_edge = edge_emb.view(N, -1, edge_emb.size(-1))
         # agg_edge = torch.sum(agg_edge * ws.unsqueeze(-1), dim=1)
 
         if self.concat_node:
-            out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)],dim=1)
+            # out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)],dim=1)
+            out = torch.cat([x, agg_neib], dim=1)
+            out = self.fc_x(out)
+            out = F.sigmoid(out)
         else:
             out = self.fc_x(x) + self.fc_neib(agg_neib)
 
@@ -649,8 +652,8 @@ class AttentionAggregator3(nn.Module):
 
         out = self.dropout(out)
 
-        if self.activation:
-            out = self.activation(out)
+        # if self.activation:
+        #     out = self.activation(out)
 
         return out
 

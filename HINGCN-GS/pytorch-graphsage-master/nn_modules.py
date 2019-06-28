@@ -572,7 +572,7 @@ class AttentionAggregator3(nn.Module):
             nn.Linear(input_dim, hidden_dim, bias=True),
             nn.Tanh(),
             nn.Linear(hidden_dim, hidden_dim, bias=True),
-            # nn.ReLU(),
+            nn.ReLU(),
             # nn.Linear(hidden_dim,1)
         ])
 
@@ -580,7 +580,7 @@ class AttentionAggregator3(nn.Module):
             nn.Linear(input_dim, hidden_dim, bias=True),
             nn.Tanh(),
             nn.Linear(hidden_dim, hidden_dim, bias=True),
-            # nn.ReLU(),
+            nn.ReLU(),
             # nn.Linear(hidden_dim, 1)
         ])
 
@@ -588,7 +588,7 @@ class AttentionAggregator3(nn.Module):
             nn.Linear(edge_dim, hidden_dim, bias=True),
             nn.Tanh(),
             nn.Linear(hidden_dim, hidden_dim, bias=True),
-            # nn.ReLU(),
+            nn.ReLU(),
             # nn.Linear(hidden_dim,1)
         ])
 
@@ -624,7 +624,7 @@ class AttentionAggregator3(nn.Module):
         edge_att = self.att_edge(edge_emb)
 
         ws = x_att.mm(neib_att.t())  # +edge_att.view(N,-1)
-        # ws = F.leaky_relu(ws)
+        ws = F.leaky_relu(ws)
         ws = ws * mask
         ws = F.softmax(ws, dim=1)
 

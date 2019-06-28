@@ -112,7 +112,7 @@ class SpUniformNeighborSampler(object):
                     mask.append(torch.LongTensor([1]).repeat(n_samples))
             else:
                 # np.random.choice(nonz.shape[0], n_samples)
-                if n.shape[0]>=n_samples:
+                if n.shape[0] >= n_samples:
                     idx = torch.randint(0, n.shape[0], (n_samples,))
 
                     neigh.append(nonz[1, n[idx]])
@@ -133,13 +133,14 @@ class SpUniformNeighborSampler(object):
                         neigh.append(torch.cat([nonz[1, n], torch.LongTensor([v]).repeat(n_samples - n.shape[0])]))
                         edges.append(torch.cat([values[n], torch.LongTensor([0]).repeat(n_samples - n.shape[0])]))
                         mask.append(torch.cat([torch.LongTensor([0]).repeat(n.shape[0]),
-                                           torch.LongTensor([1]).repeat(n_samples-n.shape[0])]))
+                                               torch.LongTensor([1]).repeat(n_samples - n.shape[0])]))
 
         neigh = torch.stack(neigh).long().view(-1)
         edges = torch.stack(edges).long().view(-1)
         mask = torch.stack(mask).float()
 
         return neigh, edges, mask
+
 
 class DenseMask(object):
     """
@@ -171,11 +172,12 @@ class DenseMask(object):
         neigh = []
         edges = adj[ids]
         if cuda:
-            mask = torch.where(adj == 0, torch.cuda.FloatTensor([1]), torch.cuda.FloatTensor([0]))
+            mask = torch.where(adj == 0, torch.cuda.FloatTensor([0]), torch.cuda.FloatTensor([1]))
         else:
-            mask = torch.where(adj==0,torch.FloatTensor([1]),torch.FloatTensor([0]))
+            mask = torch.where(adj == 0, torch.FloatTensor([0]), torch.FloatTensor([1]))
 
         return neigh, edges, mask[ids]
+
 
 sampler_lookup = {
     "uniform_neighbor_sampler": UniformNeighborSampler,
@@ -202,7 +204,7 @@ class IdentityPrep(nn.Module):
 
 
 class NodeEmbeddingPrep(nn.Module):
-    def __init__(self, input_dim, n_nodes,pre_trained=None, embedding_dim=64):
+    def __init__(self, input_dim, n_nodes, pre_trained=None, embedding_dim=64):
         """ adds node embedding """
         super(NodeEmbeddingPrep, self).__init__()
 
@@ -213,7 +215,7 @@ class NodeEmbeddingPrep(nn.Module):
         self.fc = nn.Linear(embedding_dim, embedding_dim)  # Affine transform, for changing scale + location
 
         if pre_trained is not None:
-            self.embedding.from_pretrained(pre_trained,padding_idx=0)
+            self.embedding.from_pretrained(pre_trained, padding_idx=0)
 
     @property
     def output_dim(self):
@@ -245,9 +247,6 @@ class LinearPrep(nn.Module):
 
     def forward(self, ids, feats, layer_idx=0):
         return self.fc(feats)
-
-
-
 
 
 # --
@@ -404,7 +403,6 @@ class AttentionAggregator(nn.Module):
 
         out = self.fc_x(x) + self.fc_neib(agg_neib)
 
-
         if self.batchnorm:
             out = self.bn(out)
 
@@ -439,7 +437,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
         W = nn.Parameter(torch.zeros(size=(input_dim, output_dim)))
         nn.init.xavier_uniform_(W.data, gain=1.414)
-        self.register_parameter('W',W)
+        self.register_parameter('W', W)
 
         W2 = nn.Parameter(torch.zeros(size=(input_dim, output_dim)))
         nn.init.xavier_uniform_(W2.data, gain=1.414)
@@ -486,13 +484,13 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
         if self.concat_edge:
             e = torch.bmm(attention, edge_emb.view(N, n_sample, -1)).squeeze()
-            output = torch.cat([output,e],dim=1)
+            output = torch.cat([output, e], dim=1)
         if self.activation:
             output = self.activation(output)
         return output
 
     def __repr__(self):
-        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim)\
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim) \
                + ' -> ' + str(self.output_dim) + ')'
 
 
@@ -509,13 +507,13 @@ class AttentionAggregator2(nn.Module):
         ])
 
         self.att2 = nn.Sequential(*[
-            nn.Linear(input_dim+edge_dim, hidden_dim, bias=False),
+            nn.Linear(input_dim + edge_dim, hidden_dim, bias=False),
             nn.Tanh(),
             nn.Linear(hidden_dim, hidden_dim, bias=False),
         ])
 
         self.fc_x = nn.Linear(input_dim, output_dim, bias=False)
-        self.fc_neib = nn.Linear(input_dim+edge_dim, output_dim, bias=False)
+        self.fc_neib = nn.Linear(input_dim + edge_dim, output_dim, bias=False)
         self.concat_node = concat_node
 
         self.dropout = nn.Dropout(p=dropout)
@@ -532,7 +530,7 @@ class AttentionAggregator2(nn.Module):
 
     def forward(self, x, neibs, edge_emb, mask):
         # Compute attention weights
-        neibs = torch.cat([neibs,edge_emb],dim=1)
+        neibs = torch.cat([neibs, edge_emb], dim=1)
 
         neib_att = self.att2(neibs)
         x_att = self.att(x)
@@ -542,15 +540,14 @@ class AttentionAggregator2(nn.Module):
 
         ws = torch.bmm(neib_att, x_att).squeeze()
         ws += -9999999 * mask
-        ws = F.softmax(ws,dim=1)
-
+        ws = F.softmax(ws, dim=1)
 
         # Weighted average of neighbors
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))
         agg_neib = torch.sum(agg_neib * ws.unsqueeze(-1), dim=1)
 
         if self.concat_node:
-            out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)],dim=1)
+            out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)], dim=1)
         else:
             out = self.fc_x(x) + self.fc_neib(agg_neib)
 
@@ -563,7 +560,6 @@ class AttentionAggregator2(nn.Module):
             out = self.activation(out)
 
         return out
-
 
 
 class AttentionAggregator3(nn.Module):
@@ -596,7 +592,7 @@ class AttentionAggregator3(nn.Module):
             # nn.Linear(hidden_dim,1)
         ])
 
-        self.fc_x = nn.Linear(2*input_dim, output_dim)
+        self.fc_x = nn.Linear(2 * input_dim, output_dim)
         self.fc_neib = nn.Linear(input_dim, output_dim)
         self.fc_edge = nn.Linear(edge_dim, output_dim)
         self.concat_node = concat_node
@@ -627,14 +623,13 @@ class AttentionAggregator3(nn.Module):
         x_att = self.att_x(x)
         edge_att = self.att_edge(edge_emb)
 
-        ws = x_att.mm(neib_att.t()) #+edge_att.view(N,-1)
+        ws = x_att.mm(neib_att.t())  # +edge_att.view(N,-1)
         # ws = F.leaky_relu(ws)
         ws = ws * mask
-        ws = F.softmax(ws,dim=1)
-
+        ws = F.softmax(ws, dim=1)
 
         # Weighted average of neighbors
-        agg_neib = torch.mm(ws,neibs)
+        agg_neib = torch.mm(ws, neibs)
         agg_neib = F.sigmoid(agg_neib)
         # agg_edge = edge_emb.view(N, -1, edge_emb.size(-1))
         # agg_edge = torch.sum(agg_edge * ws.unsqueeze(-1), dim=1)
@@ -658,9 +653,8 @@ class AttentionAggregator3(nn.Module):
         return out
 
 
-
 class EdgeAggregator(nn.Module):
-    def __init__(self, input_dim, edge_dim, activation,dropout=0.5, batchnorm=False):
+    def __init__(self, input_dim, edge_dim, activation, dropout=0.5, batchnorm=False):
         super(EdgeAggregator, self).__init__()
 
         self.input_dim = input_dim
@@ -716,8 +710,9 @@ class EdgeAggregator(nn.Module):
         return emb
 
     def __repr__(self):
-        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim)\
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim) \
                + ' -> ' + str(self.edge_dim) + ')'
+
 
 class IdEdgeAggregator(nn.Module):
     def __init__(self, input_dim, edge_dim, activation, dropout=0.5, batchnorm=False):
@@ -733,7 +728,6 @@ class IdEdgeAggregator(nn.Module):
         # identical mapping
         # e = sigma(w1*x+W2*neibs+b) @ e
         return edge_emb
-
 
 
 class ResEdge(nn.Module):
@@ -788,9 +782,8 @@ class ResEdge(nn.Module):
         return emb
 
     def __repr__(self):
-        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim)\
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim) \
                + ' -> ' + str(self.edge_dim) + ')'
-
 
 
 class MetapathAggrLayer(nn.Module):
@@ -798,7 +791,7 @@ class MetapathAggrLayer(nn.Module):
     metapath attention layer.
     """
 
-    def __init__(self, in_features, alpha=0.8, dropout=0.5,hidden_dim=64, batchnorm=False):
+    def __init__(self, in_features, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False):
         super(MetapathAggrLayer, self).__init__()
         # self.dropout = dropout
         self.input_dim = in_features
@@ -837,9 +830,8 @@ class MetapathAggrLayer(nn.Module):
         N = input.size()[0]
         input_dim = input.shape[2]
         input = input.contiguous()
-        input = self.att(input.view(-1,input_dim))\
-            .view(N,n_meta,-1)
-
+        input = self.att(input.view(-1, input_dim)) \
+            .view(N, n_meta, -1)
 
         # a_input = torch.cat([input.repeat(1,1,self.nmeta).view(N, self.nmeta*self.nmeta, -1),
         #                      input.repeat(1,self.nmeta, 1)], dim=2).view(N, -1, 2 * self.in_features)
@@ -853,7 +845,7 @@ class MetapathAggrLayer(nn.Module):
         if self.batchnorm:
             output = self.bn(output)
 
-        weight = torch.sum(e.view(N,n_meta),dim=0)/N
+        weight = torch.sum(e.view(N, n_meta), dim=0) / N
 
         return F.relu(self.mlp(output)), weight.cpu().detach().numpy()
 
@@ -878,18 +870,19 @@ aggregator_lookup = {
     "edge_emb_attn": EdgeEmbAttentionAggregator,
 }
 
-metapath_aggregator_lookup={
+metapath_aggregator_lookup = {
     "attention": MetapathAggrLayer,
 }
 
-edge_aggregator_lookup={
+edge_aggregator_lookup = {
     "identity": IdEdgeAggregator,
     "attention": EdgeAggregator,
-    "residual":ResEdge,
+    "residual": ResEdge,
 }
 
-
 import math
+
+
 class GraphConvolution(nn.Module):
     """
     Simple GCN layer, similar to https://arxiv.org/abs/1609.02907
@@ -899,7 +892,7 @@ class GraphConvolution(nn.Module):
         super(GraphConvolution, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
-        self.adj=adj
+        self.adj = adj
         self.weight = nn.Parameter(torch.FloatTensor(in_features, out_features))
         if bias:
             self.bias = nn.Parameter(torch.FloatTensor(out_features))

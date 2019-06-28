@@ -110,6 +110,8 @@ class NodeProblem(object):
 
         self.homo_adj, self.homo_feat = read_homograph(path=problem_path,problem=problem)
 
+        self.feats = self.homo_feat[:self.n_nodes+1,:]
+
         self.device      = device
         self.__to_torch()
         

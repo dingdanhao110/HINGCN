@@ -621,11 +621,11 @@ class AttentionAggregator3(nn.Module):
 
         neib_att = self.att_neigh(neibs)
         x_att = self.att_x(x)
-        edge_att = self.att_edge(edge_emb)
+        # edge_att = self.att_edge(edge_emb)
 
         ws = x_att.mm(neib_att.t())  # +edge_att.view(N,-1)
-        ws = x_att+neib_att.t()
-        ws = F.leaky_relu(ws)
+        # ws = x_att+neib_att.t()
+        # ws = F.leaky_relu(ws)
         ws = ws * mask
         ws = F.softmax(ws, dim=1)
 

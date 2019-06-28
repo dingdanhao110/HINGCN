@@ -635,13 +635,14 @@ class AttentionAggregator3(nn.Module):
         # agg_edge = torch.sum(agg_edge * ws.unsqueeze(-1), dim=1)
 
         if self.concat_node:
-            # out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)],dim=1)
+            out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)],dim=1)
+        else:
+            # out = self.fc_x(x) + self.fc_neib(agg_neib)
+
             out = torch.cat([x, agg_neib], dim=1)
             out = self.fc_x(out)
             out = F.sigmoid(out)
-        else:
-            out = self.fc_x(x) + self.fc_neib(agg_neib)
-
+            
         if self.batchnorm:
             out = self.bn(out)
 

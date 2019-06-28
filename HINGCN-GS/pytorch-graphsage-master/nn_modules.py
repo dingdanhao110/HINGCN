@@ -814,7 +814,7 @@ class MetapathAggrLayer(nn.Module):
             nn.Linear(in_features, in_features),
         ])
 
-        a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))
+        a = nn.Parameter(torch.zeros(size=(2*hidden_dim, 1)))
         nn.init.xavier_uniform_(a.data, gain=1.414)
         self.register_parameter('a', a)
 
@@ -824,20 +824,22 @@ class MetapathAggrLayer(nn.Module):
             self.bn = nn.BatchNorm1d(self.out_features)
 
     def forward(self, input):
-        # input: tensor(nmeta,N,in_features)
-        # self.a.to(input.device)
-
+        """
+        :param input: tensor(nmeta,N,in_features)
+        :return:
+        """
         n_meta = input.shape[0]
         input = input.transpose(0, 1)  # tensor(N,nmeta,in_features)
         N = input.size()[0]
         input_dim = input.shape[2]
+
         input = input.contiguous()
         input = self.att(input.view(-1, input_dim)) \
             .view(N, n_meta, -1)
 
-        # a_input = torch.cat([input.repeat(1,1,self.nmeta).view(N, self.nmeta*self.nmeta, -1),
-        #                      input.repeat(1,self.nmeta, 1)], dim=2).view(N, -1, 2 * self.in_features)
-        e = self.leakyrelu(torch.matmul(input, self.a).squeeze(2))
+        a_input = torch.cat([input.repeat(1,1,self.nmeta).view(N, self.nmeta*self.nmeta, -1),
+                             input.repeat(1,self.nmeta, 1)], dim=2).view(N, -1, 2 * self.in_features)
+        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))
         e = F.softmax(e, dim=1).view(N, 1, n_meta)
 
         output = torch.bmm(e, input).squeeze()

@@ -275,33 +275,23 @@ class HINGCN_Dense(nn.Module):
                 # agg_layers.append(agg)
                 input_dim = agg[0].output_dim * n_head  # May not be the same as spec['output_dim']
 
-                edge = edgeupt_class(
-                    input_dim=input_dim,
-                    edge_dim=self.edge_dim,
-                    activation=spec['activation'],
-                    dropout=self.dropout,
-                    batchnorm=self.batchnorm,
-                )
-                # edge_layers.append(edge)
-
                 self.add_module('agg_{}_{}'.format(mp, i), agg)
-                self.add_module('edge_{}_{}'.format(mp, i), edge)
-        if self.bias:
-            self.n_homo_nodes = problem.homo_feat.shape[0]
-            back_emb = nn.Embedding(self.n_homo_nodes-problem.n_nodes,
-                                         prep_len)
-            back_emb.from_pretrained(problem.homo_feat[problem.n_nodes+1:-1],freeze=False)
-            self.add_module('back_emb', back_emb)
-
-            self.background=nn.Sequential(*[
-            GraphConvolution(problem.homo_feat.shape[1], 64, adj=problem.homo_adj),
-            nn.ReLU(), nn.Dropout(self.dropout),
-            GraphConvolution(64, 32, adj=problem.homo_adj),
-            nn.ReLU(), nn.Dropout(self.dropout),
-            GraphConvolution(32, 16, adj=problem.homo_adj),
-            nn.ReLU(), nn.Dropout(self.dropout),
-            nn.Linear(16, input_dim),
-        ])
+        # if self.bias:
+        #     self.n_homo_nodes = problem.homo_feat.shape[0]
+        #     back_emb = nn.Embedding(self.n_homo_nodes-problem.n_nodes,
+        #                                  prep_len)
+        #     back_emb.from_pretrained(problem.homo_feat[problem.n_nodes+1:-1],freeze=False)
+        #     self.add_module('back_emb', back_emb)
+        #
+        #     self.background=nn.Sequential(*[
+        #     GraphConvolution(problem.homo_feat.shape[1], 64, adj=problem.homo_adj),
+        #     nn.ReLU(), nn.Dropout(self.dropout),
+        #     GraphConvolution(64, 32, adj=problem.homo_adj),
+        #     nn.ReLU(), nn.Dropout(self.dropout),
+        #     GraphConvolution(32, 16, adj=problem.homo_adj),
+        #     nn.ReLU(), nn.Dropout(self.dropout),
+        #     nn.Linear(16, input_dim),
+        # ])
         self.mp_agg = mpaggr_class(input_dim,dropout=self.dropout,batchnorm=self.batchnorm,)
 
         self.fc = nn.Linear(self.mp_agg.output_dim, problem.n_classes, bias=True)
@@ -309,10 +299,6 @@ class HINGCN_Dense(nn.Module):
 
     # We only want to forward IDs to facilitate nn.DataParallelism
     def forward(self, ids, train=True):
-
-        # print("\tIn Model: input size ", ids.shape)
-        # ids.to(self.feats.device)
-
         # Sample neighbors
         sample_fns = self.train_sample_fns if train else self.val_sample_fns
 
@@ -329,7 +315,7 @@ class HINGCN_Dense(nn.Module):
             for layer_idx, sampler_fn in enumerate(sample_fns):
                 neigh, edges, mask = sampler_fn(adj=getattr(self,'adjs_{}'.format(mp)), ids=ids)
 
-                all_edges.append(getattr(self,'edge_emb_{}'.format(mp))[edges.contiguous().view(-1)])
+                all_edges.append([])
                 all_masks.append(mask)
 
                 ids = torch.arange(self.n_nodes).to(tmp_ids.device)
@@ -343,19 +329,14 @@ class HINGCN_Dense(nn.Module):
                                                      all_edges[k], mask=all_masks[k]) for h in range(self.n_head)], dim=1)
                               for k in range(len(all_feats) - 1)]
                 all_feats = [F.dropout(i, self.dropout, training=self.training) for i in all_feats]
-                all_edges = [getattr(self,'edge_{}_{}'.format(mp, i))(all_feats[k], all_feats[k + 1],
-                                                    all_edges[k], mask=all_masks[k]
-                                                    ) for k in range(len(all_edges) - 1)]
-                all_edges = [F.dropout(i, self.dropout, training=self.training) for i in all_edges]
 
-            assert len(all_feats) == 1, "len(all_feats) != 1"
             output.append(all_feats[0].unsqueeze(0))
-        if self.bias:
-            tmp_feats = None
-            all_feats = self.prep(torch.arange(self.n_nodes).to(ids.device), tmp_feats, layer_idx=1)
-            back_ids = torch.arange(self.n_homo_nodes-self.n_nodes).to(ids.device)
-            all_feats = torch.cat([all_feats,self.back_emb(back_ids)],dim=0)
-            output.append(self.background(all_feats)[tmp_ids].unsqueeze(0))
+        # if self.bias:
+        #     tmp_feats = None
+        #     all_feats = self.prep(torch.arange(self.n_nodes).to(ids.device), tmp_feats, layer_idx=1)
+        #     back_ids = torch.arange(self.n_homo_nodes-self.n_nodes).to(ids.device)
+        #     all_feats = torch.cat([all_feats,self.back_emb(back_ids)],dim=0)
+        #     output.append(self.background(all_feats)[tmp_ids].unsqueeze(0))
         output = torch.cat(output)
 
         output, weights = self.mp_agg(output)

@@ -36,7 +36,11 @@ def set_progress(optimizer, lr_scheduler, progress):
 
 def train_step(model, optimizer, ids, targets, loss_fn):
     optimizer.zero_grad()
-    preds= model(ids, train=True)
+    preds,weights = model(ids, train=True)
+    weights=weights.cpu().detach().numpy()
+    if len(weights.shape)>1:
+        weights=np.sum(weights,axis=0)/weights.shape[0]
+    print(weights)
     loss = loss_fn(preds, targets.squeeze())
     loss.backward()
     # torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
@@ -50,7 +54,7 @@ def evaluate(model, problem, batch_size, loss_fn, mode='val'):
     loss=0
     for (ids, targets, _) in problem.iterate(mode=mode, shuffle=False, batch_size=batch_size):
         # print(ids.shape,targets.shape)
-        pred= model(ids, train=False)
+        pred, _= model(ids, train=False)
         loss += loss_fn(pred, targets.squeeze()).item()
         preds.append(to_numpy(pred))
         acts.append(to_numpy(targets))

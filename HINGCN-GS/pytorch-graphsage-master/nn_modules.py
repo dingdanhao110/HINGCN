@@ -814,7 +814,7 @@ class MetapathAggrLayer(nn.Module):
             nn.Linear(in_features, in_features),
         ])
 
-        a = nn.Parameter(torch.zeros(size=(2*hidden_dim, 1)))
+        a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))
         nn.init.xavier_uniform_(a.data, gain=1.414)
         self.register_parameter('a', a)
 
@@ -837,9 +837,9 @@ class MetapathAggrLayer(nn.Module):
         input = self.att(input.view(-1, input_dim)) \
             .view(N, n_meta, -1)
 
-        a_input = torch.cat([input.repeat(1,1,n_meta).view(N, n_meta*n_meta, -1),
-                             input.repeat(1,n_meta, 1)], dim=2).view(N, -1, 2 * input_dim)
-        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))
+        # a_input = torch.cat([input.repeat(1,1,n_meta).view(N, n_meta*n_meta, -1),
+        #                      input.repeat(1,n_meta, 1)], dim=2).view(N, -1, 2 * input_dim)
+        e = self.leakyrelu(torch.matmul(input, self.a).squeeze(2))   #e: tensor(N,nmeta)
         e = F.softmax(e, dim=1).view(N, 1, n_meta)
 
         output = torch.bmm(e, input).squeeze()
@@ -851,7 +851,7 @@ class MetapathAggrLayer(nn.Module):
 
         weight = torch.sum(e.view(N, n_meta), dim=0) / N
 
-        return F.relu(self.mlp(output)), weight.cpu().detach().numpy()
+        return F.relu(self.mlp(output)), weight
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'

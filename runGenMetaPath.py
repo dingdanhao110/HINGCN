@@ -167,11 +167,14 @@ def gen_metapath_yago_cnt(path="./data/freebase/"):
                        dtype=np.int32)
     # build graph
     MAM = MA * MA.transpose()
+    MAM.setdiag(0)
     MDM = MD * MD.transpose()
+    MDM.setdiag(0)
     MWM = MW * MW.transpose()
+    MWM.setdiag(0)
 
     # To Dump: cnt of APA, APAPA, APCPA
-    MAM_file = "MDM_cnt"
+    MAM_file = "MAM_cnt"
     MDM_file = "MDM_cnt"
     MWM_file = "MWM_cnt"
 
@@ -180,5 +183,55 @@ def gen_metapath_yago_cnt(path="./data/freebase/"):
     sp.save_npz("{}{}.npz".format(path, MWM_file), MWM)
 
     return
-gen_metapath_yago_cnt()
+
+
+def gen_metapath_yelp_cnt(path="./data/yelp/"):
+    RB_file = "RB"
+    RK_file = "RK"
+    RU_file = "RU"
+
+    RB = np.genfromtxt("{}{}.txt".format(path, RB_file),
+                       dtype=np.int32)
+    RK = np.genfromtxt("{}{}.txt".format(path, RK_file),
+                       dtype=np.int32)
+    RU = np.genfromtxt("{}{}.txt".format(path, RU_file),
+                       dtype=np.int32)
+    RB[:, 0] -= 1
+    RB[:, 1] -= 1
+    RK[:, 0] -= 1
+    RK[:, 1] -= 1
+    RU[:, 0] -= 1
+    RU[:, 1] -= 1
+
+    rate_max = max(RB[:, 0]) + 1  # 33360
+    busi_max = max(RB[:, 1]) + 1  # 2614
+    key_max = max(RK[:, 1]) + 1  # 82
+    user_max = max(RU[:, 1]) + 1  # 1286
+
+    RB = sp.coo_matrix((np.ones(RB.shape[0]), (RB[:, 0], RB[:, 1])),
+                       shape=(rate_max, busi_max),
+                       dtype=np.int32)
+    RK = sp.coo_matrix((np.ones(RK.shape[0]), (RK[:, 0], RK[:, 1])),
+                       shape=(rate_max, key_max),
+                       dtype=np.int32)
+    RU = sp.coo_matrix((np.ones(RU.shape[0]), (RU[:, 0], RU[:, 1])),
+                       shape=(rate_max, user_max),
+                       dtype=np.int32)
+
+    # build graph
+    BRURB= RB.transpose() *RU * RU.transpose() * RB
+    BRURB.setdiag(0)
+    BRKRB = RB.transpose() *RK * RK.transpose() * RB
+    BRKRB.setdiag(0)
+
+    # To Dump: cnt of APA, APAPA, APCPA
+    BRURB_file = "BRURB_cnt"
+    BRKRB_file = "BRKRB_cnt"
+
+    sp.save_npz("{}{}.npz".format(path, BRURB_file), BRURB)
+    sp.save_npz("{}{}.npz".format(path, BRKRB_file), BRKRB)
+
+    return
+
+gen_metapath_yelp_cnt()
 # gen_metapath_dblp_cnt()

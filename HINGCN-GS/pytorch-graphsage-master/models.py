@@ -120,7 +120,7 @@ class HINGCN_GS(nn.Module):
             nn.ReLU(), nn.Dropout(self.dropout),
             nn.Linear(16, input_dim),
         ])
-        self.mp_agg = mpaggr_class(input_dim,dropout=self.dropout,batchnorm=self.batchnorm,)
+        self.mp_agg = mpaggr_class(input_dim,n_head=self.n_mp+int(self.bias),dropout=self.dropout,batchnorm=self.batchnorm,)
 
         self.fc = nn.Linear(self.mp_agg.output_dim, problem.n_classes, bias=True)
 

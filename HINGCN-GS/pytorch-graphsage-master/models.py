@@ -181,7 +181,7 @@ class HINGCN_GS(nn.Module):
         output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
         output = F.dropout(output, self.dropout, training=self.training)
 
-        return self.fc(output)
+        return self.fc(output), weights
 
 
 class MyDataParallel(nn.DataParallel):

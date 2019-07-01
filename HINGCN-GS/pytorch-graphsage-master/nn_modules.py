@@ -179,11 +179,7 @@ class DenseMask(object):
         return neigh, edges, mask[ids]
 
 
-sampler_lookup = {
-    "uniform_neighbor_sampler": UniformNeighborSampler,
-    "sparse_uniform_neighbor_sampler": SpUniformNeighborSampler,
-    "dense_mask": DenseMask,
-}
+
 
 
 # --
@@ -856,6 +852,11 @@ class MetapathAggrLayer(nn.Module):
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
 
+sampler_lookup = {
+    "uniform_neighbor_sampler": UniformNeighborSampler,
+    "sparse_uniform_neighbor_sampler": SpUniformNeighborSampler,
+    "dense_mask": DenseMask,
+}
 
 prep_lookup = {
     "identity": IdentityPrep,

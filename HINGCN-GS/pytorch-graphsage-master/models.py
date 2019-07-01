@@ -34,7 +34,7 @@ class HINGCN_GS(nn.Module):
                  sampler_class,
                  dropout,
                  batchnorm,
-                 bias=False,
+                 bias=True,
                  ):
 
         super(HINGCN_GS, self).__init__()
@@ -292,7 +292,7 @@ class HINGCN_Dense(nn.Module):
         #     nn.ReLU(), nn.Dropout(self.dropout),
         #     nn.Linear(16, input_dim),
         # ])
-        self.mp_agg = mpaggr_class(input_dim,dropout=self.dropout,batchnorm=self.batchnorm,)
+        self.mp_agg = mpaggr_class(input_dim,n_head=self.n_mp, dropout=self.dropout,batchnorm=self.batchnorm,)
 
         self.fc = nn.Linear(self.mp_agg.output_dim, problem.n_classes, bias=True)
 

@@ -789,8 +789,65 @@ class MetapathAggrLayer(nn.Module):
     metapath attention layer.
     """
 
-    def __init__(self, in_features, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False):
+    def __init__(self, in_features, n_head=3, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False):
         super(MetapathAggrLayer, self).__init__()
+        # self.dropout = dropout
+        self.input_dim = in_features
+        self.output_dim = 16
+        self.alpha = alpha
+        self.dropout = nn.Dropout(p=dropout)
+        self.batchnorm = batchnorm
+
+        self.att = nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim, bias=False),
+        ])
+
+        self.mlp = nn.Sequential(*[
+            nn.Linear(hidden_dim * n_head, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, self.output_dim),
+        ])
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.out_features)
+
+    def forward(self, input):
+        """
+        :param input: tensor(nmeta,N,in_features)
+        :return:
+        """
+        n_meta = input.shape[0]
+        input = input.transpose(0, 1)  # tensor(N,nmeta,in_features)
+        N = input.size()[0]
+        input_dim = input.shape[2]
+
+        input = input.contiguous()
+        input = self.att(input.view(-1, input_dim)) \
+            .view(N, -1)
+
+        output = self.dropout(input)
+
+        if self.batchnorm:
+            output = self.bn(output)
+
+        weight = None
+
+        return F.relu(self.mlp(output)), weight
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
+
+
+
+class MetapathConcatLayer(nn.Module):
+    """
+    metapath attention layer.
+    """
+
+    def __init__(self, in_features,n_head=4, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False):
+        super(MetapathConcatLayer, self).__init__()
         # self.dropout = dropout
         self.input_dim = in_features
         self.output_dim = in_features
@@ -852,6 +909,7 @@ class MetapathAggrLayer(nn.Module):
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
 
+
 sampler_lookup = {
     "uniform_neighbor_sampler": UniformNeighborSampler,
     "sparse_uniform_neighbor_sampler": SpUniformNeighborSampler,
@@ -877,6 +935,7 @@ aggregator_lookup = {
 
 metapath_aggregator_lookup = {
     "attention": MetapathAggrLayer,
+    "concat": MetapathConcatLayer,
 }
 
 edge_aggregator_lookup = {

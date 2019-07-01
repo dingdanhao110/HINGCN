@@ -37,10 +37,11 @@ def set_progress(optimizer, lr_scheduler, progress):
 def train_step(model, optimizer, ids, targets, loss_fn):
     optimizer.zero_grad()
     preds,weights = model(ids, train=True)
-    weights=weights.cpu().detach().numpy()
-    if len(weights.shape)>1:
-        weights=np.sum(weights,axis=0)/weights.shape[0]
-    print(weights)
+    if weights is not None:
+        weights=weights.cpu().detach().numpy()
+        if len(weights.shape)>1:
+            weights=np.sum(weights,axis=0)/weights.shape[0]
+        print(weights)
     loss = loss_fn(preds, targets.squeeze())
     loss.backward()
     # torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
@@ -95,7 +96,7 @@ def parse_args():
     parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
     parser.add_argument('--aggregator-class', type=str, default='attention2')
     parser.add_argument('--prep-class', type=str, default='node_embedding')  # identity
-    parser.add_argument('--mpaggr-class', type=str, default='attention')
+    parser.add_argument('--mpaggr-class', type=str, default='concat')
     parser.add_argument('--edgeupt-class', type=str, default='residual')
     parser.add_argument('--concat-node', action="store_true")
     parser.add_argument('--concat-edge', action="store_true")

@@ -910,6 +910,76 @@ class MetapathAttentionLayer(nn.Module):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
 
 
+class MetapathAttentionLayerWBackground(nn.Module):
+    """
+    metapath attention layer.
+    """
+
+    def __init__(self, in_features,n_head=4, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False):
+        super(MetapathAttentionLayerWBackground, self).__init__()
+        # self.dropout = dropout
+        self.input_dim = in_features
+        self.output_dim = in_features
+        self.alpha = alpha
+        self.dropout = nn.Dropout(p=dropout)
+        self.batchnorm = batchnorm
+
+        self.att = nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, hidden_dim, bias=False),
+        ])
+
+        self.fc_x = nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, self.output_dim),
+        ])
+
+        self.fc_back = nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, self.output_dim),
+        ])
+
+        self.leakyrelu = nn.LeakyReLU(self.alpha)
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.out_features)
+
+    def forward(self, input):
+        """
+        :param input: tensor(nmeta,N,in_features)
+        :return:
+        """
+        n_meta = input.shape[0]
+        input = input.transpose(0, 1)  # tensor(N,nmeta,in_features)
+        N = input.size()[0]
+        input_dim = input.shape[2]
+
+        back = input[:,-1,:]
+        input = input[:,:-1,:].contiguous()
+        x_att = self.att(input)  # tensor(N,nmeta-1,hidden)
+        back_att = self.att(back).view(N,-1,1) # tensor(N,hidden,1)
+
+        e = self.leakyrelu(torch.bmm(x_att, back_att).squeeze(2))   #e: tensor(N,nmeta-1)
+        e = F.softmax(e, dim=1).view(N, 1, n_meta-1)
+
+        output = torch.bmm(e, input).squeeze()
+        output = self.fc_x(output)+self.fc_back(back)
+
+        output = self.dropout(output)
+
+        if self.batchnorm:
+            output = self.bn(output)
+
+        weight = torch.sum(e.view(N, n_meta-1), dim=0) / N
+
+        return F.relu(output), weight
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
+
 
 class MetapathLSTMLayer(nn.Module):
     """
@@ -999,6 +1069,7 @@ aggregator_lookup = {
 
 metapath_aggregator_lookup = {
     "attention": MetapathAttentionLayer,
+    "attention2": MetapathAttentionLayerWBackground,
     "concat": MetapathConcatLayer,
     "LSTM":MetapathLSTMLayer,
 }

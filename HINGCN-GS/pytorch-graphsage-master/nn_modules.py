@@ -910,6 +910,70 @@ class MetapathAggrLayer(nn.Module):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
 
 
+
+class MetapathLSTMLayer(nn.Module):
+    """
+    metapath LSTM layer.
+    """
+
+    def __init__(self, in_features,n_head=4, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False, bidirectional=False):
+        super(MetapathLSTMLayer, self).__init__()
+        # self.dropout = dropout
+        self.input_dim = in_features
+        self.output_dim = in_features
+        self.alpha = alpha
+        self.dropout = nn.Dropout(p=dropout)
+        self.batchnorm = batchnorm
+
+        #self.att = nn.sequential(*[
+        #    nn.linear(in_features, hidden_dim, bias=false),
+        #    nn.tanh(),
+        #    nn.linear(hidden_dim, hidden_dim, bias=false),
+        #])
+        self.lstm = nn.LSTM(self.input_dim, hidden_dim // (1 + bidirectional), bidirectional=bidirectional, batch_first=True)
+        
+        self.mlp = nn.Sequential(*[
+            nn.Linear(hidden_dim, in_features),
+            nn.ReLU(),
+            nn.Linear(in_features, in_features),
+        ])
+
+        a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))
+        nn.init.xavier_uniform_(a.data, gain=1.414)
+        self.register_parameter('a', a)
+
+        self.leakyrelu = nn.LeakyReLU(self.alpha)
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.out_features)
+
+    def forward(self, input):
+        """
+        :param input: tensor(nmeta,N,in_features)
+        :return:
+        """
+        n_meta = input.shape[0]
+        input = input.transpose(0, 1)  # tensor(N,nmeta,in_features)
+        N = input.size()[0]
+        input_dim = input.shape[2]
+
+        #input=input.view(x.size(0), -1, neibs.size(1))
+        agg_neib, _ = self.lstm(input)
+        agg_neib = agg_neib[:, -1, :]  # !! Taking final state, but could do something better (eg attention)
+
+        output = self.dropout(agg_neib)
+
+        if self.batchnorm:
+            output = self.bn(output)
+
+        weight = None
+
+        return F.relu(self.mlp(output)), weight
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
+
+
 sampler_lookup = {
     "uniform_neighbor_sampler": UniformNeighborSampler,
     "sparse_uniform_neighbor_sampler": SpUniformNeighborSampler,
@@ -936,6 +1000,7 @@ aggregator_lookup = {
 metapath_aggregator_lookup = {
     "attention": MetapathAggrLayer,
     "concat": MetapathConcatLayer,
+    "LSTM":MetapathLSTMLayer,
 }
 
 edge_aggregator_lookup = {

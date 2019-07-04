@@ -54,7 +54,7 @@ class ProblemMetrics:
     @staticmethod
     def classification(y_true, y_pred):
         y_pred = np.argmax(y_pred, axis=1)
-        print(np.unique(y_true),np.unique(y_pred))
+        #print(np.unique(y_true),np.unique(y_pred))
         return {
             "accuracy": float(metrics.accuracy_score(y_true, y_pred)),
             "micro" : float(metrics.f1_score(y_true, y_pred, average="micro")),

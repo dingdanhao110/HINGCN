@@ -78,7 +78,7 @@ def parse_args():
 
     # Optimization params
     parser.add_argument('--batch-size', type=int, default=999999)
-    parser.add_argument('--epochs', type=int, default=10000)
+    parser.add_argument('--epochs', type=int, default=20)
     parser.add_argument('--lr-init', type=float, default=0.01)
     parser.add_argument('--lr-schedule', type=str, default='constant')
     parser.add_argument('--tolerance', type=int, default=10)
@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     # --
     # Load problem
-    schemes = ['MAM',]  # ,'APAPA','APCPA'  yelp: 'BRURB', 'BRKRB'; YAGO: 'MAM','MDM','MWM'
+    schemes = ['BRURB',]  # ,'APAPA','APCPA'  yelp: 'BRURB', 'BRKRB'; YAGO: 'MAM','MDM','MWM'
     device = torch.device("cuda:0" if torch.cuda.is_available() and args.cuda else "cpu")
     problem = NodeProblem(problem_path=args.problem_path, problem=args.problem, device=device, schemes=schemes)
 

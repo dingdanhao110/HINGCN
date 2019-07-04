@@ -175,6 +175,8 @@ class HINGCN_GS(nn.Module):
             all_feats = torch.cat([all_feats,self.back_emb(back_ids)],dim=0)
             output.append(self.background(all_feats)[tmp_ids].unsqueeze(0))
         output = torch.cat(output)
+        
+        output = F.normalize(output, dim=2) #normalize before attention
 
         output, weights = self.mp_agg(output)
         # print(weights)

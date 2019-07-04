@@ -841,13 +841,13 @@ class MetapathConcatLayer(nn.Module):
 
 
 
-class MetapathAggrLayer(nn.Module):
+class MetapathAttentionLayer(nn.Module):
     """
     metapath attention layer.
     """
 
     def __init__(self, in_features,n_head=4, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False):
-        super(MetapathAggrLayer, self).__init__()
+        super(MetapathAttentionLayer, self).__init__()
         # self.dropout = dropout
         self.input_dim = in_features
         self.output_dim = in_features
@@ -916,7 +916,7 @@ class MetapathLSTMLayer(nn.Module):
     metapath LSTM layer.
     """
 
-    def __init__(self, in_features,n_head=4, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False, bidirectional=False):
+    def __init__(self, in_features,n_head=4, alpha=0.8, dropout=0.5, hidden_dim=512, batchnorm=False, bidirectional=False):
         super(MetapathLSTMLayer, self).__init__()
         # self.dropout = dropout
         self.input_dim = in_features
@@ -998,7 +998,7 @@ aggregator_lookup = {
 }
 
 metapath_aggregator_lookup = {
-    "attention": MetapathAggrLayer,
+    "attention": MetapathAttentionLayer,
     "concat": MetapathConcatLayer,
     "LSTM":MetapathLSTMLayer,
 }

@@ -264,4 +264,4 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
 
 
 # gen_homograph()
-dump_yelp_edge_emb(path='../../../data/yelp/')
+dump_yelp_edge_emb(path='data/yelp/')

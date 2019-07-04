@@ -111,3 +111,6 @@ venv.bak/
 .idea/HINGCN.iml
 .idea/encodings.xml
 data/dblp/edge16.npz
+/.vs/HINGCN/v16/.suo
+/.vs
+/data/yelp

@@ -96,7 +96,7 @@ def parse_args():
     parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
     parser.add_argument('--aggregator-class', type=str, default='attention2')
     parser.add_argument('--prep-class', type=str, default='node_embedding')  # identity
-    parser.add_argument('--mpaggr-class', type=str, default='concat')
+    parser.add_argument('--mpaggr-class', type=str, default='attention')
     parser.add_argument('--edgeupt-class', type=str, default='residual')
     parser.add_argument('--concat-node', action="store_true")
     parser.add_argument('--concat-edge', action="store_true")

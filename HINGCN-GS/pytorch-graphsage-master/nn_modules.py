@@ -460,7 +460,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
                              edge_emb.view(N, n_sample, -1)], dim=2)
 
         e = self.leakyrelu(torch.matmul(a_input, self.a))
-        e += -9999999 * mask
+        #e += -9999999 * mask
         attention = F.softmax(e, dim=1)
         attention = attention.view(N, 1, n_sample)
         # attention = attention.squeeze(2)

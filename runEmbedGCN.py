@@ -62,11 +62,11 @@ if args.cuda:
 
 def read_embed(path="./data/dblp/",
                emd_file="APA"):
-    with open("{}{}.emd".format(path, emd_file)) as f:
+    with open("{}{}.emb".format(path, emd_file)) as f:
         n_nodes,n_feature = map(int, f.readline().strip().split())
     print("number of nodes:{}, embedding size:{}".format(n_nodes,n_feature))
 
-    embedding = np.loadtxt("{}{}.emd".format(path, emd_file),
+    embedding = np.loadtxt("{}{}.emb".format(path, emd_file),
                               dtype=np.int32,skiprows=1)
     emd_index = {}
     for i in range(n_nodes):

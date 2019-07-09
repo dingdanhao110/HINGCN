@@ -158,7 +158,7 @@ def read_graph(path="./data/dblp/", dataset="homograph", label_file="author_labe
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
-def read_graph2(path="./data/dblp/", dataset="homograph", label_file="author_label", emb_file="APA"):
+def read_graph_dblp(path="data/dblp2/", dataset="homograph", label_file="author_label", emb_file="APC_16"):
     print('Loading {} dataset...'.format(dataset))
 
     n_nodes, n_feature, features = read_embed(path,emb_file)
@@ -336,7 +336,7 @@ def read_graph_yago(path="./data/freebase/", dataset="homograph",
 
 # Load data
 adj, features, labels, idx_train, idx_val, idx_test = \
-    read_graph_yelp()
+    read_graph_dblp()
 
 print('Read data finished!')
 

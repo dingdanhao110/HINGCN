@@ -215,8 +215,8 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
                 count[b] += np1*np2
 
         for b in result:
-            if v < b:
-                BRURB_emb.append(np.concatenate(([v, b], result[b], [count[b]])))
+            if v <= b:
+                BRURB_emb.append(np.concatenate(([v, b], (result[b]/count[b]+node_emb[v]+node_emb[b])/5, [count[b]])))
     BRURB_emb = np.asarray(BRURB_emb)
     m = np.max(BRURB_emb[:, -1])
     BRURB_emb[:, -1] /= m
@@ -250,8 +250,8 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
                 result[b] += edge2 * np1
                 count[b] += np1*np2
         for b in result:
-            if v < b:
-                BRKRB_emb.append(np.concatenate(([v, b], result[b], [count[b]] )))
+            if v <= b:
+                BRKRB_emb.append(np.concatenate(([v, b], (result[b]/count[b]+node_emb[v]+node_emb[b])/5, [count[b]] )))
     BRKRB_emb = np.asarray(BRKRB_emb)
     m = np.max(BRKRB_emb[:, -1])
     BRKRB_emb[:, -1] /= m

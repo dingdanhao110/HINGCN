@@ -72,7 +72,7 @@ def load_2hop_index(path="./data/dblp/", file="APA"):
     return index
 
 
-def read_mpindex_dblp(path="./data/dblp/"):
+def read_mpindex_dblp(path="./data/dblp2/"):
     label_file = "author_label"
     PA_file = "PA"
     PC_file = "PC"
@@ -146,12 +146,12 @@ def load_edge_emb(path, schemes, n_dim=17, n_author=20000):
         ind = ind + ind.transpose()
         ind = sparse_mx_to_torch_sparse_tensor(ind)#.to_dense()
 
-        # nonz = ind._indices()
-        # values = ind._values()
-        #
-        # for i in range(nonz.shape[1]):
-        #     if nonz[0,i] == nonz[1,i]:
-        #         values[i] = int(values[i] /2)
+        nonz = ind._indices()
+        values = ind._values()
+        
+        for i in range(nonz.shape[1]):
+            if nonz[0,i] == nonz[1,i]:
+                values[i] = int(values[i] /2)
 
         embedding = np.zeros(n_dim, dtype=np.float32)
         embedding = np.vstack((embedding, data[scheme][:, 2:]))

@@ -270,7 +270,7 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
                 result[m] += edge1
 
             if v <= m:
-                MAM_emb.append(np.concatenate(([v, m], result[m], [np1])))
+                MAM_emb.append(np.concatenate(([v, m], result[m]/3, [np1])))
     MAM_emb = np.asarray(MAM_emb)
     m = np.max(MAM_emb[:,-1])
     MAM_emb[:,-1]/=m
@@ -292,7 +292,7 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
                 result[m] += edge1
 
             if v <= m:
-                MDM_emb.append(np.concatenate(([v, m], result[m], [np1])))
+                MDM_emb.append(np.concatenate(([v, m], result[m]/3, [np1])))
     MDM_emb = np.asarray(MDM_emb)
     m = np.max(MDM_emb[:, -1])
     MDM_emb[:, -1] /= m
@@ -314,7 +314,7 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
                 result[m] += edge1
 
             if v <= m:
-                MWM_emb.append(np.concatenate(([v, m], result[m], [np1])))
+                MWM_emb.append(np.concatenate(([v, m], result[m]/3, [np1])))
     MWM_emb = np.asarray(MWM_emb)
     m = np.max(MWM_emb[:, -1])
     MWM_emb[:, -1] /= m

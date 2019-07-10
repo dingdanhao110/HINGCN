@@ -1,0 +1,4 @@
+number of nodes:37342, embedding size:16
+compute edge embeddings BRURB complete
+compute edge embeddings BRKRB complete
+dump npz file ../../../data/yelp/edge17.npz complete

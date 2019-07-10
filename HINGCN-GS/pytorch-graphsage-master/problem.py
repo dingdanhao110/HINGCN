@@ -31,7 +31,11 @@ class ProblemLosses:
     def classification(preds, targets):
         return F.cross_entropy(preds, targets)
         #return F.nll_loss(preds, targets)
-        
+        #return F.multi_margin_loss(preds, targets,margin=0.2)
+  
+
+      
+
     @staticmethod
     def regression_mae(preds, targets):
         return F.l1_loss(preds, targets)

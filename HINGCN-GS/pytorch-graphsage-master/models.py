@@ -176,13 +176,13 @@ class HINGCN_GS(nn.Module):
             output.append(self.background(all_feats)[tmp_ids].unsqueeze(0))
         output = torch.cat(output)
         
-        output = F.normalize(output, dim=1) #normalize before attention
+        #output = F.normalize(output, dim=2) #normalize before attention
 
         output, weights = self.mp_agg(output)
         # print(weights)
-        #output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
+        output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
         output = F.dropout(output, self.dropout, training=self.training)
-        output = self.fc(output)
+        output = (self.fc(output))
         return output, weights
 
 

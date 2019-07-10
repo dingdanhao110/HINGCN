@@ -70,3 +70,24 @@
 /home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
   'precision', 'predicted', average, warn_for)
 -- done --
+NodeProblem: loading started
+loading edge embedding for BRURB complete, num of embeddings: 262860
+loading edge embedding for BRKRB complete, num of embeddings: 2812848
+Traceback (most recent call last):
+  File "train.py", line 140, in <module>
+    problem = NodeProblem(problem_path=args.problem_path, problem=args.problem, device=device, schemes=schemes)
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/problem.py", line 113, in __init__
+    self.homo_adj, self.homo_feat = read_homograph(path=problem_path,problem=problem)
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/helpers.py", line 253, in read_homograph
+    dtype=np.int32)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/npyio.py", line 2084, in genfromtxt
+    for (i, conv) in enumerate(converters)]))
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/npyio.py", line 2084, in <listcomp>
+    for (i, conv) in enumerate(converters)]))
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/npyio.py", line 2083, in <listcomp>
+    zip(*[[conv._loose_call(_r) for _r in map(itemgetter(i), rows)]
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/_iotools.py", line 710, in _loose_call
+    return self.func(value)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/_iotools.py", line 693, in <lambda>
+    self.func = lambda x: int(float(x))
+KeyboardInterrupt

@@ -873,8 +873,8 @@ class MetapathAttentionLayer(nn.Module):
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
-        if self.batchnorm:
-            self.bn = nn.BatchNorm1d(self.out_features)
+        #if self.batchnorm:
+        #    self.bn = nn.BatchNorm1d(self.output_dim)
 
     def forward(self, input):
         """
@@ -898,13 +898,14 @@ class MetapathAttentionLayer(nn.Module):
         output = torch.bmm(e, input).squeeze()
 
         output = self.dropout(output)
+        outout = self.mlp(output)
 
-        if self.batchnorm:
-            output = self.bn(output)
+        #if self.batchnorm:
+        #    output = self.bn(output)
 
         weight = torch.sum(e.view(N, n_meta), dim=0) / N
 
-        return F.relu(self.mlp(output)), weight
+        return F.relu(output), weight
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'

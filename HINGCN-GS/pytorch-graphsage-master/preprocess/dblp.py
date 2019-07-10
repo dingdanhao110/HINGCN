@@ -75,7 +75,7 @@ def gen_homograph():
 
     np.savetxt("{}{}.txt".format(path, out_file),edges,fmt='%u')
 
-def read_embed(path="data/dblp2/",
+def read_embed(path="../../../data/dblp2/",
                emb_file="APC",emb_len=16):
     with open("{}{}_{}.emb".format(path, emb_file,emb_len)) as f:
         n_nodes, n_feature = map(int, f.readline().strip().split())
@@ -94,7 +94,7 @@ def read_embed(path="data/dblp2/",
 
     return features, n_nodes, n_feature
 
-def dump_edge_emb(path='data/dblp2/'):
+def dump_edge_emb(path='../../../data/dblp2/'):
     # dump APA
     APA_file = "APA"
     APAPA_file = "APAPA"

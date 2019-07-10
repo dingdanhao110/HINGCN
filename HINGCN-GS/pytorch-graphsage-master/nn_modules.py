@@ -862,9 +862,9 @@ class MetapathAttentionLayer(nn.Module):
         ])
 
         self.mlp = nn.Sequential(*[
-            nn.Linear(hidden_dim, in_features),
+            nn.Linear(in_features, hidden_dim),
             nn.ReLU(),
-            nn.Linear(in_features, in_features),
+            nn.Linear(hidden_dim, in_features),
         ])
 
         a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))
@@ -873,8 +873,8 @@ class MetapathAttentionLayer(nn.Module):
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
-        #if self.batchnorm:
-        #    self.bn = nn.BatchNorm1d(self.output_dim)
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.output_dim)
 
     def forward(self, input):
         """
@@ -887,12 +887,12 @@ class MetapathAttentionLayer(nn.Module):
         input_dim = input.shape[2]
 
         input = input.contiguous()
-        input = self.att(input.view(-1, input_dim)) \
+        a_input = self.att(input.view(-1, input_dim)) \
             .view(N, n_meta, -1)
 
         # a_input = torch.cat([input.repeat(1,1,n_meta).view(N, n_meta*n_meta, -1),
         #                      input.repeat(1,n_meta, 1)], dim=2).view(N, -1, 2 * input_dim)
-        e = self.leakyrelu(torch.matmul(input, self.a).squeeze(2))   #e: tensor(N,nmeta)
+        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))   #e: tensor(N,nmeta)
         e = F.softmax(e, dim=1).view(N, 1, n_meta)
 
         output = torch.bmm(e, input).squeeze()
@@ -900,8 +900,8 @@ class MetapathAttentionLayer(nn.Module):
         output = self.dropout(output)
         outout = self.mlp(output)
 
-        #if self.batchnorm:
-        #    output = self.bn(output)
+        if self.batchnorm:
+            output = self.bn(output)
 
         weight = torch.sum(e.view(N, n_meta), dim=0) / N
 

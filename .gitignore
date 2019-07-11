@@ -115,3 +115,4 @@ data/dblp/edge16.npz
 /.vs
 /data/yelp
 /data/dblp2/edge17.npz
+*.xlsx

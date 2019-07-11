@@ -238,9 +238,9 @@ if __name__ == "__main__":
     # plot_roc_curve(fpr,tpr,'ROC')
     y_train_scores = logreg.predict_proba(x_train)[:, 1]
     y_test_scores = logreg.predict_proba(x_test)[:, 1]
-    print('Accuracy of Logistic regression classifier on training set: {:.2f}'
+    print('Accuracy of Logistic regression classifier on training set: {:.4f}'
           .format(logreg.score(x_train, y_train)))
-    print('Accuracy of Logistic regression classifier on test set: {:.2f}'
+    print('Accuracy of Logistic regression classifier on test set: {:.4f}'
           .format(logreg.score(x_test, y_test)))
 
     from sklearn.neighbors import KNeighborsClassifier
@@ -249,9 +249,9 @@ if __name__ == "__main__":
     knn.fit(x_train, y_train)
     y_train_scores = knn.predict_proba(x_train)[:, 1]
     y_test_scores = knn.predict_proba(x_test)[:, 1]
-    print('Accuracy of K-NN classifier on training set: {:.2f}'
+    print('Accuracy of K-NN classifier on training set: {:.4f}'
           .format(knn.score(x_train, y_train)))
-    print('Accuracy of K-NN classifier on test set: {:.2f}'
+    print('Accuracy of K-NN classifier on test set: {:.4f}'
           .format(knn.score(x_test, y_test)))
 
     from sklearn.svm import SVC
@@ -260,9 +260,9 @@ if __name__ == "__main__":
     svm.fit(x_train, y_train)
     y_train_scores = svm.predict_proba(x_train)[:, 1]
     y_test_scores = svm.predict_proba(x_test)[:, 1]
-    print('Accuracy of SVM classifier on training set: {:.2f}'
+    print('Accuracy of SVM classifier on training set: {:.4f}'
           .format(svm.score(x_train, y_train)))
-    print('Accuracy of SVM classifier on test set: {:.2f}'
+    print('Accuracy of SVM classifier on test set: {:.4f}'
           .format(svm.score(x_test, y_test)))
 
 

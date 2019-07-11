@@ -811,7 +811,7 @@ class MetapathConcatLayer(nn.Module):
         ])
 
         if self.batchnorm:
-            self.bn = nn.BatchNorm1d(self.output_dim)
+            self.bn = nn.BatchNorm1d(hidden_dim * n_head)
 
     def forward(self, input):
         """

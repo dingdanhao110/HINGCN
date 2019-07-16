@@ -13,6 +13,9 @@ import numpy as np
 from scipy import sparse
 from helpers import to_numpy
 
+def weight_init(m): 
+	if isinstance(m, nn.Linear):
+		nn.init.kaiming_uniform_(m.weight.data)
 
 # --
 # Samplers
@@ -523,6 +526,8 @@ class AttentionAggregator2(nn.Module):
 
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.output_dim)
+
+        self.apply(weight_init)
 
     def forward(self, x, neibs, edge_emb, mask):
         # Compute attention weights

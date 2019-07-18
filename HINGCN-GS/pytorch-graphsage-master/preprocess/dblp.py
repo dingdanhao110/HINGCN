@@ -317,6 +317,55 @@ def dump_edge_emb(path='../../../data/dblp2/'):
     print('dump npz file {}edge{}.npz complete'.format(path, emb_len))
     pass
 
+
+def gen_homoadj():
+    path = "data/dblp2/"
+
+    PA_file = "PA"
+    PC_file = "PC"
+    PT_file = "PT"
+
+    PA = np.genfromtxt("{}{}.txt".format(path, PA_file),
+                   dtype=np.int32)
+    PC = np.genfromtxt("{}{}.txt".format(path, PC_file),
+                   dtype=np.int32)
+    PT = np.genfromtxt("{}{}.txt".format(path, PT_file),
+                   dtype=np.int32)
+    PA[:, 0] -= 1
+    PA[:, 1] -= 1
+    PC[:, 0] -= 1
+    PC[:, 1] -= 1
+    PT[:, 0] -= 1
+    PT[:, 1] -= 1
+
+    paper_max = max(PA[:, 0]) + 1
+    author_max = max(PA[:, 1]) + 1
+    conf_max = max(PC[:, 1]) + 1
+    term_max = max(PT[:, 1]) + 1
+
+    PA = sp.coo_matrix((np.ones(PA.shape[0]), (PA[:, 0], PA[:, 1])),
+                       shape=(paper_max, author_max),
+                       dtype=np.int32)
+    PC = sp.coo_matrix((np.ones(PC.shape[0]), (PC[:, 0], PC[:, 1])),
+                       shape=(paper_max, conf_max),
+                       dtype=np.int32)
+    #PT = sp.coo_matrix((np.ones(PT.shape[0]), (PT[:, 0], PT[:, 1])),
+    #                   shape=(paper_max, term_max),
+    #                   dtype=np.int32)
+
+    APA = PA.transpose()*PA
+    APAPA = APA*APA
+    APCPA = PA.transpose()*PC * PC.transpose() * PA
+
+    APA = np.hstack([APA.nonzero()[0].reshape(-1,1), APA.nonzero()[1].reshape(-1,1)])
+    APAPA = np.hstack([APAPA.nonzero()[0].reshape(-1,1), APAPA.nonzero()[1].reshape(-1,1)])
+    APCPA = np.hstack([APCPA.nonzero()[0].reshape(-1,1), APCPA.nonzero()[1].reshape(-1,1)])
+
+    np.savetxt("{}{}.txt".format(path, 'APA'),APA,fmt='%u')
+    np.savetxt("{}{}.txt".format(path, 'APAPA'),APA,fmt='%u')
+    np.savetxt("{}{}.txt".format(path, 'APCPA'),APA,fmt='%u')
+
 #clean_dblp()
 #gen_homograph()
-dump_edge_emb()
+#dump_edge_emb()
+gen_homoadj()

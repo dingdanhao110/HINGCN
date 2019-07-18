@@ -1,0 +1,263 @@
+\section{Definitions}
+\label{sec:definition}
+In this section we give a formal problem definition.
+%Table~\ref{table:symbol} lists some of the symbols used in this paper.
+
+\comment{
+\begin{table}
+\caption{Descriptions of symbols}
+\centering
+\scriptsize
+%\scriptsize
+\begin{tabular}{|c|l|}
+    \hline
+    {\bf Notation} & \multicolumn{1}{c|}{\bf Description} \\ \hline
+    $G = (V, E)$ 	& An HIN $G$ with object set $V$ and link set $E$ \\ \hline
+    $\mathcal{T}, T_i, m$	&$\mathcal{T} = \{T_1,T_2,...,T_m\}$, a set of $m$ object types\\ \hline
+    $\mathcal{A}_i, \mathcal{A}$	&Attribute set $\mathcal{A}_i$ of object type $T_i$, $\mathcal{A} = \bigcup_{i=1}^m{\mathcal{A}_i}$\\ \hline
+    $G_{\mathcal{A}} = (V, E, \mathcal{A})$ 	& An attributed HIN $G_{\mathcal{A}}$ with attribute set $\mathcal{A}$ \\ \hline
+%    $x, e, T$	&An arbitrary object $x$, edge $e$, object type $T$\\ \hline
+%    $x_{ij}$					&  The $j$-th type-$T_i$ object\\ \hline
+    $\mathcal{X}_i, n_i$	& The set $\mathcal{X}_i$ of type $T_i$ objects, $|\mathcal{X}_i| = n_i$ \\ \hline
+    $T_G = (\mathcal{T}, \mathcal{R})$		& Network schema of HIN $G$ \\ \hline
+%    $n, n_i$ 				&   $|\mathcal{V}|, |\mathcal{X}_i|$ \\ \hline
+    $p_{x_u\leadsto{x_v}} \vdash \mathcal{P}$ & $p_{x_u\leadsto{x_v}}$ is an instance of the meta-path $\mathcal{P}$ \\ \hline
+%    $\mathcal{P}, \mathcal{PS}$ 	& Meta path $\mathcal{P}$, a set of meta paths $\mathcal{PS}$\\ \hline
+    $G_{T_i,\mathcal{P}}$, $G_\mathcal{P}$			                 & TSSN of object type $T_i$ induced by meta-path $\mathcal{P}$\\ \hline
+%    $\mathcal{L}$, $L(x)$					& Training set $\mathcal{L}$; $L(x)$ = label of object $x$ if $x \in \mathcal{L}$ \\ \hline
+    $F_i$				                                            	& Type $T_i$ object attribute matrix $\in {\mathbb{R}^{n_i\times {|\mathcal{A}_i|}}}$ \\ \hline
+    $\mathcal{M}$, $\mathcal{C}$					& Must-link set and cannot-link set \\ \hline
+    $\mathfrak{C} = \{C_1, ..., C_k\}$			                 	& A set of $k$ disjoint clusters  \\ \hline
+   % $\Upsilon_{C}$, $\Upsilon_{G_\mathcal{P}}$, $\Upsilon_G$	& Cohesiveness of a cluster, a sub-network and an HIN\\ \hline
+   % $\Psi_{C}$, $\Psi_{G_\mathcal{P}}$, $\Psi_G$	& Compactness of a cluster, a sub-network and an HIN\\ \hline
+   
+%    $\Upsilon_{C}$, $\Upsilon_{G_\mathcal{P}}$, $\Upsilon_G$	& Cohesiveness of a cluster, a sub-network and an HIN\\ \hline
+%    $\Psi_{C}$, $\Psi_{G_\mathcal{P}}$, $\Psi_G$	& Compactness of a cluster, a sub-network and an HIN\\ \hline
+%    $Q(\mathcal{P})$					& The proportion of qualified objects for meta path $\mathcal{P}$ \\ \hline
+%    $E(\mathcal{P})$					& The effectiveness of meta path $\mathcal{P}$ \\ \hline
+%    $U(\mathcal{P})$					& The usefulness of meta path $\mathcal{P}$ \\ \hline
+%   
+\end{tabular}
+\label{table:symbol}
+%\end{small}
+\end{table}
+}
+
+
+\comment{
+\begin{definition}
+\textbf{Heterogeneous Information Network (HIN)}. Let $\cal{T}$ = $\{ t_1, \ldots, t_m \}$ be a set of $m$ object types.
+Let $\cal{V}$ be a set of  $n$ objects.
+Each object $x \in \cal{V}$ has a unique type, denoted by $T(x)$.
+We use $\mathcal{X}_h$ to denote the set of all objects of type $t_h$,
+i.e., $\mathcal{X}_h = \{x \in \mathcal{V} \; | \; T(x) = t_h \}$
+and $\mathcal{V} = \cup_{h=1}^{m} \mathcal{X}_h$.
+Let $n_h = |\mathcal{X}_h|$.
+Let $\mathcal{E}$ be a set of links, which represents a binary relation between objects in $\mathcal{V}$.
+An object $x_i$ is related to another object $x_j$ iff $(x_i, x_j) \in \mathcal{E}$.
+An HIN $\mathcal{G} = \langle \mathcal{V}, \mathcal{E} \rangle$
+is a set of objects $\mathcal{V}$ and a set of links $\mathcal{E}$.
+\end{definition}
+}
+
+\begin{definition}
+\label{def:ahin}
+\textbf{Attributed Heterogeneous Information Network (AHIN)}. 
+Let $\mathcal{T}$ = $\{T_1, ..., T_m \}$ be a set of $m$ object types.
+For each type $T_i$, 
+let $\mathcal{X}_i$ be the set of objects of type $T_i$
+and $A_i$ be the set of attributes defined for objects of type $T_i$.
+An object $x_j$ of type $T_i$ is associated with an attribute vector
+$\bm f_{j} = (f_{j1}, f_{j2}, ..., f_{j|A_i|})$.
+%For each type $T_i$, 
+%let $n_i$ and $\mathcal{X}_i = \{ x_{i1}, ..., x_{in_i} \}$ be the number and the set of objects of type $T_i$, respectively.
+An AHIN is a graph $G = (V, E, \mathcal{A})$, where
+$V = \bigcup_{i=1}^m\mathcal{X}_i$ is a set of nodes,
+$E$ is a set of links, each represents a binary relation between two objects in $V$,
+and $\mathcal{A} = \bigcup_{i=1}^m{A_i}$.
+If $m$ = 1 (i.e., there is only one object type), $G$ reduces to a homogeneous information network.
+\hfill$\Box$
+\end{definition}
+
+%Given an HIN $G$, objects of type $T$ are usually attached with a set of \textbf{attributes} $A$
+%and these attributes can be divided into different types.
+%For example, restaurants in Yelp may have numerical attributes like the number of reviews, longitude and latitude, 
+%ordinal attribute star level, boolean attribute reservation, etc.
+%These attributes convey different information and may be useful in different clustering tasks.
+%In this paper, we consider all these kinds of attributes.
+%Including attributes to an HIN $G = (V, E)$, an \textbf{attributed heterogeneous information network (AHIN)} $G_{\mathcal{A}} = (V, E, \mathcal{A})$,
+%where $\mathcal{A} = \bigcup_{i=1}^m{A_i}$.
+%For each object $x_i$ of type $T$, the attribute vector is represented as $\bm f_{i} = (f_{i1}, f_{i2}, ..., f_{i|A|})$.
+
+\begin{definition}
+\textbf{Network schema}. A network schema is the meta template of
+an AHIN $G = (V, E, \mathcal{A})$.
+Let 
+(1) $\phi: V \rightarrow \mathcal{T}$ be an object-type mapping that maps an object in $V$ into its type, and
+(2) $\psi: E\rightarrow \mathcal{R}$ be a link-relation mapping that maps a link in $E$ into a relation in a set of 
+relations $\mathcal{R}$.
+The network schema of an AHIN $G$, denoted by $T_G = (\mathcal{T}, \mathcal{R})$,
+shows how objects of different types are related by the relations in $\mathcal{R}$. 
+$T_G$ can be represented by a {\it schematic graph} with $\mathcal{T}$ and $\mathcal{R}$ being the node set and the edge set, 
+respectively.
+Specifically, there is an edge ($T_i$, $T_j$) in the schematic graph iff there is a relation in $\mathcal{R}$ that relates
+objects of type $T_i$ to objects of type $T_j$.
+\hfill$\Box$
+%
+%
+% with the object type mapping $\phi: V\rightarrow \mathcal{T}$ and the link mapping $\psi: E\rightarrow \mathcal{R}$, which is a directed graph defined over object types $\mathcal{T}$, with edges as relations from $\mathcal{R}$, denoted as $T_G = (\mathcal{T}, \mathcal{R})$.
+\end{definition}
+
+Figure~\ref{figure:subnetworks}(a) shows an example AHIN that models movie information 
+(attribute information is not shown).
+The AHIN consists of four object types: $\mathcal{T}$ = \{
+movie ($\Diamond$), actor($\Box$), director($\Circle$), producer($\triangle$) \}.
+There are also three relations in $\mathcal{R}$, which are illustrated by the three edges in the schematic
+graph (Figure~\ref{figure:subnetworks}(b)). For example, the relation between {\it actor} and {\it movie} 
+carries the information of which actor has acted in which movie.
+Actors, directors and producers have attributes like age, gender, birthplace, while 
+movies are associated with attributes like release date, box office, etc. 
+
+
+\comment{
+\begin{definition}
+\textbf{Meta path}. A meta-path $\mathcal{P} = t_{i_1} \ldots t_{i_d}$ is a sequence of object types.
+We use $\mathcal{P}[j]$ to denote the $j$-th object type ($t_{i_j}$) specified in the meta-path $\mathcal{P}$.
+Given an HIN $G$ and a path $p$ in $G$,
+let $|p|$ be the length (as measured by the number of objects) of path $p$ and $p[j]$ be the $j$-th object in $p$.
+Path $p$
+is an \emph{instance} of $\mathcal{P}$, denoted by $p \vdash \mathcal{P}$ iff
+$p$ and $\mathcal{P}$ are of the same length and the types of the objects in $p$ match
+those specified in $\mathcal{P}$. Formally,
+$p \vdash \mathcal{P}$ iff
+(1) $|p|$ = $d$ and
+(2) $T(p[j]) = \mathcal{P}[j] \; \forall 1 \leq j \leq d$.
+\end{definition}
+}
+
+\begin{definition}
+\textbf{Meta-path}. A meta-path $\mathcal{P}$ is a path defined on the 
+schematic graph of a network schema.
+%$T_G = (\mathcal{T}, \mathcal{R})$.
+A meta-path $\mathcal{P}$: $T_1\stackrel{R_1}{\longrightarrow} \cdots\stackrel{R_l}{\longrightarrow} T_{l+1}$
+ defines a composite relation $R = R_1\circ \cdots \circ R_l$ 
+ that relates objects of type $T_1$ to objects of type $T_{l+1}$.
+ If two objects $x_u$ and $x_v$ are related by the composite relation $R$,
+ then there is a path, denoted by $p_{x_u\leadsto{x_v}}$, that connects $x_u$ to $x_v$ in $G$.
+ Moreover, the sequence of links in $p_{x_u\leadsto{x_v}}$ matches the sequence of relations
+ $R_1$, ..., $R_l$ based on the link-relation mapping $\psi$.
+ We say that $p_{x_u\leadsto{x_v}}$ is a {\it path instance} of $\mathcal{P}$, denoted by
+ $p_{x_u\leadsto{x_v}} \vdash \mathcal{P}$.
+ \hfill$\Box$
+%  where $\circ$ denotes the composition operator on relations.
+\end{definition}
+
+As an example, the path $p_{M1 \leadsto M3} = M1\rightarrow A2 \rightarrow M3$
+in Figure~\ref{figure:subnetworks}(a)
+is an instance of  the meta-path Movie-Actor-Movie (abbrev. MAM). 
+%
+%
+% has been applied to various data mining tasks including transductive classification, and it has been proved useful. Grempt utilizes meta paths where $T_1 = T_{l+1} $, and converts the original heterogeneous information network to several homogeneous \emph{topology shrinking sub-networks}.
+
+%\begin{small}
+\begin{figure}
+    \centering
+    \vspace{-3mm}
+        \includegraphics[width = 0.9\linewidth]{figure/hin.pdf}
+        \caption{{\scriptsize An AHIN (a) and its schematic graph (b)}}
+        \label{figure:subnetworks}
+        \vspace{-2mm}
+\end{figure}
+%\end{small}
+
+\comment{
+\begin{definition}
+\textbf{Topology Shrinking Sub-network (TSSN)}. Given an HIN $G = (V, E)$, 
+the TSSN of a certain object type $T_i$ derived from a meta-path $\mathcal{P}$
+is a graph
+whose nodes consist of only objects of type $T_i$ and whose edges connect objects that are related by
+instances of $\mathcal{P}$. Formally,
+the TSSN is the graph
+ $G_{T_i,\mathcal{P}} = (\mathcal{X}_i, E_{T_i})$,
+where 
+$E_{T_i} = \{e_{uv} | p_{x_u\leadsto{x_v}} \vdash {\mathcal{P}}, x_u, x_v \in{\mathcal{X}_i}\}$.
+We write $G_\mathcal{P}$ instead of $G_{T_i,\mathcal{P}}$ if the object type $T_i$ is implicitly known.
+\hfill$\Box$
+%
+% can be denoted as $G_T = (V_T, E_T, R_T)$, $V_T = \mathcal{X}_T$, $E_T = \{e_{uv}|p_{x_u\leadsto{x_v}}\in{\mathcal{P}}, x_u, x_v \in{V_T}\}$ and $R_T = \{R_{uv}|R_{uv}$ is the weight of $e_{uv}\in{E_T}\}$, where $p_{x_u\leadsto{x_v}}$ denotes a path instance between $x_u$ and $x_v$.
+\end{definition}
+
+Figures \ref{figure:subnetworks}(c)-(e) show the TSSNs of type Movie derived from the meta-paths
+MAM, MDM and MPM, respectively.
+A TSSN shows how objects of a certain type are related by the composite relation given by a meta-path. 
+For example, the meta-path MAM relates two movie objects if those movies share an actor. 
+In Figure~\ref{figure:subnetworks}(c), movies M1 and M2 are connected by an edge in the TSSN because
+actor A1 acted in both movies.
+}
+
+\begin{definition}
+\label{def:user-guidance}
+\textbf{Supervision constraint}.
+The clustering process is supervised by a user through a constraint ($\mathcal{M}$, $\mathcal{C}$), where $\mathcal{M}$
+and $\mathcal{C}$ are the {\it must-link set} and the {\it cannot-link set}, respectively. 
+Each of these sets is a set of object pairs $(x_a, x_b)$.
+An object pair in $\mathcal{M}$ represents that the two objects must belong to the same cluster,
+while a pair in $\mathcal{C}$
+indicates that the two objects  should not be put into the same cluster.
+\hfill$\Box$
+\end{definition}
+
+\begin{definition}
+\textbf{Semi-supervised clustering in an AHIN}.
+\label{def:clustering}
+Given an AHIN $G = (V,E,\mathcal{A})$, a supervision constraint ($\mathcal{M}$, $\mathcal{C}$),
+a target object type $T_i$, the number of clusters $k$, and a set of meta-paths $\mathcal{PS}$,
+the problem of semi-supervised clustering of type $T_i$ objects in $G$ is to
+(1) discover an object similarity measure $S$ that is based on object attributes and meta-paths, and
+(2) partition the objects in $\mathcal{X}_i$ into $k$ disjoint clusters $\mathfrak{C} = \{C_1, ..., C_k\}$
+based on the similarity measure $S$ such that the clustering results best agree with the constraint 
+($\mathcal{M}$, $\mathcal{C}$).
+%\begin{itemize}\setlength{\itemsep}{-2pt}
+%\item The object type $T$ to be clustered.
+%\item The number of clusters $k$.
+%\item A must-link set $\mathcal{M}$ and a cannot-link set $\mathcal{C}$.
+%\item A set of meta paths $\mathcal{PS}$. 
+%\end{itemize}
+%and produces the following outputs:
+%\begin{itemize}\setlength{\itemsep}{-2pt}
+%\item A partitioning of the set $\mathcal{X}$  into $k$ disjoint clusters $\mathfrak{C} = \{C_1, ..., C_k\}$, where $\bigcup_{i=1}^k C_i = \mathcal{X}$ and
+%$\bigcap_{i=1}^k C_i = \emptyset$.
+%\item Meta path weight vector $\bm \lambda$, where $\lambda_i \geq 0$, $\sum_{i=1}^{|\mathcal{PS}|} \lambda_i = 1$.
+%\item Attribute weight vector $\bm \omega$, where $\omega_i \geq 0$, $\sum_{i=1}^{|A|} \omega_i = 1$.
+%\end{itemize}
+\hfill$\Box$
+\end{definition}
+
+
+%\begin{example}
+%Figure \ref{figure:subnetworks} shows topology shrinking sub-networks derived from an HIN by different meta paths. The network in the left is an movie related HIN composed of movies (M $\Diamond$), actors(A $\Box$), directors(D $\Circle$) and producers(P $\triangle$). By meta paths MAM, MDM and MPM, we can respectively derive homogeneous subnetworks (a), (b) and (c) for movies.
+%\end{example}
+%
+
+%In this paper, we first investigate factors influencing the performance of transductive classification in HINs. Then based on the factors, we devise a black-box tester which can estimate the performance of transductive classification on a given HIN and thereby provide suggestions for users in whether choose transductive classification methods for a specific classification task.
+%\begin{definition}
+%\textbf{Black-box tester}. Given an HIN $G = (V, E)$, a specific classification task on objects of type $T_i$ with a set of labels ${LS}_i$, a set of meta paths $\mathcal{PS}$ and a training set of labeled objects $\mathcal{L}$, our objective is to provide a black-box tester which can judge the performance of transductive classification on $G$ and thereby guide users in choosing transductive classification. If the tester outputs \texttt{Yes}, it indicates good performance and strong recommendation. If the output is \texttt{No}, it represents poor performance and bad choice. In other cases, the tester will output \texttt{No idea and have a try}.
+%\end{definition}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

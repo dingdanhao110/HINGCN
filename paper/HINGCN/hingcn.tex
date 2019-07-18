@@ -1,0 +1,262 @@
+%\documentclass[sigconf]{acmart}
+
+%\documentclass[sigconf, anonymous, review]{acmart}
+\documentclass[sigconf]{acmart}
+
+\usepackage{booktabs} % For formal tables
+
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{pifont}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{array}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{wasysym}
+\usepackage{hyperref}
+\usepackage{subfig}
+\usepackage{balance}
+
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}  % Use Input in the format of Algorithm
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % Use Output in the format of Algorithm
+\algnewcommand{\LeftComment}[1]{\State \(\triangleright\) #1}
+
+%\newdef{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+%\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{summary}{Summary}
+\newtheorem{example}{Example}
+\newtheorem{conclusion}{Conclusion}
+
+\newcommand{\sij}{S_{ij}}
+\newcommand{\zij}{Z_{ij}}
+\newcommand{\bme}{{\bm e}}
+\newcommand{\bmv}{{\bm v}}
+\newcommand{\bmz}{{\bm z}}
+\newcommand{\bmw}{{\bm w}}
+\newcommand{\ben}[1]{\textcolor{red}{#1}}
+\newcommand{\ev}{eigenvector}
+\newcommand{\pev}{pseudo-eigenvector}
+\newcommand{\xarrow}[2]{x_{#1} \rightarrow x_{#2}}
+
+\newcommand{\ngd}{\emph{20ngD}} 
+\newcommand{\mnist}{\emph{MNIST0127}}
+\newcommand{\yale}{\emph{Yale\_5\textsc{class}}}
+\newcommand{\coil}{\emph{COIL20}}
+\newcommand{\isolet}{\emph{isolet\_5\textsc{class}}}
+\newcommand{\seg}{\emph{seg\_7\textsc{class}}}
+\newcommand{\yeast}{\emph{Yeast\_4\textsc{class}}}
+\newcommand{\glass}{\emph{glass}}
+
+
+\long\def\comment#1{}
+
+\setcopyright{rightsretained}
+%\setcopyright{usgov}
+%\setcopyright{usgovmixed}
+%\setcopyright{cagov}
+%\setcopyright{cagovmixed}
+
+%\settopmatter{printacmref=false, printfolios=false}
+%\pagestyle{plain}
+
+\comment{
+% DOI
+\acmDOI{10.475/123_4}
+
+% ISBN
+\acmISBN{123-4567-24-567/08/06}
+
+%Conference
+\acmConference[WOODSTOCK'97]{ACM Woodstock conference}{July 1997}{El
+  Paso, Texas USA} 
+\acmYear{1997}
+\copyrightyear{2016}
+
+
+\acmArticle{4}
+\acmPrice{15.00}
+}
+
+% These commands are optional
+%\acmBooktitle{Transactions of the ACM Woodstock conference}
+%\editor{Jennifer B. Sartor}
+%\editor{Theo D'Hondt}
+%\editor{Wolfgang De Meuter}
+
+
+\begin{document}
+
+\copyrightyear{2018}
+\acmYear{2018} 
+\setcopyright{iw3c2w3}
+\acmConference[WWW 2018]{The 2018 Web Conference}{April 23--27, 2018}{Lyon, France}
+\acmBooktitle{WWW 2018: The 2018 Web Conference, April 23--27, 2018, Lyon, France}
+\acmPrice{}
+\acmDOI{10.1145/3178876.3185993}
+\acmISBN{978-1-4503-5639-8/18/04.}
+
+\fancyhead{}
+
+\title{HINGCN: Heterogeneous information network revisited with GCN}
+
+%\numberofauthors{1} 
+%  in this sample file, there are a *total*
+% of EIGHT authors. SIX appear on the 'first-page' (for formatting
+% reasons) and the remaining two appear in the \additionalauthors section.
+
+\author{Danhao Ding\textsuperscript{$*$}, Xiang Li\textsuperscript{$*$}, Ben Kao\textsuperscript{$*$}, Nikos Mamoulis\textsuperscript{$\dagger$}}
+\affiliation{
+  \institution{\textsuperscript{$*$}The University of Hong Kong, Pokfulam Road, Hong Kong \\ \textsuperscript{$\dagger$}University of Ioannina, Ioannina, Greece}
+  \city{\textsuperscript{$*$}\{dhding2, xli2, kao\}@cs.hku.hk \hspace{2mm} \textsuperscript{$\dagger$}nikos@uoi.gr} 
+}
+%\email{\textsuperscript{$\dagger$}\{xli2, kao, sqluo\}@cs.hku.hk \hspace{2mm} \textsuperscript{$\ddagger$}\{nikos\}@uoi.gr}
+
+%\author{Xiang Li}
+%\affiliation{%
+%  \institution{Institute for Clarity in Documentation}
+%  \streetaddress{P.O. Box 1212}
+%  \city{Dublin} 
+%  \state{Ohio} 
+%  \postcode{43017-6221}
+%}
+%\email{webmaster@marysville-ohio.com}
+%
+%\author{Lars Th{\o}rv{\"a}ld}
+%\authornote{This author is the
+%  one who did all the really hard work.}
+%\affiliation{%
+%  \institution{The Th{\o}rv{\"a}ld Group}
+%  \streetaddress{1 Th{\o}rv{\"a}ld Circle}
+%  \city{Hekla} 
+%  \country{Iceland}}
+%\email{larst@affiliation.org}
+%
+%\author{Valerie B\'eranger}
+%\affiliation{%
+%  \institution{Inria Paris-Rocquencourt}
+%  \city{Rocquencourt}
+%  \country{France}
+%}
+%\author{Aparna Patel} 
+%\affiliation{%
+% \institution{Rajiv Gandhi University}
+% \streetaddress{Rono-Hills}
+% \city{Doimukh} 
+% \state{Arunachal Pradesh}
+% \country{India}}
+%\author{Huifen Chan}
+%\affiliation{%
+%  \institution{Tsinghua University}
+%  \streetaddress{30 Shuangqing Rd}
+%  \city{Haidian Qu} 
+%  \state{Beijing Shi}
+%  \country{China}
+%}
+%
+%\author{Charles Palmer}
+%\affiliation{%
+%  \institution{Palmer Research Laboratories}
+%  \streetaddress{8600 Datapoint Drive}
+%  \city{San Antonio}
+%  \state{Texas} 
+%  \postcode{78229}}
+%\email{cpalmer@prl.com}
+%
+%\author{John Smith}
+%\affiliation{\institution{The Th{\o}rv{\"a}ld Group}}
+%\email{jsmith@affiliation.org}
+%
+%\author{Julius P.~Kumquat}
+%\affiliation{\institution{The Kumquat Consortium}}
+%\email{jpkumquat@consortium.net}
+
+
+% The default list of authors is too long for headers.
+\renewcommand{\shortauthors}{D. Ding et al.}
+
+\input{tex/newcommand.tex}
+
+\begin{abstract}
+GCN on HIN.
+\end{abstract}
+
+%\begin{CCSXML}
+%<ccs2012>
+% <concept>
+%  <concept_id>10010520.10010553.10010562</concept_id>
+%  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
+%  <concept_significance>500</concept_significance>
+% </concept>
+% <concept>
+%  <concept_id>10010520.10010575.10010755</concept_id>
+%  <concept_desc>Computer systems organization~Redundancy</concept_desc>
+%  <concept_significance>300</concept_significance>
+% </concept>
+% <concept>
+%  <concept_id>10010520.10010553.10010554</concept_id>
+%  <concept_desc>Computer systems organization~Robotics</concept_desc>
+%  <concept_significance>100</concept_significance>
+% </concept>
+% <concept>
+%  <concept_id>10003033.10003083.10003095</concept_id>
+%  <concept_desc>Networks~Network reliability</concept_desc>
+%  <concept_significance>100</concept_significance>
+% </concept>
+%</ccs2012>  
+%\end{CCSXML}
+%
+%\ccsdesc[500]{Computer systems organization~Embedded systems}
+%\ccsdesc[300]{Computer systems organization~Redundancy}
+%\ccsdesc{Computer systems organization~Robotics}
+%\ccsdesc[100]{Networks~Network reliability}
+%
+\keywords{Semi-supervised classification; graph convolution; heterogeneous information network}
+
+\maketitle
+
+\input{tex/introduction.tex}
+\input{tex/relatedwork.tex}
+\input{tex/preliminary.tex}
+\input{tex/algorithm.tex}
+\input{tex/experiment.tex}
+\input{tex/conclusion.tex}
+
+
+
+%\end{document}  % This is where a 'short' article might terminate
+
+% ensure same length columns on last page (might need two sub-sequent latex runs)
+
+%ACKNOWLEDGMENTS are optional
+
+\section{Acknowledgments}
+This research is supported by Hong Kong Research Grants Council GRF HKU 17254016.
+
+\newpage
+
+% The following two commands are all you need in the
+% initial runs of your .tex file to
+% produce the bibliography for the citations in your paper.
+\bibliographystyle{ACM-Reference-Format}
+
+%\bibliographystyle{abbrv}
+\balance
+
+\bibliography{hingcn}  % vldb_sample.bib is the name of the Bibliography in this case
+% You must have a proper ".bib" file
+%  and remember to run:
+% latex bibtex latex latex
+% to resolve all references
+
+%APPENDIX is optional.
+% ****************** APPENDIX **************************************
+% Example of an appendix; typically would start on a new page
+%pagebreak
+
+
+\end{document}

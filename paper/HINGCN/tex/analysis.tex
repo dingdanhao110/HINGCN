@@ -1,0 +1,693 @@
+\section{Analysis}
+\label{sec:analysis}
+In this section we analyze the structural properties of HINs and classification tasks. We first describe three classification tasks,
+which are used in our analysis. Then, we explain the concepts of \chn\ and \cnn, and propose quantitative measures to 
+capture these properties.
+
+%In the end of section Introduction, we put forward three questions. Before we involve in the third one to predict whether transductive classification will work on a given HIN or not, we should first investigate the first two which would uncover the factors leading to a good transductive classification. Based on the aforementioned datasets: DBLP, Yago Movie and Freebase Movie, extensive experiments have been conducted, which provides sufficient grounds to our in-depth and logical analysis.
+
+\subsection{Classification tasks}
+
+\textbf{DBLP}\footnote{http://dblp.uni-trier.de/} is a bibliographic information network. 
+We extracted a dataset from DBLP that contains 14,376 papers (P), 20 publication venues (V), 14,475 authors (A) and 
+8,920 terms (T). 
+These form the objects of the HIN. 
+There are three types of links, which are authorship (A-P), publication (P-V), and keyword (P-T).
+The task is to classify authors into their research areas. 
+The label set is \{\emph{database} (DB), \emph{data mining} (DM), \emph{artificial intelligence} (AI) and
+\emph{information retrieval} (IR) \}.
+%Both \hpm\ and \gm\ use 
+We use the set of meta-paths \{APA, APAPA, APVPA, APTPA\} 
+as suggested in \cite{DBLP:dblp_conf/kdd/SunNHYYY12}.
+%Four research areas: \emph{database}, \emph{data mining}, \emph{artificial intelligence} and \emph{information retrieval} are regarded as labels, and 4057 authors have been labeled by them. Links in the network are of three types: paper-author, paper-venue and paper-term. To classify authors, we use the meta path set $\mathcal{PS}$ = \{APA, APAPA, APVPA, APTPA\} suggested in \cite{DBLP:dblp_conf/kdd/SunNHYYY12} when applying HetPathMine and Grempt.
+
+\textbf{Yago Movie} is a movie related HIN extracted from Yago. The dataset contains 1,465 movies (M), 4,019 actors (A), 1,093 directors (D) and 1,458 writers (W). There are three types of links: M-A, M-D, and M-W. 
+All of the extracted movies can be classified into one of three genres: \emph{horror}, \emph{action} and \emph{adventure}.
+The task is to label movies into their genres.
+We use the meta-path set \{MAM, MDM, MWM, MAMAM, MDMDM, MWMWM\} as suggested
+in~\cite{DBLP:dblp_conf/cikm/WanLKYGCH15}.
+
+%All the movies are labeled with regard to three genres: \emph{horror}, \emph{action} and \emph{adventure}. In order to classify movies, similar to \cite{DBLP:dblp_conf/cikm/WanLKYGCH15}, we employ the meta path set $\mathcal{PS}$ = \{MAM, MDM, MWM, MAMAM, MDMDM, MWMWM\}.
+
+\textbf{Freebase Movie} is another movie related HIN extracted from Freebase. 
+It consists of 3,492 movies (M), 33,401 actors (A), 2,502 directors (D) and 4,459 producers (P). 
+There are three types of links: M-A, M-D, and M-P.
+The task is again to label movies into their genres. 
+The label set is \{\emph{action}, \emph{adventure} and \emph{crime}\}.
+We use the meta-path set \{MAM, MDM, MPM, MAMAM, MDMDM, MPMPM\}~\cite{DBLP:dblp_conf/cikm/WanLKYGCH15}.
+
+\subsection{Structural properties of an HIN}
+
+Transductive classification on networked data utilizes links and paths to evaluate the relatedness of objects.
+Objects that are highly related are assumed to share similar labels. 
+In a sense, links and paths are used to
+propagate labels from labeled objects
+to unlabeled ones. 
+Algorithms like \gnm\ use the HIN to propagate labels, while algorithms like \hpm\ and \gm\ use
+meta-paths to derive TSSNs and propagate labels on those sub-networks. 
+In any case, the network structure (of the original HIN or of the derived TSSNs) is
+an important factor of the effectiveness of \tcrs.
+In particular, 
+all these \tcrs\ share the following intrinsic assumption:
+\begin{assumption}
+{\bf The Connectivity Assumption}.
+The structural connectivity between two objects (via links and paths) 
+are highly correlated to whether the objects would share the same label. 
+\end{assumption}
+In this section we address two interesting questions:
+
+{\it Question 1}:
+Does the connectivity assumption generally hold for HIN classification tasks?
+
+{\it Question 2}:
+If not, how to measure the validity of the connectivity assumption given a classification task?
+
+
+To answer the first question, we conducted simple experiments on a number of classification tasks.
+First, we define {\it true-labeling} using the notations of Definition~\ref{def:labeling}:
+
+\begin{definition}
+{\bf True-labeling}.
+A labeling $\hat{L}$ is a true-labeling if 
+$\forall x \in \mathcal{X}_i$, $\hat{L}(x)$ is the true label (ground truth) of object $x$.
+\end{definition}
+We put a caret `$\wedge$' on a labeling $L$ to indicate that it is a true-labeling.
+For each of the three classification tasks DBLP, Yago Movie and Freebase Movie,
+we find the true-labeling $\hat{L}$.
+We then cluster objects into the
+label-induced clustering $\mathcal{C}_{\hat{L}}$ (see Definition~\ref{def:li-clustering}). 
+Each cluster in $\mathcal{C}_{\hat{L}}$ thus contains all and only those objects of a given label.
+
+\begin{table}
+\caption{Similarity (NMI) of $\mathcal{C}_{\hat{L}}$ and $\mathcal{C}_{\mathit{NetClus}}$}
+\centering
+\small
+\begin{tabular}{|c|c|c|c|} \hline
+ DBLP & Yago Movie & Freebase Movie \\ \hline
+$0.707$ & $0.018$ & $0.027$ \\ \hline
+\end{tabular}
+\label{table:global_nmi}
+\end{table}
+
+
+Next, we apply NetClus~\cite{DBLP:dblp_conf/kdd/SunYH09}, which is a clustering method
+that clusters objects in an HIN based on network structure, to our HINs.
+For each HIN, we compare the true-label-induced clustering $\mathcal{C}_{\hat{L}}$
+(which is based solely on object labels) with
+the clustering $\mathcal{C}_{\mathit{NetClus}}$, given by NetClus (which is based solely on network structure).
+The similarity of the two clusterings is measured by  
+normalized mutual information (NMI).
+Table~\ref{table:global_nmi} shows the results.
+We see that for DBLP, the NMI is high, indicating that $\mathcal{C}_{\hat{L}}$ and $\mathcal{C}_{\mathit{NetClus}}$
+are highly similar. 
+In other words, objects that are highly connected (put in the same cluster by NetClus) tend to share the same label
+(put in the same cluster by the true-label-induced clustering).
+The connectivity assumption is thus strongly valid. 
+On the other hand, for Yago Movie and Freebase Movie, the NMI's are very low, indicating that
+the connectivity assumption does not hold in those cases.  
+This analysis is consistent with the accuracies of the \tcrs\ when they are applied to the three
+classification tasks (see Table~\ref{tbl:xlong}).
+Our analysis leads to the following conclusion:
+
+\begin{conclusion}
+The connectivity assumption does not always hold across HIN classification tasks. When it does, \tcrs\ 
+are very effective.
+\end{conclusion}
+
+The next question we address is how the validity of the connectivity assumption is evaluated.   
+We propose to measure the correlation between {\it structural connectivity of objects} and their {\it label similarity} by 
+the concepts of \chn\ and \cnn. 
+Intuitively, given a classification task,
+an HIN is {\it highly cohesive} if strong connectivity occurs mostly between objects of the same label;
+and that the HIN is {\it highly connected} if objects of the same label exhibit strong connectivity.
+The correlation between structural connectivity and label similarity is thus high if the HIN is highly cohesive and highly connected.
+In the following discussion, we first assume that the true-labeling $\hat{L}$ of a classification task is known.
+Cohesiveness and \cnn\ are then defined based on a true-labeling. 
+We will discuss in Section~\ref{sec:tester} how the two measures can be estimated when the true-labeling is not known in practice. 
+
+\subsection{Cohesiveness}
+
+Given an HIN $G=(V,E)$,
+consider the  task of classifying objects $x \in \mathcal{X}_i$ of type $T_i$ 
+with the label set $\mathcal{L} = \{l_1, ..., l_k\}$.
+A \tcr\ propagates label from an object $x_u \in \mathcal{X}_i$ to another 
+object $x_v \in \mathcal{X}_i$. 
+How much this propagation is done depends on the structural connectivity (i.e., links and paths) between $x_u$ and $x_v$.
+For example, \hpm\ and \gm\ use meta-paths to derive TSSNs (see Figure~\ref{figure:subnetworks}),
+and for each TSSN $G_{\mathcal{P}}$,  which is derived from a meta-path $\mathcal{P}$, 
+the structural connectivity between $x_u$ and $x_v$ is measured using \emph{PathSim} \cite{DBLP:dblp_journals/pvldb/SunHYYW11}:
+
+{\small
+\begin{equation}
+\nonumber
+\label{eq:pathsim}
+s(x_u, x_v) = \frac{2 \times |\{p_{x_u \leadsto x_v}:p_{x_u \leadsto x_v} \in \mathcal{P}\}|}{|\{p_{x_u \leadsto x_u}:p_{x_u \leadsto x_u} \in \mathcal{P}\}|+|\{p_{x_v \leadsto x_v}:p_{x_v \leadsto x_v} \in \mathcal{P}\}|}.
+\end{equation}}
+
+Now, let us consider the true-label-induced clustering $\mathcal{C}_{\hat{L}}$. 
+Figure~\ref{figure:special_network} shows an example clustering with 2 clusters (objects with true label `$\Circle$' and those with
+true label `$\Box$').
+An edge, e.g., ($x_1$,$x_2$), is shown to indicate that two objects are structurally connected
+(e.g., they are connected by meta-paths). 
+We assume that each edge shown is associated with a weight, which reflects the strength of the connection
+(e.g., as measured using \emph{PathSim}).
+We call Figure~\ref{figure:special_network} a {\it structural connectivity graph}.
+
+Note that \tcrs\ that use meta-paths 
+(such as \hpm\ and \gm) 
+measure the connectivity between two
+objects based on how well the objects are connected by meta-paths. In this case, the structural connectivity graph can be
+seen as a composition (union) of the TSSNs derived from a given set of meta-paths. 
+For example, the structural connectivity graph of the movie HIN shown in Figure~\ref{figure:subnetworks}(a)
+is the composition of the TSSNs shown in Figures~\ref{figure:subnetworks}(c)-(e).
+In particular, the edge connecting M1 and M2 in Figure~\ref{figure:subnetworks}(c) indicates that
+M1 and M2 are structurally connected by a meta-path instance (M1-A1-M2).
+If M1 is labeled,
+the label will be propagated to M2 via the structural connection (M1,M2).
+We will discuss how an overall \chn\ value is measured when the structural connectivity graph is a composition of 
+multiple TSSNs shortly. For the moment, let us assume that there is only one connectivity graph derived.
+
+As mentioned, 
+an HIN is highly cohesive if strong connectivity occurs mostly between objects of the same label.
+Referring to Figure~\ref{figure:special_network}, that means 
+intra-cluster edges are many-and-strong, while 
+inter-cluster edges are few-and-weak.
+Figure~\ref{figure:special_network} shows a very cohesive HIN because
+there is only one edge ($x_1,y_1$) across the two clusters; most of the structural connections are between objects of the same label.
+With this intuition, we quantitatively define \chn\ as follows.
+
+
+%By exploring the aforementioned questions, we next unveil factors influencing transductive classification in HINs.
+%\begin{question}
+%In which kinds of heterogeneous information networks will transductive classification perform well?
+%\end{question}
+%
+%Transductive classification on networked data depends on the network structure to propagate labels from labeled objects to unlabeled ones. Moreover, objects with the same label usually have features in common and they can be put in the same cluster. So it is natural to assume that if a network has very good clustering structure, then transductive classification will perform well. A good clustering structure refers to that objects with the same label are densely connected and form a cluster. Furthermore, no inter-cluster edge exists. Such structure will benefit transductive classification in that one labeled object is enough for each cluster to infer labels of all the unlabeled objects within the cluster. Based on the above analysis, we assume:
+%
+%\begin{assumption}
+%When a heterogeneous information network intrinsically has good clustering structure, transductive classification will be effective.
+%\end{assumption}
+%
+%To study the clustering property of the network, labels of objects are taken as the ground truth. We use label to mark the cluster an object belongs to and divide objects to be classified into different clusters. For example, action-genre movies are deemed in the same cluster, authors with research interest on data mining are in the same cluster, etc.
+%
+%We first validate the assumption by taking the HIN as a whole. Since the network is heterogeneous, traditional clustering methods will not work. We resort to NetClus \cite{DBLP:dblp_conf/kdd/SunYH09}, a specialized clustering method for heterogeneous information network with star schema, to perform clustering. Normalized mutual information (NMI) is used as the measure. The result is shown in table \ref{table:global_nmi}. It is obvious that DBLP network has a better clustering structure than other two datasets, which to some extent reflects our assumption.
+%
+
+%To further verify our assumption, we pay attention to meta path. Since meta path has been successfully used in transductive classification methods Grempt and HetPathMine, we can also employ it to measure the clustering property of an HIN. Similarly, given an HIN, we first induce several topology shrinking sub-networks by meta paths. Each sub-network will be homogeneous which contains only the objects of the type to be classified. For each sub-network, objects with the same label are considered in the same cluster. So clusters are same in these sub-networks. As we have mentioned above, if there are more edges within clusters and fewer edges between clusters, then transductive classification will perform well.
+%
+%After sub-networks have been derived, both HetPathMine and Grempt use \emph{PathSim} \cite{DBLP:dblp_journals/pvldb/SunHYYW11} to measure the similarity between any two objects $x_1$ and $x_2$ in the network. For a meta path $\mathcal{P}$ induced sub-network, \emph{PathSim} is defined as:
+%
+%{\small
+%\begin{equation}
+%\nonumber
+%\label{eq:pathsim}
+%s(x_1, x_2) = \frac{2 \times |\{p_{x_1 \leadsto x_2}:p_{x_1 \leadsto x_2} \in \mathcal{P}\}|}{|\{p_{x_1 \leadsto x_1}:p_{x_1 \leadsto x_1} \in \mathcal{P}\}|+|\{p_{x_2 \leadsto x_2}:p_{x_2 \leadsto x_2} \in \mathcal{P}\}|}
+%\end{equation}}
+%
+%\noindent where $p_{x_1 \leadsto x_2}$ is a path instance between $x_1$ and $x_2$, $p_{x_1\leadsto x_1}$ is that between $x_1$ and $x_1$, and $p_{x_2\leadsto x_2}$ is that between $x_2$ and $x_2$. Then transductive classification is performed on each sub-network and finally integrated. Label propagation heavily depends the weights between objects, the larger the value, the more one will be influenced by the other. Inspired by this, we find that sometimes edge count is not enough to reflect how good transductive classification will be. Larger weights within clusters and smaller weights between clusters are also required. An example is shown in figure \ref{figure:special_network}. There exist a number of intra-cluster edges in both clusters and only one inter-cluster edge between node $A$ and $B$. Suppose the weight on $e_{AB}$ is very large, then weights on other edges in both clusters will be very small. This means that $A$ and $B$ will be greatly influenced by each other. Assume $A$ has been influenced by $B$. After that, even though we know the label of node $C$, it can not propagate to other nodes within the cluster, because it is blocked by $A$.
+
+%\comment{
+%\begin{figure}[htbp]
+%\centering
+%\mbox{
+%  \hspace{-0.6cm}
+%  \begin{minipage}[t]{0.55\linewidth}
+%     %\centering
+%     \includegraphics[width = \linewidth]{figure/homo.pdf}
+%     \caption{Topology shrinking sub-network}
+%     \label{figure:homo}
+%  \end{minipage}
+%  \begin{minipage}[t]{0.55\linewidth}
+%     %\centering
+%     \includegraphics[width = \linewidth]{figure/edge_weights.pdf}
+%     \caption{A special network}
+%     \label{figure:special_network}
+%  \end{minipage}
+%  }
+%\end{figure}
+%}
+\begin{figure}
+    \centering
+        \includegraphics[width = 0.5\linewidth]{figure/weights_new.pdf}
+        \caption{A structural connectivity graph}
+        \label{figure:special_network}
+\end{figure}
+
+%Combining intuition and characteristic of transductive classification, we propose that for any two clusters, if intra-cluster edges are dense and inter-cluster edges are sparse, transductive classification will perform well. Here, dense and sparse refer to two measures: the number of edges and the weights of edges. We have mentioned that an HIN can induce several sub-networks and these sub-networks have same clusters indicated by labels. Then we can measure the clustering property in a reverse order of cluster, sub-network and finally HIN.
+%\begin{definition}
+Given two clusters $C_1$ and $C_2$ in a true-label-induced clustering $\mathcal{C}_{\hat{L}}$,
+with respect to a structural connectivity graph,
+let $h_1$ ($h_2$) be the number of intra-cluster edges in $C_1$ ($C_2$) with a sum of edge weights
+$w_1$ ($w_2$). 
+Also, let $h_{1,2}$ be the number of inter-cluster edges between $C_1$ and $C_2$ with a 
+sum of edge weights $w_{1,2}$.
+Define,
+%
+%For any two clusters $C_1$ and $C_2$, $C_1$ has $h_1$ intra-cluster edges with total weights $w_1$, $C_2$ has $h_2$ intra-cluster edges with total weights $w_2$. There are $h_{1,2}$ inter-cluster edges between them with total weights $w_{1,2}$. Then
+%\emph{intra-inter edge ratio} for each cluster is defined as 
+\begin{equation}
+\label{eq:edge_ratio}
+\rho(C_1) = \frac{h_1}{h_{1,2}+h_1}, \;\;\; \rho(C_2) = \frac{h_2}{h_{1,2}+h_2}, \mbox{  and }
+\end{equation}
+%\emph{intra-inter edge weights ratio} for each cluster is defined as 
+\begin{equation}
+\label{eq:weights_ratio}
+\eta(C_1) = \frac{w_1}{w_{1,2}+w_1}, \;\;\; \eta(C_2) = \frac{w_2}{w_{1,2}+w_2}. \mbox{        }
+\end{equation}
+$\rho(C_1)$ can be interpreted as, ``Among all the edges that connect some objects in $C_1$, the fraction of which that connect {\it only}
+objects in $C_1$.'' The other quantities can be interpreted similarly. 
+%To facilitate label propagation, both ratios are expected to be large enough in both clusters. To avoid that one value is extremely large and others are small, 
+We further define the \emph{pairwise cluster cohesiveness} of $C_1$ and $C_2$: 
+\begin{equation}
+\label{eq:inter-cluster_cohesiveness}
+\Upsilon(C_1, C_2) = \rho(C_1) \times \rho(C_2) \times \eta(C_1) \times \eta(C_2).
+\end{equation}
+%\end{definition}
+
+For a classification task with $k$ labels, 
+a labeling induces $k$ clusters $C_1, ..., C_k$.
+Let $b_i = |C_i|$.
+Define the \emph{cluster cohesiveness} of $C_i$ by
+\begin{equation}
+\label{eq:cluster_cohesiveness}
+\Upsilon_{C_i} = \frac{1}{k-1}\sum_{j\neq i}\Upsilon(C_i, C_j).
+\end{equation}
+%and the \emph{cohesiveness vector} 
+Let $\bm{\Upsilon} = (\Upsilon_{C_1}, ..., \Upsilon_{C_k})^\mathrm{T}$. 
+%$\bm{\Upsilon_{G_\mathcal{P}}^\prime} = (\Upsilon_{C_1}, \Upsilon_{C_2}, ..., \Upsilon_{C_N})^\mathrm{T}$. 
+We define the \chn\ of an HIN $G$ as the weighted average of the cluster cohesiveness:
+%Since $G_\mathcal{P}$ consists of $N$ clusters, then we have \emph{sub-network cluster cohesiveness vector} $\bm{\Upsilon_{G_\mathcal{P}}^\prime} = (\Upsilon_{C_1}, \Upsilon_{C_2}, ..., \Upsilon_{C_N})^\mathrm{T}$. 
+%And \emph{sub-network cohesiveness} is the weighted average for clusters:
+\begin{equation}
+\label{eq:subnetwork_cohesiveness}
+\Upsilon_{G} = \bm{\beta}\bm{\Upsilon},
+\end{equation}
+where $\bm{\beta} = (\frac{b_1}{\sum_{i=1}^k b_i}, \frac{b_2}{\sum_{i=1}^k b_i}, ..., \frac{b_k}{\sum_{i=1}^k b_i})$.
+
+If we use a set of meta-paths $\mathcal{P}_1, ..., \mathcal{P}_r$ in \tc, the structural connectivity graph can be seen as a composition of 
+a number of TSSNs $G_{\mathcal{P}_j}$ (1 $\leq j \leq r$).
+In this case, we evaluate the cohesiveness of each TSSN to obtain $\Upsilon_{G_{\mathcal{P}_j}}$,
+assign a weight $\theta_j$ to each meta-path $\mathcal{P}_j$, and the overall
+cohesiveness is given by the weighted average:
+\begin{equation}
+\Upsilon_{G} = \sum_{j=1}^r \theta_j \Upsilon_{G_{\mathcal{P}_j}}.
+\end{equation}
+We assume that the weights $\theta_j$'s can be learned. 
+Due to space limitation,
+readers can refer to~\cite{DBLP:dblp_conf/ecir/LuoGWL14,DBLP:dblp_conf/sdm/WanOKH15,DBLP:dblp_conf/cikm/WanLKYGCH15} for some example methods for learning meta-path weights.
+
+We computed the \chn\ values of the three HIN classification tasks. Table~\ref{table:chn} shows the results.
+We see that  DBLP has a much higher \chn\ value ($\Upsilon_{\mathit{DBLP}}$ = 0.536) 
+compared with Yago ($\Upsilon_{\mathit{Yago}}$ = 0.209) and Freebase ($\Upsilon_{\mathit{Freebase}}$ = 0.185).
+Again, this is consistent with our analysis that the connectivity assumption is more valid 
+with DBLP than with Yago or Freebase. 
+In Table~\ref{table:chn}, we also show the \chn\ values of the TSSNs derived from various meta-paths. 
+For example, 
+for DBLP, the TSSN $G_{\mathit{APA}}$, derived from the meta-path APA, is much more cohesive than
+those given by other meta-paths. 
+The interpretation is that co-authorship (which is captured by the meta-path APA) 
+occurs mostly between authors of the same area. 
+On the other hand, the small \chn\ value of $G_{\mathit{APTPA}}$ indicates that
+authors of different areas could share the same keywords in their papers. 
+For Yago Movie and Freebase Movie,
+the meta-paths MDM and MDMDM derive the most cohesive TSSNs. 
+Yet, their \chn\ values are much smaller than that of APA,
+suggesting that it is more difficult for \tc\ to achieve high accuracy in classifying movies.
+
+%Interestingly, these observations are consistent with those given in~\cite{DBLP:dblp_conf/cikm/WanLKYGCH15},
+%which reveal that APA, MDM, and MDMDM are effective meta-paths in
+%classifying objects for the three classification tasks. 
+
+\begin{table}
+\centering
+\caption{Cohesiveness of HIN classification tasks}
+\tiny
+\begin{tabular}{|c|c|c|c|c|c|c|}  \hline
+\multicolumn{7}{|c|}{DBLP: $\Upsilon_{\mathit{DBLP}}$ = 0.536} \\ \hline
+$\mathcal{P}$ & APA & APAPA & APVPA & APTPA  & & \\ \hline
+$\Upsilon_{G_\mathcal{P}}$ & $0.733$ & $0.483$ & $0.393$ & $0.016$ & & \\ \hline \hline
+\multicolumn{7}{|c|}{Yago: $\Upsilon_{\mathit{Yago}}$ = 0.209} \\ \hline
+$\mathcal{P}$ & MAM & MDM & MWM & MAMAM  & MDMDM & MWMWM  \\ \hline
+$\Upsilon_{G_\mathcal{P}}$ & $0.106$ & $0.313$ & $0.262$ & $0.065$ & $0.303$ & $0.214$  \\ \hline \hline
+\multicolumn{7}{|c|}{Freebase: $\Upsilon_{\mathit{Freebase}}$ = 0.185 } \\ \hline
+$\mathcal{P}$ & MAM & MDM & MPM & MAMAM & MDMDM & MPMPM \\ \hline
+$\Upsilon_{G_\mathcal{P}}$ & $0.107$ & $0.326$ & $0.174$ & $0.086$ & $0.346$ & $0.123$ \\ \hline
+\end{tabular}
+\label{table:chn}
+\end{table}
+
+
+%By meta paths, we can derive several topology shrinking sub-networks from an HIN. So it is natural to measure the clustering property of an HIN from that of derived sub-networks.
+%
+%\begin{definition}
+%Given an HIN $G$ and $K$ meta paths, $K$ sub-networks can be induced, which share $N$ clusters $C_1$, $C_2$, $...$, $C_N$. Each cluster $C_i$ contains $b_i$ objects, $i = 1, 2, ..., N$. For an arbitrary cluster $C_i$, we use $\bm{\theta_i}$ = ($\theta_{i_1}$, $\theta_{i_2}, ..., \theta_{i_K})^\mathrm{T}$ to represent weights of $K$ sub-networks. Let $\bm{\Upsilon}$ = ($\bm{\Upsilon_{G_{\mathcal{P}_1}}}$, $\bm{\Upsilon_{G_{\mathcal{P}_2}}}$, ..., $\bm{\Upsilon_{G_{\mathcal{P}_K}}})^\mathrm{T}\in R^{K \times N}$, $\bm{\theta}$ = ($\bm{\theta_1}$, $\bm{\theta_2}$, ..., $\bm{\theta_N})\in R^{K\times N}$, then \emph{HIN cluster cohesiveness vector} is defined as
+%\begin{equation}
+%\bm{\Upsilon_G^\prime} = (\bm{\theta_1^\mathrm{T}}\bm{\Upsilon}[:,1], \bm{\theta_2^\mathrm{T}}\bm{\Upsilon}[:,2], ..., \bm{\theta_N^\mathrm{T}}\bm{\Upsilon}[:,N])^\mathrm{T}
+%\end{equation}
+%and \emph{HIN cohesiveness} is the weighted average for clusters:
+%\begin{equation}
+%\label{eq:HIN_cohesiveness}
+%\Upsilon_G = \bm{\beta^\mathrm{T}}\bm{\Upsilon_G^\prime}
+%\end{equation}
+%where $\bm{\beta} = (\frac{b_1}{\sum_{i=1}^N b_i}, \frac{b_2}{\sum_{i=1}^N b_i}, ..., \frac{b_N}{\sum_{i=1}^N b_i})^\mathrm{T}$.
+%\end{definition}
+
+%\begin{table}
+%\centering
+%\scriptsize
+%\caption{DBLP sub-network cohesiveness}
+%\label{table:DBLP_cohesiveness}
+%\begin{tabular}{|c|c|c|c|} \hline
+% APA & APAPA & APVPA & APTPA \\ \hline
+%$0.733$ & $0.483$ & $0.393$ & $0.016$\\ \hline
+%\end{tabular}
+%\centering
+%\caption{Yago Movie sub-network cohesiveness}
+%\label{table:yagomovie_cohesiveness}
+%\begin{tabular}{|c|c|c|c|c|c|} \hline
+% MAM & MDM & MWM & MAMAM & MDMDM & MWMWM\\ \hline
+%$0.106$ & $0.313$ & $0.262$ & $0.065$ & $0.303$ & $0.214$\\ \hline
+%\end{tabular}
+%\centering
+%\caption{Freebase Movie sub-network cohesiveness}
+%\label{table:freebasemovie_cohesiveness}
+%\begin{tabular}{|c|c|c|c|c|c|} \hline
+% MAM & MDM & MPM & MAMAM & MDMDM & MPMPM\\ \hline
+%$0.107$ & $0.326$ & $0.174$ & $0.086$ & $0.346$ & $0.123$\\ \hline
+%\end{tabular}
+%\centering
+%\caption{HIN cohesiveness on three datasets}
+%\label{table:hin_cohesiveness}
+%\begin{tabular}{|c|c|c|c|} \hline
+% DBLP & Yago Movie & Freebase Movie \\ \hline
+%$0.536$ & $0.209$ & $0.185$ \\ \hline
+%\end{tabular}
+%\end{table}
+
+%Based on meta path, \emph{cohesiveness} is a new measure to how cohesive an HIN is. Experimental results are shown in table \ref{table:hin_cohesiveness}. Obviously, DBLP has larger cohesiveness value than other two networks, so transductive classification performs better on it, which proves our assumption. Based on the above analysis, both NetClus and cohesiveness reflect DBLP has better clustering structure. Then we make a summary: 
+%
+%\textbf{Summary:} An HIN with better clustering structure will lead to better transductive classification.
+%
+%We also show cohesiveness value of each sub-network on three HINs in tables \ref{table:DBLP_cohesiveness}, \ref{table:yagomovie_cohesiveness} and \ref{table:freebasemovie_cohesiveness}. We notice that sub-networks induced by APA, MDM and MDMDM are more cohesive. It reflects these meta paths are more effective, which coincides with the conclusion in \cite{DBLP:dblp_conf/cikm/WanLKYGCH15}. 
+
+%\textcolor{blue}{Ben: The following is to be removed:
+%xxxxxxxxxxxxxx}
+%
+%Since sub-networks derived by APA, MDM and MDMDM have larger cohesiveness values, transductive classification should perform better on them. However, according to tables \ref{table:accuracy:dblp_subnetworks}, \ref{table:accuracy:yago_subnetworks} and \ref{table:accuracy:freebase_subnetworks}, we notice that transductive classification on sub-networks derived by APVPA, MAM and MAMAM greatly outperforms that on other sub-networks. For meta paths APA, MDM and MDMDM, even though their induced sub-networks have larger cohesiveness values, transductive classification works poorly, which can be explained by the conclusion in \cite{DBLP:dblp_conf/cikm/WanLKYGCH15} that the average percentage of reachable objects from a given object by a meta path, referring to \emph{reach}, is too small. Furthemore, we perform \emph{normalized cuts} \cite{DBLP:dblp_conf/cvpr/ShiM97} on each sub-network and use NMI to be the measure. Tables \ref{table:DBLP_nmi}, \ref{table:yagomovie_nmi} and \ref{table:freebasemovie_nmi} show the results. We observe that sub-network induced by APVPA is better clustered than sub-network corresponding to APA in DBLP. Also MDM and MDMDM are not always better than others. These observations further reflect the poor reach of meta paths APA, MDM and MDMDM.
+%
+%\begin{table}
+%\centering
+%\scriptsize
+%\caption{NMI on sub-networks of DBLP}
+%\label{table:DBLP_nmi}
+%\begin{tabular}{|c|c|c|c|} \hline
+% APA & APAPA & APVPA & APTPA \\ \hline
+%$0.025$ & $0.010$ & $0.654$ & $0.067$\\ \hline
+%\end{tabular}
+%\centering
+%\caption{NMI on sub-networks of Yago Movie}
+%\label{table:yagomovie_nmi}
+%\begin{tabular}{|c|c|c|c|c|c|} \hline
+% MAM & MDM & MWM & MAMAM & MDMDM & MWMWM\\ \hline
+%$0.010$ & $0.024$ & $0.004$ & $0.053$ & $0.019$ & $0.002$\\ \hline
+%\end{tabular}
+%\centering
+%\caption{NMI on sub-networks of Freebase Movie}
+%\label{table:freebasemovie_nmi}
+%\begin{tabular}{|c|c|c|c|c|c|} \hline
+% MAM & MDM & MPM & MAMAM & MDMDM & MPMPM\\ \hline
+%$0.186$ & $0.005$ & $0.003$ & $0.214$ & $0.014$ & $0.009$\\ \hline
+%\end{tabular}
+%\end{table}
+%
+%\begin{table}
+%\centering
+%\tiny
+%\caption{Classification accuracy on sub-networks in DBLP}
+%\label{table:accuracy:dblp_subnetworks}
+%\resizebox{\linewidth}{!}
+%{
+%%\hspace{-0.5cm}
+%\begin{tabular}{|c|c|c|c|c|} \hline
+% percent of & \multirow{2}{*}{APA} & \multirow{2}{*}{APAPA} & \multirow{2}{*}{APVPA} & \multirow{2}{*}{APTPA}\\ 
+%labeled authors&&&&\\\hline
+%$0.1\%$ & $33.0\%$ & $33.7\%$ & $81.7\%$ & $30.0\%$\\ \hline
+%$0.2\%$ & $37.3\%$ & $38.1\%$ & $89.0\%$ & $31.7\%$\\ \hline
+%$0.3\%$ & $39.6\%$ & $41.5\%$ & $89.8\%$ & $33.3\%$\\ \hline
+%$0.4\%$ & $41.8\%$ & $42.7\%$ & $90.3\%$ & $34.4\%$\\ \hline
+%$0.5\%$ & $42.8\%$ & $44.0\%$ & $91.1\%$ & $35.3\%$\\ \hline
+%\end{tabular}
+%}
+%\caption{Classification accuracy on sub-networks in Yago Movie}
+%\label{table:accuracy:yago_subnetworks}
+%\resizebox{1.05\linewidth}{!}
+%{
+%%\hspace{-0.5cm}
+%\begin{tabular}{|c|c|c|c|c|c|c|} \hline
+% percent of & \multirow{2}{*}{MAM} & \multirow{2}{*}{MDM} & \multirow{2}{*}{MWM} & \multirow{2}{*}{MAMAM} & \multirow{2}{*}{MDMDM} & \multirow{2}{*}{MWMWM}\\ 
+%labeled movies&&&&&&\\\hline
+%$1\%$ & $35.9\%$ & $1.0\%$ & $2.4\%$ & $34.9\%$ & $1.0\%$ & $2.6\%$ \\ \hline
+%$2\%$ & $39.1\%$ & $2.1\%$ & $4.6\%$ & $39.1\%$ & $2.0\%$ & $4.7\%$ \\ \hline
+%$3\%$ & $40.6\%$ & $3.0\%$ & $6.2\%$ & $40.7\%$ & $3.1\%$ & $6.2\%$ \\ \hline
+%$4\%$ & $40.8\%$ & $3.9\%$ & $7.6\%$ & $41.0\%$ & $3.9\%$ & $7.5\%$ \\ \hline
+%$5\%$ & $41.5\%$ & $4.8\%$ & $8.8\%$ & $41.3\%$ & $4.8\%$ & $8.7\%$ \\ \hline
+%\end{tabular}
+%}
+%\caption{Classification accuracy on sub-networks in Freebase Movie}
+%\label{table:accuracy:freebase_subnetworks}
+%\resizebox{1.05\linewidth}{!}
+%{
+%%\hspace{-0.5cm}
+%\begin{tabular}{|c|c|c|c|c|c|c|} \hline
+% percent of & \multirow{2}{*}{MAM} & \multirow{2}{*}{MDM} & \multirow{2}{*}{MPM} & \multirow{2}{*}{MAMAM} & \multirow{2}{*}{MDMDM} & \multirow{2}{*}{MPMWPM}\\ 
+%labeled movies&&&&&&\\\hline
+%$1\%$ & $63.5\%$ & $1.4\%$ & $9.2\%$ & $63.7\%$ & $1.2\%$ & $9.6\%$ \\ \hline
+%$2\%$ & $64.0\%$ & $2.7\%$ & $10.8\%$ & $64.3\%$ & $2.7\%$ & $11.0\%$ \\ \hline
+%$3\%$ & $64.5\%$ & $3.8\%$ & $12.3\%$ & $65.2\%$ & $3.8\%$ & $12.1\%$ \\ \hline
+%$4\%$ & $65.1\%$ & $5.0\%$ & $13.1\%$ & $65.5\%$ & $5.0\%$ & $13.4\%$ \\ \hline
+%$5\%$ & $65.7\%$ & $6.1\%$ & $14.1\%$ & $66.0\%$ & $6.1\%$ & $14.4\%$ \\ \hline
+%\end{tabular}
+%}
+%\end{table}
+%From table \ref{table:hin_cohesiveness}, we also find that the cohesiveness of Yago Movie is larger than that of Freebase Movie, but transductive classification performs better on Freebase Movie. Based on new observations, we conclude that cohesiveness is an important factor to transductive classification, but it is not the only one. Since \emph{reach} can affect transductive classification, we propose another assumption.
+%
+%\begin{assumption}
+%For a heterogeneous information network, if objects to be classified are more connected, transductive classification will perform better.
+%\end{assumption}
+%
+%\textcolor{blue}{xxxxxxxxxxx}
+
+\subsection{Connectedness}
+We say that an HIN is highly connected if objects of the same label exhibit {\it strong connectivity}.
+With respect to \tc, this connectivity should facilitate label propagation from one object to another of the same class.
+To illustrate the idea, consider Figure~\ref{figure:compactness}, which shows two object clusters ($\Circle$ and $\Box$) in
+a structural connectivity graph.
+We see that objects in the $\Box$ cluster are strongly connected in the sense that if
+an object in the cluster (say $y_1$) is labeled, the label can be propagated effectively to all other objects in the same cluster.
+The $\Circle$ cluster, on the other hand, is less connected. 
+In particular, if we consider only the intra-cluster edges of the $\Circle$ cluster, the $\Circle$ objects form two isolated components.
+If object $x_1$ in component 1 is labeled, the label cannot be propagated to the objects in component 2 (e.g., $x_2$)
+without going through the $\Box$ cluster.
+Label propagation among the $\Circle$ objects is thus less effective.
+
+We measure the \cnn\ of a cluster $C$ by the number of disconnected components ($\mathit{NDC}(C)$) in $C$ 
+if only intra-cluster edges are considered.
+For example, in Figure~\ref{figure:compactness}, the NDC of the $\Circle$ cluster is 2, while that of the $\Box$ cluster is 1.
+The larger $\mathit{NDC}(C)$ is, the less is the \cnn\ of cluster $C$.
+We normalize this measure to [0,1] and define {\it cluster connectedness}, $\Psi_C$:
+
+%We still divide objects to be classified into different clusters indicated by their labels. Intuitively, if objects within a cluster are connected, label propagation will be promoted. On the contrary, if objects within a cluster are scattered in many disconnected components, label propagation will be blocked between components, which hinders transductive classification. As shown in figure \ref{figure:compactness}, cluster in black contains three components and each component is fully connected. Suppose the label of object B in component 2 is known, but it cannot be directly propagated to components 1 and 3 without going through A. It is more likely that objects in components 1 and 3 to be influenced by A but not B.
+
+\begin{figure}
+    \centering
+        \includegraphics[width = 0.5\linewidth]{figure/Q1_compactness_new.pdf}
+        \caption{An example illustrating \cnn}
+        \label{figure:compactness} %% label for entire figure
+\end{figure}
+
+%To measure the connectivity of an HIN, we still utilize meta paths to derive sub-networks which contain same clusters. Similar to cohesiveness, we first measure the connectivity of a cluster in a sub-network.
+
+%\begin{definition}
+%For any cluster $C$ with $b$ objects, $count(C)$ represents the number of components within it. Obviously, $1\leq count(C)\leq b$. If $count(C) = 1$, all the objects are connected. If $count(C) = b$, all the objects are isolated. Intuitively, the connectivity of a cluster is inversely proportional to $count$ value. In addition, when two clusters have the same $count > 1$, it is reasonable to consider the one with more objects is more compact. Therefore, \emph{cluster compactness} is defined to measure the connectivity of a cluster:
+\begin{equation}
+\label{eq:cluster_compactness}
+\Psi_C=\left\{ \begin{array}{ll}
+               1& \mbox{ when } \mathit{NDC}(C) = 1,\\
+               1-\frac{\mathit{NDC}(C)}{b}& \mbox{ when } \mathit{NDC}(C) > 1,\\
+              \end{array}
+       \right.
+\end{equation}
+%\end{definition}
+where $b$ is the number of objects in $C$.
+
+If there are $k$ clusters $C_1, ..., C_k$, corresponding to  $k$ labels of a classification task, 
+let $\bm{\Psi} = (\Psi_{C_1}, \Psi_{C_2}, ..., \Psi_{C_k})^\mathrm{T}$. 
+We define the \cnn\ of an HIN $G$ as the weighted average of the cluster \cnn:
+%\begin{definition}
+%For a meta path $\mathcal{P}$ induced sub-network $G_{\mathcal{P}}$, suppose there are $N$ clusters $C_1, C_2, ..., C_N$. Each cluster $C_i$ contains $b_i$ objects, $i = 1, 2, ..., N$.
+%Since $G_\mathcal{P}$ consists of $N$ clusters, then we have \emph{sub-network cluster compactness vector} $\bm{\Psi_{G_\mathcal{P}}^\prime} = (\Psi_{C_1}, \Psi_{C_2}, ..., \Psi_{C_N})^\mathrm{T}$. 
+%And \emph{sub-network compactness} is the weighted average for clusters:
+\begin{equation}
+\Psi_G = \bm{\beta}\bm{\Psi},
+\end{equation}
+where $\bm{\beta} = (\frac{b_1}{\sum_{i=1}^k b_i}, \frac{b_2}{\sum_{i=1}^k b_i}, ..., \frac{b_k}{\sum_{i=1}^k b_i})$.
+%\end{definition}
+
+Similar to our discussion of \chn,
+if we use meta-paths $\mathcal{P}_1, ..., \mathcal{P}_r$ in \tc, we evaluate 
+ $\Psi_{G_{\mathcal{P}_j}}$ for each TSSN $G_{\mathcal{P}_j}$.
+The overall
+\cnn\ of an HIN $G$ is the weighted average:
+\begin{equation}
+\Psi_{G} = \sum_{j=1}^r \theta_j \Psi_{G_{\mathcal{P}_j}},
+\end{equation}
+where $\theta_j$'s are the meta-path weights.
+
+Table~\ref{table:cnn} shows the \cnn\ values of our classification tasks. 
+The \cnn\ of the TSSN derived from each meta-path considered is also shown.
+From the table, we see that DBLP has a much higher \cnn\ value (0.942) compared with
+Yago (0.393) and Freebase (0.584). 
+This means that authors of the same area mostly form a single structurally connected component.
+The label of one author can therefore be very effectively propagated to other authors of the same area via meta-paths. 
+Comparing the four meta-paths used in DBLP, we see that the \cnn\ values of APVPA and APTPA are even higher than that of APA.
+The interpretation is that authors of the same area tend to attend the same conferences and use similar keywords in their papers,
+but they do not necessarily co-author with each other. 
+For Yago Movie and Freebase Movie, we see that MAM and MAMAM give relatively high \cnn\ values,
+indicating that movies of the same genre tend to be starred by the same actors. 
+However, the two movie HINs are generally much less connected than DBLP. 
+
+\begin{table}
+\caption{Connectedness of HIN classification tasks}
+\centering
+\tiny
+\begin{tabular}{|c|c|c|c|c|c|c|}  \hline
+\multicolumn{7}{|c|}{DBLP: $\Psi_{\mathit{DBLP}}$ = 0.942} \\ \hline
+$\mathcal{P}$ & APA & APAPA & APVPA & APTPA  & & \\ \hline
+$\Psi_{G_\mathcal{P}}$ & $0.899$ & $0.920$ & $1.0$ & $1.0$ & & \\ \hline \hline
+\multicolumn{7}{|c|}{Yago: $\Psi_{\mathit{Yago}}$ = 0.393} \\ \hline
+$\mathcal{P}$ & MAM & MDM & MWM & MAMAM  & MDMDM & MWMWM  \\ \hline
+$\Psi_{G_\mathcal{P}}$ & $0.567$ & $0.253$ & $0.281$ & $0.690$ & $0.253$ & $0.285$  \\ \hline \hline
+\multicolumn{7}{|c|}{Freebase: $\Psi_{\mathit{Freebase}}$ = 0.584 } \\ \hline
+$\mathcal{P}$ & MAM & MDM & MPM & MAMAM & MDMDM & MPMPM \\ \hline
+$\Psi_{G_\mathcal{P}}$ & $0.970$ & $0.282$ & $0.350$ & $0.992$ & $0.282$ & $0.382$ \\ \hline
+\end{tabular}
+\label{table:cnn}
+\end{table}
+
+Now, let us study how \chn\ and \cnn\ 
+are correlated to classification accuracy. We apply \gm\ on the three classification tasks.
+For each one,
+we further obtain the accuracy when only one meta-path (and its derived TSSN) is used.
+Table~\ref{table:acc} shows the results.
+For example,  if \gm\ uses only the meta-path APA to derive 
+the structural connectivity between objects in DBLP, the classification accuracy is 42.8\%;
+If all four meta-paths are considered, then \gm\ achieves an accuracy of 89.3\%.
+Note that for DBLP, the training set is much smaller (0.5\%) than that of Yago Movie and Freebase Movie (5\%).
+
+\begin{table}
+\caption{Accuracies of applying \gm\ to HINs}
+\centering
+\tiny
+\begin{tabular}{|c|c|c|c|c|c|c|}  \hline
+\multicolumn{7}{|c|}{DBLP: 0.5\% labeled objects, classification accuracy = 89.3\%}  \\ \hline
+$\mathcal{P}$ & APA & APAPA & APVPA & APTPA  & & \\ \hline
+acc. &42.8\% &44.0\% & 91.1\% & 35.3\% & & \\ \hline \hline
+\multicolumn{7}{|c|}{Yago: 5\% labeled objects, classification accuracy = 49.2\%}  \\ \hline
+$\mathcal{P}$ & MAM & MDM & MWM & MAMAM  & MDMDM & MWMWM  \\ \hline
+acc. & $41.5\%$ & $4.8\%$ & $8.8\%$ & $41.3\%$ & $4.8\%$ & $8.7\%$  \\ \hline \hline
+\multicolumn{7}{|c|}{Freebase: 5\% labeled objects, classification accuracy = 65.4\%}  \\ \hline
+$\mathcal{P}$ & MAM & MDM & MPM & MAMAM & MDMDM & MPMPM \\ \hline
+acc. &  $65.7\%$ & $6.1\%$ & $14.1\%$ & $66.0\%$ & $6.1\%$ & $14.4\%$ \\ \hline
+\end{tabular}
+\label{table:acc}
+\end{table}
+
+From Tables~\ref{table:chn}, \ref{table:cnn}, \ref{table:acc}, we draw the following observations:
+
+\noindent{\bf (1)} The \chn\ and \cnn\ of DBLP are both much higher than those of Yago and Freebase, and
+the classification accuracy of DBLP (89.3\%) is also much higher than those of Yago (49.2\%) and Freebase (65.4\%).
+
+\noindent{\bf (2)} For DBLP, the meta-path APVPA gives the highest accuracy (91.1\%). This is because its TSSN is the most
+connected (1.0) and is reasonably cohesive (0.393, which is higher than any \chn\ values in Yago or Freebase).
+
+\noindent{\bf (3)} The accuracy of the TSSN due to meta-path APTPA (35.3\%) is much lower than that of APVPA (91.1\%) although 
+both of them are perfect in their \cnn\ scores (1.0). The reason is that the \chn\ value of APTPA is
+extremely low (0.016). This indicates that, with APTPA, although a label propagates well among objects within the same
+cluster (high \cnn), the label also propagates over to other clusters as well (very low \chn).
+
+\noindent{\bf (4)} For Yago and Freebase, although MDM and MDMDM give relatively cohesive TSSNs ($\Upsilon$: 0.303-0.346)
+among all meta-paths for the two tasks,
+the TSSNs are highly disconnected ($\Psi$: 0.253-0.282).
+This explains why the classification accuracies using only MDM or MDMDM are so poor (6.1\%).
+
+From these observations, we can conclude that  \chn\ and \cnn\ are highly correlated with classification accuracy. 
+Also, both factors are important to the successful application of \tcrs.
+
+
+
+%\begin{definition}
+%Given an HIN $G$ and $K$ meta paths, we first derive $K$ sub-networks which share $N$ clusters $C_1$, $C_2$, $...$, $C_N$. Each cluster $C_i$ contains $b_i$ objects, $i = 1, 2, ..., N$. For an arbitrary cluster $C_i$, we use $\bm{\theta_i} = (\theta_{i_1}, \theta_{i_2}, ..., \theta_{i_K})^\mathrm{T}$ to represent weights of $K$ sub-networks. Let $\bm{\Psi}$ = ($\bm{\Psi_{G_{\mathcal{P}_1}}}$, $\bm{\Psi_{G_{\mathcal{P}_2}}}$, ..., $\bm{\Psi_{G_{\mathcal{P}_K}}})^\mathrm{T}$$\in R^{K \times N}$, $\bm{\theta}$ = ($\bm{\theta_1}$, $\bm{\theta_2}$, ..., $\bm{\theta_N}$)$\in R^{K\times N}$, then \emph{HIN cluster compactness vector} is defined as
+%\begin{equation}
+%\bm{\Psi_G^\prime} = (\bm{\theta_1^\mathrm{T}}\bm{\Psi}[:,1], \bm{\theta_2^\mathrm{T}}\bm{\Psi}[:,2], ..., \bm{\theta_N^\mathrm{T}}\bm{\Psi}[:,N])^\mathrm{T}
+%\end{equation}
+%and \emph{HIN compactness} is the weighted average for clusters:
+%\begin{equation}
+%\label{eq:HIN_compactness}
+%\Psi_G = \bm{\beta^\mathrm{T}}\bm{\Psi_G^\prime}
+%\end{equation}
+%where $\bm{\beta} = (\frac{b_1}{\sum_{i=1}^N b_i}, \frac{b_2}{\sum_{i=1}^N b_i}, ..., \frac{b_N}{\sum_{i=1}^N b_i})^\mathrm{T}$.
+%\end{definition}
+
+%\emph{Compactness} reflects how connected a network is. The experimental results are shown in tables \ref{table:DBLP_compactness}, \ref{table:yagomovie_compactness}, \ref{table:freebasemovie_compactness} and \ref{table:hin_compactness}. We observe that 
+%\newline{\small $\bullet$} sub-networks derived by APVPA, MAM and MAMAM are more compact, thus transductive classification performs better on them.
+%\newline{\small $\bullet$} For APTPA, even though the compactness is large, the cohesiveness is too small, which largely reduces classification accuracy.
+%\newline{\small $\bullet$} DBLP has the largest compactness value, so transductive classification performs best on it.
+%\newline{\small $\bullet$} Compactness of Freebase Movie is much larger than that of Yago Movie, which explains why transductive classification performs better in Freebase Movie.
+%
+%\begin{table}
+%\centering
+%\scriptsize
+%\caption{DBLP sub-network compactness}
+%\label{table:DBLP_compactness}
+%\begin{tabular}{|c|c|c|c|} \hline
+% APA & APAPA & APVPA & APTPA \\ \hline
+%$0.899$ & $0.920$ & $1.0$ & $1.0$\\ \hline
+%\end{tabular}
+%\centering
+%\caption{Yago Movie sub-network compactness}
+%\label{table:yagomovie_compactness}
+%\begin{tabular}{|c|c|c|c|c|c|} \hline
+% MAM & MDM & MWM & MAMAM & MDMDM & MWMWM\\ \hline
+%$0.567$ & $0.253$ & $0.281$ & $0.690$ & $0.253$ & $0.285$\\ \hline
+%\end{tabular}
+%\centering
+%\caption{Freebase Movie sub-network compactness}
+%\label{table:freebasemovie_compactness}
+%\begin{tabular}{|c|c|c|c|c|c|} \hline
+% MAM & MDM & MPM & MAMAM & MDMDM & MPMPM\\ \hline
+%$0.970$ & $0.282$ & $0.350$ & $0.992$ & $0.282$ & $0.382$\\ \hline
+%\end{tabular}
+%\centering
+%\caption{HIN compactness on three datasets}
+%\label{table:hin_compactness}
+%\begin{tabular}{|c|c|c|c|} \hline
+% DBLP & Yago Movie & Freebase Movie \\ \hline
+%$0.942$ & $0.393$ & $0.584$ \\ \hline
+%\end{tabular}
+%\end{table}
+%
+%These observations prove assumption 2 and we summarize:
+%
+%\textbf{Summary:} An HIN with compact connectivity will result in good performance of transductive classification. 
+%
+%\input{tex/question3.tex}
+
+
+
+
+
+
+
+
+
+

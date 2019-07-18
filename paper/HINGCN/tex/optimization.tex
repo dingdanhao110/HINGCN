@@ -1,0 +1,361 @@
+\subsection{Model optimization}
+\label{sec:optimization}
+
+Our objective is to find the best clustering, or equivalently, the indicator vectors $\{\bm{z}_r\}_{r=1}^k$ that 
+minimizes the penalty function $\mathcal{J}()$.
+Note that $\mathcal{J}()$ is a function of $\bml$ and $\bmo$ (which are the weights of meta-paths and object
+attributes), whose values need to be learned as well.
+\schain\ learns these parameters using an iterative mutual update approach. 
+Each iteration consists of two steps. First, given $\bml$ and $\bmo$, we find the optimal clustering 
+$\{\bm{z}_r\}_{r=1}^k$. Second, given $\{\bm{z}_r\}_{r=1}^k$, we
+find the optimal $\bml$ and $\bmo$.
+\schain\ iterates until the change in the penalty is smaller than a threshold $\epsilon$ or 
+a fixed number of iterations have been executed.
+Next, we show how the two update steps are performed.
+
+\subsubsection{Finding the optimal $\{${\boldmath $z$}$_r\}_{r=1}^k$ given {\boldmath $\lambda$} and \boldmath $\omega$}
+
+For fixed values of $\bml$ and $\bmo$, $\mathcal{J}()$ is a function of $\bmz$.
+We define a matrix $\tilde{Z}$, where its $r$-th column
+$\tilde{Z}_{\cdot r}$ 
+equals $D^{\frac{1}{2}}\bm{z}_r/(\bm{z}_r^TD\bm{z}_r)^{\frac{1}{2}}$. 
+Note that since $\tilde{Z}^T\tilde{Z} = I_k$, where $I_k$ is the $k \times k$ identity matrix,
+$\tilde{Z}$ is an orthonormal matrix.
+For fixed values of $\bml$ and $\bmo$, minimizing $\mathcal{J}()$ is equivalent to minimizing:
+%\begin{small}
+\begin{equation}
+\label{eq:obj:trans2}
+\begin{split}
+\mathcal{J}'(\tilde{Z}) & = \mathit{trace}(\tilde{Z}^TD^{-\frac{1}{2}}(D-S-W\circ S)D^{-\frac{1}{2}}\tilde{Z}), \\
+%& = \mathit{trace}(\tilde{Z}^TD^{-\frac{1}{2}}DD^{-\frac{1}{2}}\tilde{Z}-\tilde{Z}^TD^{-\frac{1}{2}}(S+ W\circ S)D^{-\frac{1}{2}}\tilde{Z}) \\
+& = \mathit{trace}(I_k-\tilde{Z}^TD^{-\frac{1}{2}}(S+W\circ S)D^{-\frac{1}{2}}\tilde{Z}).
+\end{split}
+\end{equation}
+%\end{small}
+Since $trace(I_k)$ is a constant, the above is equivalent to solving the following trace maximization problem:
+\begin{equation}
+\begin{split}
+\label{eq:max}
+& \max_{\tilde{Z}^T\tilde{Z} = I_k}\mathit{trace}(\tilde{Z}^TD^{-\frac{1}{2}}(S+W\circ S)D^{-\frac{1}{2}}\tilde{Z}).  \\
+\end{split}
+\end{equation}
+Since $\tilde{Z}$ is a rigorous cluster indicator matrix, the optimization problem is NP-hard~\cite{DBLP:dblp_conf/icml/LongZWY06}.
+To address this issue, we allow real relaxation to $\tilde{Z}$ so that its entries can assume real values. Then,
+according to the Ky-Fan theorem~\cite{bhatia1997matrix}, 
+the maximization problem (\ref{eq:max}) has a closed-form solution that corresponds to the subspace spanned 
+by the top $k$ eigenvectors of $K = D^{-\frac{1}{2}}(S+W\circ S)D^{-\frac{1}{2}}$. 
+Since $\tilde{Z}_{\cdot r} = D^{\frac{1}{2}}\bm{z}_r/(\bm{z}_r^TD\bm{z}_r)^{\frac{1}{2}}$,
+we need to transform each $\tilde{Z}_{\cdot r}$ back to a real-relaxed $\bm z_r$. 
+We first calculate
+$U = D^{-\frac{1}{2}}\tilde{Z}$ and then
+normalize it by column.
+Each column in $U$ is a real-relaxed $\bm z_r$.
+Finally, with the real relaxation, entries in $U$ take on fractional values, so the clustering is not
+definite. To derive a hard clustering, 
+we treat each row in $U$ as a feature vector of an object.
+After row normalization on $U$, we adopt $k$-means to cluster objects.
+%a postprocessing step is required and we adopt $k$-means to convert $\tilde{Z}$ to $\{\bm {z}_r\}_{r=1}^k$.
+%we take the cluster membership values of each object (derivable from $\bmz$)
+%as features of objects and cluster the objects using $k$-means based on these cluster membership features.
+
+\subsubsection{Finding the optimal {\boldmath $\lambda$} and {\boldmath $\omega$} given $\{${\boldmath $z$}$_r\}_{r=1}^k$}
+%After clusters are derived, they can be used to supervise the weight learning of meta paths and attributes, 
+%because different meta paths and attributes play different roles in determining the formation of these clusters.
+%Therefore, we can optimize $\bm \lambda$ and $\bm \omega$ based on the results of $\{\bm z_i\}_{i=1}^k$.
+
+For fixed $\{\bm z_r\}_{r=1}^k$, $\mathcal{J}()$ is a function of $\bml$ and $\bmo$.
+We rewrite Eq.~\ref{eq:obj:trans:reg} as:
+\begin{small}
+\begin{equation}
+\label{eq:obj:trans3}
+\begin{split}
+\mathcal{J}(\bm \lambda, \bm \omega) & = 
+%\sum_{i=1}^k\frac{\bm{z}_i^T(D-S- \mathcal{W} \circ S)\bm{z}_i}{\bm{z}_i^TD\bm{z}_i} + \gamma(||\bm\lambda||^2+||\bm \omega||^2) \\
+%& = 
+\sum_{r=1}^k\frac{\bm{z}_r^TD\bm{z}_r-\bm{z}_r^T(S+ \mathcal{W} \circ S)\bm{z}_r}{\bm{z}_r^TD\bm{z}_r} + \gamma(||\bm\lambda||^2+||\bm \omega||^2), \\
+& = k - \sum_{r=1}^k\frac{\bm{z}_r^T(S+ \mathcal{W} \circ S)\bm{z}_r}{\bm{z}_r^TD\bm{z}_r} + \gamma(||\bm\lambda||^2+||\bm \omega||^2). \\
+%& + \gamma(\|\bm \lambda\|^2 + \sum_{c=1}^k \|A_c\|_F^2),
+\end{split}
+\end{equation}
+\end{small}
+Since $k$ is a constant, minimizing $\mathcal{J}(\bml, \bmo)$ is equivalent to maximizing:
+\begin{equation}
+\label{eq:obj:trans4}
+%\mathcal{J}''(\bml, \bmo) = 
+\max_{\bm \lambda, \bm \omega} \sum_{r=1}^k\frac{\bm{z}_r^T(S+ \mathcal{W} \circ S)\bm{z}_r}{\bm{z}_r^TD\bm{z}_r}
+- \gamma(||\bm \lambda||^2+||\bm \omega||^2).
+\end{equation}
+Note that the entries of matrices $S$ and $D$ are linear functions of $\bml$ and $\bmo$.
+Therefore, the numerator and the denominator of each term in the summation are both linear functions of $\bml$ and $\bmo$.
+Hence, (\ref{eq:obj:trans4})
+can be rewritten as:
+%can be reformulated to a nonlinear polynomial fractional programming (NPFP) problem~\cite{dinkelbach1967nonlinear}.
+
+%\textbf{Nonlinear polynomial fractional programming problem (NPFPP)}.
+%$f(\bm \lambda, \{A_i\}_{i=1}^k) = \sum_{u=1}^p a_u\prod_{j = 1}^{|\mathcal{PS}|}(\lambda_j)^{b_u}\prod_{i=1}^k\prod_{j=1}^{|\mathcal{A}|}((A_i)_{jj})^{c_{uij}}$, 
+%$g(\bm \lambda, \{A_i\}_{i=1}^k) = \sum_{u=1}^q r_u \prod_{j = 1}^{|\mathcal{PS}|}(\lambda_j)^{s_u}\prod_{i=1}^k\prod_{j=1}^{|\mathcal{A}|}((A_i)_{jj})^{t_{uij}}$.
+%Then Eq.~\ref{eq:obj:trans4} can be revised as
+\begin{equation}
+\label{eq:obj:trans5}
+\mathcal{H}(\bml, \bmo) = \max_{\bm \lambda, \bm \omega} \frac{f(\bm \lambda, \bm \omega)}{g(\bm \lambda, \bm \omega)},
+\end{equation}
+where
+$f(\bm \lambda, \bm \omega)$ and $g(\bm \lambda, \bm \omega)$ are two nonlinear multivariate polynomial functions.
+
+It is shown in~\cite{dinkelbach1967nonlinear} that the maximization problem with the form shown in Eq.~\ref{eq:obj:trans5} can be solved by solving the following
+related {\it non-linear parametric programming} problem:
+%It is difficult to directly perform analysis on a NPFP problem to determine the existence of solution, so it is necessary to 
+%convert this kind of problem into an easy-to-solve one. 
+%
+%\begin{theorem}
+%\label{theo:NPFP}~\cite{DBLP:dblp_journals/jgo/TuyTK04}
+%The above NPFP problem is equivalent to the following polynomial programming (PP) problem
+%\begin{equation}
+%\label{eq:obj:trans6}
+%\max_{\bm \lambda, \bm \omega, \eta} \eta f(\bm \lambda, \bm\omega)
+%\end{equation}
+%subject to $\sum_{i=1}^{|\mathcal{PS}|}\lambda_i = 1$,$\lambda_i \geq 0$, $i = 1,2,...|\mathcal{PS}|$,
+%$\sum_{j=1}^{|A|}\omega_j = 1$, $\omega_j \geq 0$, $j = 1,2,...|A|$
+%and $0 \leq \eta \leq 1/g(\bm \lambda, \bm \omega)$.
+%\comment{
+%Proof: Suppose $(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k, \hat \eta)$ is an optimal solution for Eq.~\ref{eq:obj:trans6},
+%obviously, $\hat \eta = 1/g(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k)$ and $\hat \eta f(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k) = 
+%f(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k)/g(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k)$. Then for any solution $(\bm \lambda, \{A_i\}_{i=1}^k)$ for NFPP,
+%setting $\eta = 1/g(\bm \lambda, \{A_i\}_{i=1}^k)$ satisfies the constraints for PPPPC. Since $(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k, \hat \eta)$
+%corresponds to the maximum value of Eq.~\ref{eq:obj:trans6}, we have $\eta f(\bm \lambda, \{A_i\}_{i=1}^k) \leq \hat \eta f(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k)$
+%, i.e., 
+%$f(\bm \lambda, \{A_i\}_{i=1}^k)/g(\bm \lambda, \{A_i\}_{i=1}^k) \leq$ $f(\hat{\bm \lambda},$ $\{\hat A_i\}_{i=1}^k)$$/g(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k)$.
+%Therefore, $(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k)$ solves NFPP.
+%
+%Conversely, suppose $(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k)$ solves NFPP. Then for any solution $(\bm \lambda, \{A_i\}_{i=1}^k, \eta)$ for PPPPC, 
+%we have $\eta f(\bm \lambda, \{A_i\}_{i=1}^k)$ $\leq f(\bm \lambda, \{A_i\}_{i=1}^k)/g(\bm \lambda, \{A_i\}_{i=1}^k) \leq f(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k)/g(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k)$. By setting $\hat \eta = 1/g(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k)$, obviously, $(\hat{\bm \lambda}, \{\hat A_i\}_{i=1}^k, \hat \eta)$ solves PPPPC.
+%}
+%\hfill$\Box$
+%\end{theorem}
+%
+%According to Theorem~\ref{theo:NPFP}, the NPFP problem can be solved by 
+%solving an equivalent PP problem at the cost of adding one more parameter.
+%Obviously, the added parameter brings in new burden and is not preferred.
+%Moreover, it is well known that the key to solving a global optimization problem is to transcend an incumbent value of the objective function,
+%so we can reformulate the NPFP problem into a nonlinear parametric programming (NPP) problem and further simplify it.
+%Using the same symbols in Eq.~\ref{eq:obj:trans5}, we define
+\begin{definition}
+\label{def:npp}
+\textbf{[Non-linear parametric programming (NPP)]}
+Let $f(\bml,\bmo)$ and $g(\bml,\bmo)$ be two multivariate polynomial functions. For a given $\mu$, find
+\begin{equation}
+\label{eq:obj:trans7}
+F(\mu) = \max_{\bm \lambda, \bm \omega} \left( f(\bm \lambda, \bm \omega) - \mu g(\bm \lambda, \bm \omega) \right).
+\end{equation}
+In our context, the parameters $\bml$ and $\bmo$ are subject to the constraints listed at the end of Section~\ref{sec:penalty}.
+%subject to $\sum_{i=1}^{|\mathcal{PS}|}\lambda_i = 1$,$\lambda_i \geq 0$, $i = 1,2,...|\mathcal{PS}|$ and
+%$\sum_{j=1}^{|A|}\omega_j \newline= 1$, $\omega_j \geq 0$, $j = 1,2,...|A|$.
+\hfill$\Box$
+\end{definition}
+In~\cite{dinkelbach1967nonlinear}, the following theorem is proved.
+\begin{theorem}
+\label{theorem2}
+Given a fixed $\mu$, let $({\bm \lambda^*}, {\bm \omega^*})$ be the optimal solution to $F(\mu)$ (Eq.~\ref{eq:obj:trans7}).
+$(\bm \lambda^*, \bm \omega^*)$ is also an optimal solution to $\mathcal{H}(\bml, \bmo)$ (Eq.~\ref{eq:obj:trans5}) if and only if $F(\mu) = 0$.
+%$f(\bm \lambda, \{A_i\}_{i=1}^k) = \sum_{u=1}^p a_u \prod_{j = 1}^{|\mathcal{PS}|}(\lambda_j)^{b_u}\prod_{i=1}^k$ $\prod_{j=1}^{|\mathcal{A}|}((A_i)_{jj})^{c_{uij}}$, 
+%$g(\bm \lambda, \{A_i\}_{i=1}^k) = \sum_{u=1}^q r_u \prod_{j = 1}^{|\mathcal{PS}|}(\lambda_j)^{s_u}\prod_{i=1}^k$ $\prod_{j=1}^{|\mathcal{A}|}((A_i)_{jj})^{t_{uij}}$.
+\hfill$\Box$
+\end{theorem}
+
+Besides Theorem~\ref{theorem2}, a few lemmas are also proved in~\cite{dinkelbach1967nonlinear}:
+%Theorem~\ref{theorem2} reduces the NPFP problem to a NPP problem \emph{in the same parameter space},
+%which is much simpler compared with PP problem. Also it is much easier to solve a NPP problem than a NPFP problem.
+%Besides, we have some lemmas to help with the optimization.
+
+\begin{lemma}
+\label{lemma1}
+$F(\mu)$ is convex.
+\comment{
+Proof: Suppose $(\bm \lambda, \{A_i\}_{i=1}^k)$ is the solution corresponding to $\mu = t\mu_1 + (1-t)\mu_2$,
+where $\mu_1 \neq \mu_2, 0 \leq t \leq 1$. Then we have $F(\mu) = f(\bm \lambda, \{A_i\}_{i=1}^k) - \mu g(\bm \lambda, \{A_i\}_{i=1}^k)
+= f(\bm \lambda, \{A_i\}_{i=1}^k) - (t\mu_1 + (1-t)\mu_2)g(\bm \lambda, \{A_i\}_{i=1}^k) = t(f(\bm \lambda, \{A_i\}_{i=1}^k) - \mu_1g(\bm \lambda, \{A_i\}_{i=1}^k))
++ (1-t)(f(\bm \lambda, \{A_i\}_{i=1}^k) - \mu_2g(\bm \lambda, \{A_i\}_{i=1}^k))$.
+Obviously, $f(\bm \lambda, \{A_i\}_{i=1}^k) - \mu_1g(\bm \lambda, \{A_i\}_{i=1}^k) \leq F(\mu_1)$ and 
+$f(\bm \lambda, \{A_i\}_{i=1}^k) - \mu_2g(\bm \lambda, \{A_i\}_{i=1}^k) \leq F(\mu_2)$,
+which induces $F(t\mu_1 + (1-t)\mu_2) \leq tF(\mu_1)+(1-t)F(\mu_2)$.
+}
+\hfill$\Box$
+\end{lemma}
+\begin{lemma}
+\label{lemma2}
+$F(\mu)$ is continuous.
+\hfill$\Box$
+\end{lemma}
+\begin{lemma}
+\label{lemma3}
+$F(\mu)$ is strictly monotonically decreasing, i.e., if $\mu_1 < \mu_2$, $F(\mu_1) > F(\mu_2)$.
+\comment{
+Proof: Suppose $(\hat{\bm \lambda}, \{\hat{A}_i\}_{i=1}^k)$ is the solution corresponding to $\mu_2$. 
+Then we have $F(\mu_2) = f(\hat{\bm \lambda}, \{\hat{A}_i\}_{i=1}^k) - \mu_2g(\hat{\bm \lambda}, \{\hat{A}_i\}_{i=1}^k) 
+< f(\hat{\bm \lambda}, \{\hat{A}_i\}_{i=1}^k) - \mu_1g(\hat{\bm \lambda}, \{\hat{A}_i\}_{i=1}^k) \leq 
+\max_{\bm \lambda, \{A_i\}_{i=1}^k} f(\bm \lambda, \{A_i\}_{i=1}^k) - \mu_1 g(\bm \lambda, \{A_i\}_{i=1}^k) = F(\mu_1)$
+}
+\hfill$\Box$
+\end{lemma}
+\begin{lemma}
+\label{lemma4}
+$F(\mu) = 0$ has a unique solution.
+\hfill$\Box$
+\end{lemma}
+Due to space limit, 
+readers are referred to~\cite{dinkelbach1967nonlinear, stancu2012fractional} for the proofs of the theorem and lemmas.
+
+From Theorem~\ref{theorem2}, we need to find
+a $\mu^*$ and its corresponding $({\bm \lambda^*}, {\bm \omega^*})$ such that $F(\mu^*) = 0$.
+\schain\ does so by an iterative numerical method.
+In each iteration, \schain\ computes a $\mu$ and $(\bml, \bmo)$.
+Let $\mu_i$, $(\bml_i, \bmo_i)$ be those computed in the $i$-th iteration.
+\schain\ first sets $\mu_1 = 0$ and in each iteration, performs two steps:
+(Step 1:) Solve the NPP problem (Eq.~\ref{eq:obj:trans7}) for $\mu = \mu_i$ and set $(\bml_i, \bmo_i)$ to be the solution found. 
+(Step 2:) Set $\mu_{i+1} = f(\bml_i, \bmo_i)/g(\bml_i, \bmo_i)$.
+Next, we show theoretical properties of this update process.
+
+\noindent{\bf Property 1:}
+$\bm{F(\mu_1) > 0}$. 
+Without loss of generality, we assume $f(\bml, \bmo) > 0$ and $g(\bml, \bmo) > 0$.\footnote{One can show that the quantity (\ref{eq:obj:trans4})
+is bounded below by $-2\gamma$. We can add an arbitrary large constant to (\ref{eq:obj:trans4}) to make it, and thus 
+$f(\bml, \bmo)$ and $g(\bml, \bmo)$, positive.}
+Now, $F(\mu_1)$ = $F(0)$ = $\max_{\bml, \bmo} f(\bm \lambda, \bm \omega) > 0$.
+
+\noindent{\bf Property 2: if} $\bm{F(\mu_i) > 0}$ {\bf then} 
+$\bm {0 \leq F(\mu_{i+1}) < F(\mu_i)}$.
+Since $(\bml_i, \bmo_i)$ is the solution of the NPP problem for $\mu = \mu_i$ (Eq. \ref{eq:obj:trans7}),
+we have $f(\bml_i, \bmo_i) - \mu_i g(\bml_i, \bmo_i) = F(\mu_i) > 0$.
+Hence, $\mu_{i+1} = f(\bml_i, \bmo_i)/g(\bml_i, \bmo_i) > \mu_i$.
+By Lemma~\ref{lemma3}, $F(\mu_{i+1}) < F(\mu_i)$.
+Also, we have
+$F(\mu_{i+1})$ = $\max_{\bm \lambda, \bm \omega} ( f(\bm \lambda, \bm \omega) -\mu_{i+1}g(\bm \lambda, \bm \omega))
+\geq f(\bm \lambda_i, \bm \omega_i) - \mu_{i+1} g(\bm \lambda_i, \bm \omega_i) = 0$.
+
+From the properties, we see that \schain\ starts with a positive $F(\mu)$, whose value 
+stays positive and decreases across iterations until it reaches 0.
+The update procedure thus converges to the optimal values.
+%The process is repeated until a certain maximum number of iterations have been executed, or until $F(\mu_i)$ becomes
+%negative for some iteration $i$. 
+%In the latter case, due to Lemma~\ref{lemma3}, we know that $\mu^* \in [\mu_{i-1}, \mu_i]$.
+%\schain\ then switches to the bisection method:
+%It computes $\mu_{i+1} = (\mu_{i-1} + \mu_i)/2$, and repeats either with the interval $[\mu_{i-1}, \mu_{i+1}]$ or $[\mu_{i+1}, \mu_i]$,
+%depending on which interval contains $\mu^*$. 
+The \schain\ algorithm is summarized in Algorithm~\ref{alg}.
+\begin{algorithm}
+\begin{small}
+\caption{SCHAIN}
+\label{alg}
+\begin{algorithmic}[1]
+%\Require $G=(V, E)$, $A$, meta-paths $\mathcal{P}$'s, $\mathcal{X}_i$, $\mathcal{L}$, $D$, $B$, $N_s$.
+\Require $G$, $\mathcal{M}$, $\mathcal{C}$, $T_i$, $k$, $\mathcal{PS}$.
+\Ensure $\mathfrak{C} = \{C_1, ..., C_k\}$
+\State Compute similarity matrices $S_A$, $S_L$, and $S$
+\State $t=0$, $\Delta \mathcal{J} = \infty$
+%\State Derive $S$ by Eq.~\ref{eq:S}
+\State $\bm \lambda = (\frac{1}{|\mathcal{PS}|}, ..., \frac{1}{|\mathcal{PS}|})$;
+$\bm \omega = (\frac{1}{|A_i|}, ..., \frac{1}{|A_i|})$
+%\State Calculate $\mathit{QS}(D)$
+\While{$\Delta \mathcal{J} > \epsilon$ or $t$ < max\_iter}
+%\State Construct $\mathcal{M}$ and $\mathcal{C}$
+\LeftComment Step 1: Optimize $\{\bm z_r\}_{r=1}^k$ given {$\bm \lambda$} and $\bm \omega$
+\State Solve Eq.~\ref{eq:max} to obtain real-relaxed $\tilde{Z}$
+\State Calculate $U=D^{-1/2}\tilde{Z}$ and normalize it
+\State Derive $\{{\bm z}_r\}_{r=1}^k$ from $U$ by k-means
+\LeftComment Step 2: Optimize {$\bm \lambda$} and $\bm \omega$ given $\{${$\bm z$}$_r\}_{r=1}^k$
+\State $j=1$; $\mu_j = 0$
+%\For{$j = 0$ to $F(\mu)$ converges to 0}
+\Repeat
+\State Solve Eq.~\ref{eq:obj:trans7} with $\mu = \mu_j$ to obtain ${\bm \lambda}_{j}$, ${\bm \omega}_{j}$
+\State $\mu_{j+1} = f({\bm \lambda}_{j}, {\bm \omega}_{j}) / g({\bm \lambda}_{j}, {\bm \omega}_{j})$; $j$++
+\Until  $F(\mu_{j+1})$ converges to 0%($j$ > max\_iter2) %or ($F(\mu_j) < 0$) 
+%\If{($F(\mu_j) < 0$)}
+%\State use bisection method to determine $\bml$, $\bmo$
+%\Else 
+%\State $\bml = \bml_j$; $\bmo = \bmo_j$
+%\EndIf
+\State $\Delta \mathcal{J}$ = change in $\mathcal{J}$ with the updated $\{{\bm z_r}\}_{r=1}^k$, $\bml$, $\bmo$
+\State $t$++
+%\State $\bm \lambda^{t+1} = \hat{\bm \lambda}^{j+1}$; $\bm \omega^{t+1} = \hat{\bm \omega}^{j+1}$
+\EndWhile
+\State Decode $\{C_r\}_{r=1}^k$ from $\{{\bm z_r}\}_{r=1}^k$
+\State \Return $\mathfrak{C} = \{C_1, ..., C_k\}$
+\end{algorithmic}
+\end{small}
+\end{algorithm}
+
+
+
+
+
+
+\comment{
+
+In conclusion, to solve a NPFP problem, we need to first convert it into a NPP problem. 
+To solve the NPP problem, it involves in two steps. The first step is to select a $\mu$ value and the second one is to solve the maximization problem in
+Eq.~\ref{eq:obj:trans7} to get $(\bm \lambda, \bm \omega)$ and $F(\mu)$.
+Since the final aim is to find the $\mu$ which makes $F(\mu) = 0$,
+we adopt an iterative two-step update strategy to perform optimization.
+Step 1: given a $\mu$, solve the maximization problem in Eq.~\ref{eq:obj:trans7} to get $(\bm \lambda, \bm \omega)$ and the $F(\mu)$ value.
+Step 2: given $(\bm \lambda, \bm \omega)$, calculate a new $\mu$ value.
+Due to the monotonically decreasing property of $F(\mu)$,
+we can start from a $\mu$ which makes $F(\mu) > 0$. 
+%and $F(0) = \max_{\bm \lambda, \bm \omega} f(\bm \lambda, \bm \omega) > 0$, 
+%we can start from $\mu = 0$. 
+After $(\bm \lambda, \bm \omega)$ is calculated, according to Proposition~\ref{prop1}, we assign $\mu = f(\bm \lambda, \bm \omega)/g(\bm \lambda, \bm \omega)$.
+The iteration repeats until $F(\mu) = 0$.
+
+Since $||\bm \lambda||^2 \leq 1$ and $||\bm \omega||^2 \leq 1$,
+we usually add a term $2\gamma$ to the end of Eq.~\ref{eq:obj:trans4} 
+to ensure $-\gamma(||\bm \lambda|| ^ 2 + ||\bm \omega||^2) + 2\gamma \geq 0$.
+On the one hand, the added term is irrelevant to $\bm \lambda$ and $\bm \omega$,
+so it will not influence the optimization result.
+On the other hand, it can ensure the derived $f(\bm \lambda, \bm \omega) > 0$ in Eq.~\ref{eq:obj:trans5}.
+Since $F(0) = \max f(\bm \lambda, \bm \omega) > 0$,
+we can safely start from $\mu = 0$.
+
+
+\begin{proposition}
+\label{prop1}
+Suppose $F(\hat \mu) > 0$ and $(\hat{\bm \lambda}, \hat{\bm \omega})$ solves Eq.~\ref{eq:obj:trans7} corresponding to $\hat \mu$, 
+then $f(\hat{\bm \lambda}, \hat{\bm \omega})/g(\hat{\bm \lambda}, \hat{\bm \omega}) > \hat \mu$.
+
+Proof: $F(\hat \mu) = \max_{\bm \lambda, \bm \omega} f(\bm \lambda, \bm \omega) - \hat \mu g(\bm \lambda, \bm \omega) =
+f(\hat{\bm \lambda}, \hat{\bm \omega}) - \hat \mu g(\hat{\bm \lambda}, \hat{\bm \omega}) > 0$.
+$g$ derives from Eq.~\ref{eq:obj:trans4}, as the denominator,
+$g(\hat{\bm \lambda}, \hat{\bm \omega}) > 0$,
+so we have $f(\hat{\bm \lambda}, \hat{\bm \omega})/g(\hat{\bm \lambda}, \hat{\bm \omega}) > \hat \mu$.
+\hfill$\Box$
+\end{proposition}
+
+Based on the above iterative optimization method, the model will finally converge.
+Proofs are listed as follows.
+\begin{theorem}
+\label{theorem3}
+The proposed model finally converges.
+
+Proof: The objective is to minimize Eq.~\ref{eq:obj:trans:reg}, which includes three parts.
+First, $0 \leq \bm{z}_i^T(D-S)\bm{z}_i / \bm{z}_i^TD\bm{z}_i \leq 1$.
+Second, for $-(\bm{z}_i^TW\circ S\bm{z}_i / \bm{z}_i^TD\bm{z}_i)$, we consider two extreme cases:
+if all the object pairs in cluster $i$ are in the must-link set $\mathcal{M}$, then $0 \leq \bm{z}_i^TW\circ S\bm{z}_i / \bm{z}_i^TD\bm{z}_i \leq 1$;
+if all the object pairs in cluster $i$ are in the cannot-link set $\mathcal{C}$, then $-1 \leq \bm{z}_i^TW\circ S\bm{z}_i / \bm{z}_i^TD\bm{z}_i \leq 0$,
+so $-1 \leq \bm{z}_i^TW\circ S\bm{z}_i / \bm{z}_i^TD\bm{z}_i \leq 1$, i.e., $-1 \leq -(\bm{z}_i^TW\circ S\bm{z}_i / \bm{z}_i^TD\bm{z}_i) \leq 1$.
+Third, since $\gamma \geq 0$, $\gamma (||\bm \lambda||^2 + ||\bm \omega||^2)$ is convex, the constraints on $\bm \lambda$ and $\bm \omega$ are 
+also convex, so  
+%$\sum_{i=1}^{|\mathcal{PS}|}\lambda_i = 1$, $\sum_{i=1}^{|\mathcal{PS}|}\lambda_i = 1$,$\lambda_i \geq 0$ and $\lambda_j \geq 0$,
+it must have a minimum value.
+In conclusion, Eq.~\ref{eq:obj:trans:reg} has a lower bound.
+
+Furthermore, the iterative optimization method, either optimizing $\{${\boldmath $z$}$_i\}_{i=1}^k$ or 
+updating $\bm \lambda$ and $\bm \omega$, always decreases the objective function, so the convergence is guaranteed.
+\hfill$\Box$
+\end{theorem}
+
+}
+
+
+
+
+
+
+

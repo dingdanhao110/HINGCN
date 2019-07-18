@@ -1,5 +1,5 @@
 import numpy as np
-
+import scipy.sparse as sp
 
 def read_embed(path="./data/dblp/",
                emb_file="RUBK"):
@@ -263,5 +263,57 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
     pass
 
 
+def gen_homoadj(path = "data/yelp/", out_file = "homograph"):
+
+    label_file = "attributes"
+    RB_file = "RB"
+    RK_file = "RK"
+    RU_file = "RU"
+
+    RB = np.genfromtxt("{}{}.txt".format(path, RB_file),
+                   dtype=np.int32)
+    RK = np.genfromtxt("{}{}.txt".format(path, RK_file),
+                   dtype=np.int32)
+    RU = np.genfromtxt("{}{}.txt".format(path, RU_file),
+                   dtype=np.int32)
+    RB[:, 0] -= 1
+    RB[:, 1] -= 1
+    RK[:, 0] -= 1
+    RK[:, 1] -= 1
+    RU[:, 0] -= 1
+    RU[:, 1] -= 1
+
+    rate_max = max(RB[:, 0]) + 1   #33360
+    busi_max = max(RB[:, 1]) + 1   #2614
+    key_max = max(RK[:, 1]) + 1    #82
+    user_max = max(RU[:, 1]) + 1   #1286
+
+    # busi: [0,busi_max)
+    # rate: [busi_max,busi_max+rate_max)
+    # key: [busi_max+rate_max,busi_max+rate_max+key_max)
+    # user: [busi_max+rate_max+key_max,busi_max+rate_max+key_max+user_max)
+
+    RB = sp.coo_matrix((np.ones(RB.shape[0]), (RB[:, 0], RB[:, 1])),
+                       shape=(rate_max, busi_max),
+                       dtype=np.int32)
+    RK = sp.coo_matrix((np.ones(RK.shape[0]), (RK[:, 0], RK[:, 1])),
+                       shape=(rate_max, key_max),
+                       dtype=np.int32)
+    RU = sp.coo_matrix((np.ones(RU.shape[0]), (RU[:, 0], RU[:, 1])),
+                       shape=(rate_max, user_max),
+                       dtype=np.int32)
+
+    BRURB = RB.transpose()*RU*RU.transpose()*RB
+    BRKRB = RB.transpose()*RK*RK.transpose()*RB
+
+    BRURB = np.hstack([BRURB.nonzero()[0].reshape(-1,1), BRURB.nonzero()[1].reshape(-1,1)])
+    BRKRB = np.hstack([BRKRB.nonzero()[0].reshape(-1,1), BRKRB.nonzero()[1].reshape(-1,1)])
+
+    
+    np.savetxt("{}{}.txt".format(path, 'BRURB'),BRURB,fmt='%u')
+    np.savetxt("{}{}.txt".format(path, 'BRKRB'),BRKRB,fmt='%u')
+
+
 # gen_homograph()
-dump_yelp_edge_emb(path='../../../data/yelp/')
+#dump_yelp_edge_emb(path='../../../data/yelp/')
+gen_homoadj()

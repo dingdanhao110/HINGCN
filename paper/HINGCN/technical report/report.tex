@@ -1,0 +1,266 @@
+%\documentclass[sigconf]{acmart}
+
+%\documentclass[sigconf, anonymous, review]{acmart}
+\documentclass[sigconf,anonymous]{acmart}
+
+\usepackage{booktabs} % For formal tables
+
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{pifont}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{array}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{xcolor}
+\usepackage{wasysym}
+\usepackage{hyperref}
+\usepackage{subfig}
+
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}  % Use Input in the format of Algorithm
+\renewcommand{\algorithmicensure}{\textbf{Output:}} % Use Output in the format of Algorithm
+\algnewcommand{\LeftComment}[1]{\State \(\triangleright\) #1}
+
+%\newdef{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+%\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\newtheorem{summary}{Summary}
+\newtheorem{example}{Example}
+\newtheorem{conclusion}{Conclusion}
+
+\newcommand{\sij}{S_{ij}}
+\newcommand{\zij}{Z_{ij}}
+\newcommand{\bme}{{\bm e}}
+\newcommand{\bmv}{{\bm v}}
+\newcommand{\bmz}{{\bm z}}
+\newcommand{\bmw}{{\bm w}}
+\newcommand{\ben}[1]{\textcolor{red}{#1}}
+\newcommand{\ev}{eigenvector}
+\newcommand{\pev}{pseudo-eigenvector}
+\newcommand{\xarrow}[2]{x_{#1} \rightarrow x_{#2}}
+
+\newcommand{\ngd}{\emph{20ngD}} 
+\newcommand{\mnist}{\emph{MNIST0127}}
+\newcommand{\yale}{\emph{Yale\_5\textsc{class}}}
+\newcommand{\coil}{\emph{COIL20}}
+\newcommand{\isolet}{\emph{isolet\_5\textsc{class}}}
+\newcommand{\seg}{\emph{seg\_7\textsc{class}}}
+\newcommand{\yeast}{\emph{Yeast\_4\textsc{class}}}
+\newcommand{\glass}{\emph{glass}}
+
+
+\long\def\comment#1{}
+
+\setcopyright{rightsretained}
+%\setcopyright{usgov}
+%\setcopyright{usgovmixed}
+%\setcopyright{cagov}
+%\setcopyright{cagovmixed}
+
+\settopmatter{printacmref=false, printfolios=false}
+\pagestyle{plain}
+
+\comment{
+% DOI
+\acmDOI{10.475/123_4}
+
+% ISBN
+\acmISBN{123-4567-24-567/08/06}
+
+%Conference
+\acmConference[WOODSTOCK'97]{ACM Woodstock conference}{July 1997}{El
+  Paso, Texas USA} 
+\acmYear{1997}
+\copyrightyear{2016}
+
+
+\acmArticle{4}
+\acmPrice{15.00}
+}
+
+% These commands are optional
+%\acmBooktitle{Transactions of the ACM Woodstock conference}
+%\editor{Jennifer B. Sartor}
+%\editor{Theo D'Hondt}
+%\editor{Wolfgang De Meuter}
+
+
+\begin{document}
+\title{ROSC: Robust Spectral Clustering on Multi-scale Data}
+
+%\numberofauthors{1} %  in this sample file, there are a *total*
+% of EIGHT authors. SIX appear on the 'first-page' (for formatting
+% reasons) and the remaining two appear in the \additionalauthors section.
+
+\author{Ben Trovato}
+\authornote{Dr.~Trovato insisted his name be first.}
+\orcid{1234-5678-9012}
+\affiliation{%
+  \institution{Institute for Clarity in Documentation}
+  \streetaddress{P.O. Box 1212}
+  \city{Dublin} 
+  \state{Ohio} 
+  \postcode{43017-6221}
+}
+\email{trovato@corporation.com}
+
+\author{G.K.M. Tobin}
+\authornote{The secretary disavows any knowledge of this author's actions.}
+\affiliation{%
+  \institution{Institute for Clarity in Documentation}
+  \streetaddress{P.O. Box 1212}
+  \city{Dublin} 
+  \state{Ohio} 
+  \postcode{43017-6221}
+}
+\email{webmaster@marysville-ohio.com}
+
+\author{Lars Th{\o}rv{\"a}ld}
+\authornote{This author is the
+  one who did all the really hard work.}
+\affiliation{%
+  \institution{The Th{\o}rv{\"a}ld Group}
+  \streetaddress{1 Th{\o}rv{\"a}ld Circle}
+  \city{Hekla} 
+  \country{Iceland}}
+\email{larst@affiliation.org}
+
+\author{Valerie B\'eranger}
+\affiliation{%
+  \institution{Inria Paris-Rocquencourt}
+  \city{Rocquencourt}
+  \country{France}
+}
+\author{Aparna Patel} 
+\affiliation{%
+ \institution{Rajiv Gandhi University}
+ \streetaddress{Rono-Hills}
+ \city{Doimukh} 
+ \state{Arunachal Pradesh}
+ \country{India}}
+\author{Huifen Chan}
+\affiliation{%
+  \institution{Tsinghua University}
+  \streetaddress{30 Shuangqing Rd}
+  \city{Haidian Qu} 
+  \state{Beijing Shi}
+  \country{China}
+}
+
+\author{Charles Palmer}
+\affiliation{%
+  \institution{Palmer Research Laboratories}
+  \streetaddress{8600 Datapoint Drive}
+  \city{San Antonio}
+  \state{Texas} 
+  \postcode{78229}}
+\email{cpalmer@prl.com}
+
+\author{John Smith}
+\affiliation{\institution{The Th{\o}rv{\"a}ld Group}}
+\email{jsmith@affiliation.org}
+
+\author{Julius P.~Kumquat}
+\affiliation{\institution{The Kumquat Consortium}}
+\email{jpkumquat@consortium.net}
+
+% The default list of authors is too long for headers.
+\renewcommand{\shortauthors}{X. Li et al.}
+
+\newcommand{\bmx}{\bm{x}}
+
+\comment{
+\begin{abstract}
+We investigate the effectiveness of spectral methods in clustering multi-scale data, which is data whose
+clusters are of various sizes and densities. 
+We review existing spectral methods that are designed to handle multi-scale data
+and propose an alternative approach that is orthogonal to existing methods. 
+We put forward the algorithm ROSC, which computes an affinity matrix $\tilde{Z}$ that takes 
+into account both objects' feature similarity and reachability similarity. 
+We perform extensive experiments comparing ROSC against 9 other spectral methods
+on both real and synthetic datasets. 
+%Our results show that ROSC significantly outperforms others over a wide spectrum of datasets.  
+Our results show that ROSC performs very well against the competitors. 
+In particular, it is very robust in that it consistently performs well over all the datasets tested.
+Also, it outperforms others by wide margins for datasets that are highly multi-scale.
+\end{abstract}
+}
+%\begin{CCSXML}
+%<ccs2012>
+% <concept>
+%  <concept_id>10010520.10010553.10010562</concept_id>
+%  <concept_desc>Computer systems organization~Embedded systems</concept_desc>
+%  <concept_significance>500</concept_significance>
+% </concept>
+% <concept>
+%  <concept_id>10010520.10010575.10010755</concept_id>
+%  <concept_desc>Computer systems organization~Redundancy</concept_desc>
+%  <concept_significance>300</concept_significance>
+% </concept>
+% <concept>
+%  <concept_id>10010520.10010553.10010554</concept_id>
+%  <concept_desc>Computer systems organization~Robotics</concept_desc>
+%  <concept_significance>100</concept_significance>
+% </concept>
+% <concept>
+%  <concept_id>10003033.10003083.10003095</concept_id>
+%  <concept_desc>Networks~Network reliability</concept_desc>
+%  <concept_significance>100</concept_significance>
+% </concept>
+%</ccs2012>  
+%\end{CCSXML}
+%
+%\ccsdesc[500]{Computer systems organization~Embedded systems}
+%\ccsdesc[300]{Computer systems organization~Redundancy}
+%\ccsdesc{Computer systems organization~Robotics}
+%\ccsdesc[100]{Networks~Network reliability}
+%
+
+%\keywords{Clustering, robust spectral clustering, multi-scale data}
+
+\maketitle
+
+\input{algorithm.tex}
+
+\newpage
+
+
+
+%\end{document}  % This is where a 'short' article might terminate
+
+% ensure same length columns on last page (might need two sub-sequent latex runs)
+
+%ACKNOWLEDGMENTS are optional
+\comment{
+\section{Acknowledgments}
+This section is optional; it is a location for you
+to acknowledge grants, funding, editing assistance and
+what have you.  In the present case, for example, the
+authors would like to thank Gerald Murray of ACM for
+his help in codifying this \textit{Author's Guide}
+and the \textbf{.cls} and \textbf{.tex} files that it describes.
+}
+
+% The following two commands are all you need in the
+% initial runs of your .tex file to
+% produce the bibliography for the citations in your paper.
+\bibliographystyle{ACM-Reference-Format}
+
+%\bibliographystyle{abbrv}
+
+\bibliography{sc}  % vldb_sample.bib is the name of the Bibliography in this case
+% You must have a proper ".bib" file
+%  and remember to run:
+% latex bibtex latex latex
+% to resolve all references
+
+%APPENDIX is optional.
+% ****************** APPENDIX **************************************
+% Example of an appendix; typically would start on a new page
+%pagebreak
+
+
+\end{document}

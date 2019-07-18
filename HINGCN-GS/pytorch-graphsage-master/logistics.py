@@ -108,7 +108,7 @@ if __name__ == "__main__":
 
     # --
     # Load problem
-    schemes = ['APA',]  # ,'APAPA','APCPA'  yelp: 'BRURB', 'BRKRB'; YAGO: 'MAM','MDM','MWM'
+    schemes = ['BRURB',]  # ,'APAPA','APCPA'  yelp: 'BRURB', 'BRKRB'; YAGO: 'MAM','MDM','MWM'
     device = torch.device("cuda:0" if torch.cuda.is_available() and args.cuda else "cpu")
     problem = NodeProblem(problem_path=args.problem_path, problem=args.problem, device=device, schemes=schemes)
 

@@ -916,6 +916,92 @@ class MetapathAttentionLayer(nn.Module):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
 
 
+
+class MetapathGateLayer(nn.Module):
+    """
+    metapath gated attention layer.
+    """
+
+    def __init__(self, in_features,n_head=4, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False):
+        super(MetapathGateLayer, self).__init__()
+        # self.dropout = dropout
+        self.input_dim = in_features
+        self.output_dim = in_features
+        self.alpha = alpha
+        self.dropout = nn.Dropout(p=dropout)
+        self.batchnorm = batchnorm
+
+        self.att = nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, in_features, bias=False),
+        ])
+
+        self.mlp = nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, in_features),
+        ])
+
+        #a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))
+        #nn.init.xavier_uniform_(a.data, gain=1.414)
+        #self.register_parameter('a', a)
+
+        self.leakyrelu = nn.LeakyReLU(self.alpha)
+
+        self.gate=nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, in_features, bias=False),
+        ])
+        self.update=nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim, bias=False),
+            nn.Tanh(),
+            nn.Linear(hidden_dim, in_features, bias=False),
+        ])
+
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.output_dim)
+
+    def forward(self, input):
+        """
+        :param input: tensor(nmeta,N,in_features)
+        :return:
+        """
+        n_meta = input.shape[0]
+        input = input.transpose(0, 1)  # tensor(N,nmeta,in_features)
+        N = input.size()[0]
+        input_dim = input.shape[2]
+
+        input = input.contiguous()
+        gate_input = F.sigmoid(self.gate(input))
+        update_input = F.tanh(self.update(input))
+        output = gate_input*update_input
+
+        output = torch.sum(output,dim=1).squeeze()
+        
+        #a_input = self.att(input)
+        #e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))   #e: tensor(N,nmeta)
+        #e = F.softmax(e, dim=1).view(N, 1, n_meta)
+
+        #output = torch.bmm(e, input).squeeze()
+
+        output = self.dropout(output)
+        outout = self.mlp(output)
+
+        if self.batchnorm:
+            output = self.bn(output)
+
+        #weight = torch.sum(e.view(N, n_meta), dim=0) / N
+        weight=None
+
+        return F.relu(output), weight
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
+
+
 class MetapathAttentionLayerWBackground(nn.Module):
     """
     metapath attention layer.
@@ -1078,6 +1164,7 @@ metapath_aggregator_lookup = {
     "attention2": MetapathAttentionLayerWBackground,
     "concat": MetapathConcatLayer,
     "LSTM":MetapathLSTMLayer,
+    "gate":MetapathGateLayer,
 }
 
 edge_aggregator_lookup = {

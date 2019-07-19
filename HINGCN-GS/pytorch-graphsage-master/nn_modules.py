@@ -1136,6 +1136,96 @@ class MetapathLSTMLayer(nn.Module):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
 
 
+class MetapathGRULayer(nn.Module):
+    """
+    metapath gated recurrent unit layer.
+    """
+
+    def __init__(self, in_features,n_head=4, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False):
+        super(MetapathGRULayer, self).__init__()
+        # self.dropout = dropout
+        self.input_dim = in_features
+        self.output_dim = in_features
+        self.alpha = alpha
+        self.dropout = nn.Dropout(p=dropout)
+        self.batchnorm = batchnorm
+
+        #self.att = nn.Sequential(*[
+        #    nn.Linear(in_features, hidden_dim, bias=False),
+        #    nn.Tanh(),
+        #    nn.Linear(hidden_dim, hidden_dim, bias=False),
+        #])
+
+        self.mlp = nn.Sequential(*[
+            nn.Linear(hidden_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, in_features),
+        ])
+
+        m = nn.Parameter(torch.zeros(size=(n_head, hidden_dim))) #memory of GRU
+        self.register_parameter('m', m)
+
+        #a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))
+        #nn.init.xavier_uniform_(a.data, gain=1.414)
+        #self.register_parameter('a', a)
+
+        self.leakyrelu = nn.LeakyReLU(self.alpha)
+
+        self.gate=nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim, bias=True),
+        ])
+        self.gate2=nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim, bias=True),
+        ])
+        self.update=nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim, bias=True),
+        ])
+        self.out=nn.Sequential(*[
+            nn.Linear(in_features, hidden_dim, bias=True),
+        ])
+
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.output_dim)
+
+    def forward(self, input):
+        """
+        :param input: tensor(nmeta,N,in_features)
+        :return:
+        """
+        n_meta = input.shape[0]
+        input = input.transpose(0, 1)  # tensor(N,nmeta,in_features)
+        N = input.size()[0]
+        input_dim = input.shape[2]
+        input = input.contiguous()
+
+        memory = self.m.unsqueeze(0).repeat((N,1,1)) #tensor(N,nmeta,hidden)
+        memory = torch.sigmoid(self.gate(input))*memory
+        
+        gate_input = torch.sigmoid(self.gate2(input))
+        update_input = torch.tanh(self.update(input))
+
+        memory += gate_input*update_input
+
+        output = torch.tanh(memory)*torch.sigmoid(self.out(input))
+
+        output = torch.sum(output,dim=1).squeeze()
+        self.m = torch.sum(memory,dim=1).squeeze()/N
+
+        output = self.dropout(output)
+        outout = self.mlp(output)
+
+        if self.batchnorm:
+            output = self.bn(output)
+
+        #weight = torch.sum(e.view(N, n_meta), dim=0) / N
+        weight=None
+
+        return F.relu(output), weight
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' -> ' + str(self.output_dim) + ')'
+
 sampler_lookup = {
     "uniform_neighbor_sampler": UniformNeighborSampler,
     "sparse_uniform_neighbor_sampler": SpUniformNeighborSampler,
@@ -1165,6 +1255,7 @@ metapath_aggregator_lookup = {
     "concat": MetapathConcatLayer,
     "LSTM":MetapathLSTMLayer,
     "gate":MetapathGateLayer,
+    "GRU": MetapathGRULayer,
 }
 
 edge_aggregator_lookup = {

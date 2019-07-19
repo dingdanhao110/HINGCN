@@ -1162,8 +1162,8 @@ class MetapathGRULayer(nn.Module):
             nn.Linear(hidden_dim, in_features),
         ])
 
-        m = nn.Parameter(torch.zeros(size=(n_head, hidden_dim))) #memory of GRU
-        self.register_parameter('m', m)
+        m = torch.zeros(size=(n_head, hidden_dim)) #memory of GRU
+        self.register_buffer('m', m)
 
         #a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))
         #nn.init.xavier_uniform_(a.data, gain=1.414)

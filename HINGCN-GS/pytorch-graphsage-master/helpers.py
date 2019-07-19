@@ -183,7 +183,8 @@ def read_mpindex_yelp(path="../../data/yelp/"):
                        dtype=np.float)
 
     features = feat[:,:2]
-    features = np.zeros((feat.shape[0],1))
+    #features = np.zeros((feat.shape[0],1))
+    features = np.eye(feat.shape[0])
 
     labels = np.genfromtxt("{}{}.txt".format(path, label_file),
                                dtype=np.int32)

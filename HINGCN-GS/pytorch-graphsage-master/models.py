@@ -34,7 +34,7 @@ class HINGCN_GS(nn.Module):
                  sampler_class,
                  dropout,
                  batchnorm,
-                 bias=True,
+                 bias=False,
                  ):
 
         super(HINGCN_GS, self).__init__()
@@ -71,7 +71,7 @@ class HINGCN_GS(nn.Module):
         self.val_sample_fns = [partial(self.val_sampler, n_samples=s['n_val_samples']) for s in layer_specs]
 
         # Prep
-        self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes, embedding_dim = prep_len)
+        self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes,output_dim=prep_len, embedding_dim = prep_len)
         self.input_dim = self.prep.output_dim
 
         # Network
@@ -112,7 +112,7 @@ class HINGCN_GS(nn.Module):
             self.add_module('back_emb', back_emb)
 
             self.background=nn.Sequential(*[
-            GraphConvolution(problem.homo_feat.shape[1], 64, adj=problem.homo_adj),
+            GraphConvolution(prep_len, 64, adj=problem.homo_adj),
             nn.ReLU(), nn.Dropout(self.dropout),
             GraphConvolution(64, 32, adj=problem.homo_adj),
             nn.ReLU(), nn.Dropout(self.dropout),
@@ -169,7 +169,7 @@ class HINGCN_GS(nn.Module):
             assert len(all_feats) == 1, "len(all_feats) != 1"
             output.append(all_feats[0].unsqueeze(0))
         if self.bias:
-            tmp_feats = None
+            tmp_feats = self.feats[ids]
             all_feats = self.prep(torch.arange(self.n_nodes).to(ids.device), tmp_feats, layer_idx=1)
             back_ids = torch.arange(self.n_homo_nodes-self.n_nodes).to(ids.device)
             all_feats = torch.cat([all_feats,self.back_emb(back_ids)],dim=0)

@@ -1141,7 +1141,7 @@ class MetapathGRULayer(nn.Module):
     metapath gated recurrent unit layer.
     """
 
-    def __init__(self, in_features,n_head=4, alpha=0.8, dropout=0.5, hidden_dim=64, batchnorm=False):
+    def __init__(self, in_features,n_head=4, alpha=0.8, dropout=0.5, hidden_dim=512, batchnorm=False):
         super(MetapathGRULayer, self).__init__()
         # self.dropout = dropout
         self.input_dim = in_features
@@ -1149,12 +1149,6 @@ class MetapathGRULayer(nn.Module):
         self.alpha = alpha
         self.dropout = nn.Dropout(p=dropout)
         self.batchnorm = batchnorm
-
-        #self.att = nn.Sequential(*[
-        #    nn.Linear(in_features, hidden_dim, bias=False),
-        #    nn.Tanh(),
-        #    nn.Linear(hidden_dim, hidden_dim, bias=False),
-        #])
 
         self.mlp = nn.Sequential(*[
             nn.Linear(hidden_dim, hidden_dim),
@@ -1164,10 +1158,6 @@ class MetapathGRULayer(nn.Module):
 
         m = torch.zeros(size=(n_head, hidden_dim)) #memory of GRU
         self.register_buffer('m', m)
-
-        #a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))
-        #nn.init.xavier_uniform_(a.data, gain=1.414)
-        #self.register_parameter('a', a)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 

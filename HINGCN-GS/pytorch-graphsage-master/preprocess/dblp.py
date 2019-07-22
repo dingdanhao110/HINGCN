@@ -94,13 +94,13 @@ def read_embed(path="../../../data/dblp2/",
 
     return features, n_nodes, n_feature
 
-def dump_edge_emb(path='data/dblp2/'):
+def dump_edge_emb(path='../../../data/dblp2/'):
     # dump APA
     APA_file = "APA"
     APAPA_file = "APAPA"
     APCPA_file = "APCPA"
 
-    node_emb,n_nodes,n_emb =read_embed(path=path)
+    node_emb,n_nodes,n_emb =read_embed()
 
     PA_file = "PA"
     PC_file = "PC"
@@ -217,10 +217,6 @@ def dump_edge_emb(path='data/dblp2/'):
     #APAPA_emb[:, -1] /= m
     #print("compute edge embeddings {} complete".format('APAPA'))    
 
-    APA_ps=sp.load_npz("{}{}".format(path, 'APA_ps.npz')).todense()
-    APAPA_ps=sp.load_npz("{}{}".format(path, 'APAPA_ps.npz')).todense()
-    APCPA_ps=sp.load_npz("{}{}".format(path, 'APCPA_ps.npz')).todense()
-
     # APA
     APA = APAi
 
@@ -232,7 +228,7 @@ def dump_edge_emb(path='data/dblp2/'):
             tmp += node_emb[a1]+node_emb[a2]
             tmp /= 3
             if a1 <= a2:
-                APA_emb.append(np.concatenate(([a1, a2], tmp,[APA_ps[a1,a2]], [len(APA[a1][a2])])))
+                APA_emb.append(np.concatenate(([a1, a2], tmp, [len(APA[a1][a2])])))
     APA_emb = np.asarray(APA_emb)
     print("compute edge embeddings {} complete".format(APA_file))
 
@@ -266,7 +262,7 @@ def dump_edge_emb(path='data/dblp2/'):
         for a in result:
             if v <= a:
                 APAPA_emb.append(np.concatenate(([v, a], (result[a]/count[a]+node_emb[a]+node_emb[v])/5
-                                                 ,[APAPA_ps[v,a]],[count[a]])))
+                                                 ,[count[a]])))
             # f.write('{} {} '.format(v, a))
             # f.write(" ".join(map(str, result[a].numpy())))
             # f.write('\n')
@@ -306,9 +302,7 @@ def dump_edge_emb(path='data/dblp2/'):
         
         for a in result:
             if v <= a:
-                if APCPA_ps[v,a]==0: print(v,a)
                 APCPA_emb.append(np.concatenate(([v, a], (result[a]/count[a]+node_emb[a]+node_emb[v])/5,
-                                                 [APCPA_ps[v,a]],
                                                  [count[a]])))
             # f.write('{} {} '.format(v,a))
             # f.write(" ".join(map(str, result[a].numpy())))
@@ -323,12 +317,6 @@ def dump_edge_emb(path='data/dblp2/'):
     print('dump npz file {}edge{}.npz complete'.format(path, emb_len))
     pass
 
-def pathsim(A):
-    value = []
-    x,y = A.nonzero()
-    for i,j in zip(x,y):
-        value.append(2 * A[i, j] / (A[i, i] + A[j, j]))
-    return sp.coo_matrix((value,(x,y)))
 
 def gen_homoadj():
     path = "data/dblp2/"
@@ -357,10 +345,10 @@ def gen_homoadj():
 
     PA = sp.coo_matrix((np.ones(PA.shape[0]), (PA[:, 0], PA[:, 1])),
                        shape=(paper_max, author_max),
-                       dtype=np.float32)
+                       dtype=np.int32)
     PC = sp.coo_matrix((np.ones(PC.shape[0]), (PC[:, 0], PC[:, 1])),
                        shape=(paper_max, conf_max),
-                       dtype=np.float32)
+                       dtype=np.int32)
     #PT = sp.coo_matrix((np.ones(PT.shape[0]), (PT[:, 0], PT[:, 1])),
     #                   shape=(paper_max, term_max),
     #                   dtype=np.int32)
@@ -369,25 +357,15 @@ def gen_homoadj():
     APAPA = APA*APA
     APCPA = PA.transpose()*PC * PC.transpose() * PA
 
-    APA = pathsim(APA)
-    APAPA = pathsim(APAPA)
-    APCPA = pathsim(APCPA)
+    APA = np.hstack([APA.nonzero()[0].reshape(-1,1), APA.nonzero()[1].reshape(-1,1)])
+    APAPA = np.hstack([APAPA.nonzero()[0].reshape(-1,1), APAPA.nonzero()[1].reshape(-1,1)])
+    APCPA = np.hstack([APCPA.nonzero()[0].reshape(-1,1), APCPA.nonzero()[1].reshape(-1,1)])
 
-    sp.save_npz("{}{}".format(path, 'APA_ps.npz'), APA)
-    sp.save_npz("{}{}".format(path, 'APAPA_ps.npz'), APAPA)
-    sp.save_npz("{}{}".format(path, 'APCPA_ps.npz'), APCPA)
-
-    #APA = np.hstack([APA.nonzero()[0].reshape(-1,1), APA.nonzero()[1].reshape(-1,1)])
-    #APAPA = np.hstack([APAPA.nonzero()[0].reshape(-1,1), APAPA.nonzero()[1].reshape(-1,1)])
-    #APCPA = np.hstack([APCPA.nonzero()[0].reshape(-1,1), APCPA.nonzero()[1].reshape(-1,1)])
-
-    #np.savetxt("{}{}.txt".format(path, 'APA'),APA,fmt='%u')
-    #np.savetxt("{}{}.txt".format(path, 'APAPA'),APA,fmt='%u')
-    #np.savetxt("{}{}.txt".format(path, 'APCPA'),APA,fmt='%u')
-
-
+    np.savetxt("{}{}.txt".format(path, 'APA'),APA,fmt='%u')
+    np.savetxt("{}{}.txt".format(path, 'APAPA'),APA,fmt='%u')
+    np.savetxt("{}{}.txt".format(path, 'APCPA'),APA,fmt='%u')
 
 #clean_dblp()
 #gen_homograph()
-dump_edge_emb()
-#gen_homoadj()
+#dump_edge_emb()
+gen_homoadj()

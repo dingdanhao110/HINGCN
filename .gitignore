@@ -113,8 +113,6 @@ venv.bak/
 data/dblp/edge16.npz
 /.vs/HINGCN/v16/.suo
 /.vs
-/data/yelp/edge17.npz
-/data/yelp/edge18.npz
+/data/yelp
 /data/dblp2/edge17.npz
-/data/dblp2/edge18.npz
 *.xlsx

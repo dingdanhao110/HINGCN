@@ -187,6 +187,9 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
     n_busi = busi_max
     node_emb, n_nodes, emb_len = read_embed(path=path,emb_file="RBUK_16")
 
+    BRURB_ps=sp.load_npz("{}{}".format(path, 'BRURB_ps.npz')).todense()
+    BRKRB_ps=sp.load_npz("{}{}".format(path, 'BRKRB_ps.npz')).todense()
+
     # brurb;
     BRURB_emb = []
     for v in range(n_busi):
@@ -216,7 +219,7 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
 
         for b in result:
             if v <= b:
-                BRURB_emb.append(np.concatenate(([v, b], (result[b]/count[b]+node_emb[v]+node_emb[b])/5, [count[b]])))
+                BRURB_emb.append(np.concatenate(([v, b], (result[b]/count[b]+node_emb[v]+node_emb[b])/5,[BRURB_ps[v,b]], [count[b]])))
     BRURB_emb = np.asarray(BRURB_emb)
     m = np.max(BRURB_emb[:, -1])
     BRURB_emb[:, -1] /= m
@@ -251,7 +254,7 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
                 count[b] += np1*np2
         for b in result:
             if v <= b:
-                BRKRB_emb.append(np.concatenate(([v, b], (result[b]/count[b]+node_emb[v]+node_emb[b])/5, [count[b]] )))
+                BRKRB_emb.append(np.concatenate(([v, b], (result[b]/count[b]+node_emb[v]+node_emb[b])/5,[BRKRB_ps[v,b]], [count[b]] )))
     BRKRB_emb = np.asarray(BRKRB_emb)
     m = np.max(BRKRB_emb[:, -1])
     BRKRB_emb[:, -1] /= m
@@ -262,6 +265,12 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
     print('dump npz file {}edge{}.npz complete'.format(path, emb_len))
     pass
 
+def pathsim(A):
+    value = []
+    x,y = A.nonzero()
+    for i,j in zip(x,y):
+        value.append(2 * A[i, j] / (A[i, i] + A[j, j]))
+    return sp.coo_matrix((value,(x,y)))
 
 def gen_homoadj(path = "data/yelp/", out_file = "homograph"):
 
@@ -295,25 +304,31 @@ def gen_homoadj(path = "data/yelp/", out_file = "homograph"):
 
     RB = sp.coo_matrix((np.ones(RB.shape[0]), (RB[:, 0], RB[:, 1])),
                        shape=(rate_max, busi_max),
-                       dtype=np.int32)
+                       dtype=np.float32)
     RK = sp.coo_matrix((np.ones(RK.shape[0]), (RK[:, 0], RK[:, 1])),
                        shape=(rate_max, key_max),
-                       dtype=np.int32)
+                       dtype=np.float32)
     RU = sp.coo_matrix((np.ones(RU.shape[0]), (RU[:, 0], RU[:, 1])),
                        shape=(rate_max, user_max),
-                       dtype=np.int32)
+                       dtype=np.float32)
 
     BRURB = RB.transpose()*RU*RU.transpose()*RB
     BRKRB = RB.transpose()*RK*RK.transpose()*RB
 
-    BRURB = np.hstack([BRURB.nonzero()[0].reshape(-1,1), BRURB.nonzero()[1].reshape(-1,1)])
-    BRKRB = np.hstack([BRKRB.nonzero()[0].reshape(-1,1), BRKRB.nonzero()[1].reshape(-1,1)])
+    BRURB = pathsim(BRURB)
+    BRKRB = pathsim(BRKRB)
+
+    sp.save_npz("{}{}".format(path, 'BRURB_ps.npz'), BRURB)
+    sp.save_npz("{}{}".format(path, 'BRKRB_ps.npz'), BRKRB)
+
+    #BRURB = np.hstack([BRURB.nonzero()[0].reshape(-1,1), BRURB.nonzero()[1].reshape(-1,1)])
+    #BRKRB = np.hstack([BRKRB.nonzero()[0].reshape(-1,1), BRKRB.nonzero()[1].reshape(-1,1)])
 
     
-    np.savetxt("{}{}.txt".format(path, 'BRURB'),BRURB,fmt='%u')
-    np.savetxt("{}{}.txt".format(path, 'BRKRB'),BRKRB,fmt='%u')
+    #np.savetxt("{}{}.txt".format(path, 'BRURB'),BRURB,fmt='%u')
+    #np.savetxt("{}{}.txt".format(path, 'BRKRB'),BRKRB,fmt='%u')
 
 
 # gen_homograph()
-#dump_yelp_edge_emb(path='../../../data/yelp/')
-gen_homoadj()
+dump_yelp_edge_emb(path='data/yelp/')
+#gen_homoadj()

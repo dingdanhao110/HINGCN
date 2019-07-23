@@ -1,61 +1,27 @@
 \section{Preliminary}
 \label{sec:pre}
+
 \begin{definition}
-\textbf{Distance-based similarity}. Given two objects $\bmx_i,\bmx_j \in R^d$,
-the distance-based similarity measures their affinity based on the feature distance.
-The measure should be symmetric and non-negative.
+\textbf{ Heterogeneous graphs}. 
+\dan{TODO}
 \hfill$\Box$
 \end{definition}
 
 \begin{example}
-Gaussian kernel is a common choice, which has been widely used in spectral clustering. 
-Given two objects $\bmx_i,\bmx_j$, 
-$S_{ij} = exp(-\frac{||\bmx_i-\bmx_j||^2}{2\sigma^2})$,
-where $||\cdot||$ denotes the standard Euclidean distance
-and $\sigma$ is the scaling parameter.
+\dan{TODO}
 \end{example}
-
-\comment{
-When the data contains multi-scale clusters,
-there may not be a single value of $\sigma$ that works well for all the data.
-In~\cite{zelnik2004self}, a measure considering local scaling is introduced.
-}
-
-\begin{example}
-In the case of multi-scale clusters,
-~\cite{zelnik2004self} calculates  
-$S_{ij} = exp(-\frac{||\bmx_i-\bmx_j||^2}{\sigma_i\sigma_j})$,
-where $\sigma_i,\sigma_j$ denote the local scaling parameters for objects $\bmx_i,\bmx_j$ respectively.
-The local scaling parameters adjust the similarity between $\bmx_i$ and $\bmx_j$
-according to local statistics of their neighborhoods.
-\end{example}
-
-Generally, the similarity between objects in the same cluster should be large 
-while the similarity between objects in different clusters should be small. 
-However, in the case of multi-scale data,
-the distance-based similarity is likely to be abnormal.
 
 \begin{definition}
-\textbf{effective/Ineffective similarity}. 
-Given two objects $\bmx_i$ and $\bmx_j$,
-$S_{ij}$ is an effective similarity
-if (1) $S_{ij}$ is large and $L(\bmx_i) = L(\bmx_j)$
-or (2) $S_{ij}$ is small and $L(\bmx_i) \neq L(\bmx_j)$,
-where $L(\cdot)$ denotes the true cluster label function.
-Otherwise, $S_{ij}$ is an ineffective similarity
-if (1) $S_{ij}$ is large but $L(\bmx_i) \neq L(\bmx_j)$
-or (2) $S_{ij}$ is small but $L(\bmx_i) = L(\bmx_j)$.
-\hfill$\Box$
+\textbf{Metapath}. 
+\dan{TODO}
 \end{definition}
 
 \begin{example}
 In Fig.~\ref{figure:example1},
-$S_{34}$ is an effective similarity because $\bmx_3$ and $\bmx_4$ belong to the same cluster 
-and $S_{34}$ is large due to the short distance.
-However, $S_{23}$ is an ineffective similarity because $\bmx_2$ and $\bmx_3$
-have the same cluster label but they are far away from each other, leading to a small $S_{23}$.
-Further, $S_{12}$ is also an ineffective similarity as $\bmx_1$ and $\bmx_2$ are in different clusters but with high similarity.
+\dan{TODO}
 \end{example}
+
+
 
 
 

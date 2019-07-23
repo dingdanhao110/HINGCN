@@ -180,7 +180,7 @@ class HINGCN_GS(nn.Module):
 
         output, weights = self.mp_agg(output)
         # print(weights)
-        output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
+        #output = F.normalize(output, dim=1)  # ?? Do we actually want this? ... Sometimes ...
         output = F.dropout(output, self.dropout, training=self.training)
         output = (self.fc(output))
         return output, weights

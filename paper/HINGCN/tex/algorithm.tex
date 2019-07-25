@@ -24,11 +24,11 @@ After rectification, the new similarity matrix will be more accurate and it will
 These three steps will lead to robust clustering results and next we introduce each step in detail.
 }
 
-\subsection*{Pretrained Node Representations as Edge Features}
+\subsection{Pretrained Node Representations as Edge Features}
 \label{sec:edge}
 \dan{TODO}
 
-\subsection*{Aggregating node embedding}
+\subsection{Aggregating node embedding}
 
 \dan{TODO}
 \begin{equation}
@@ -37,7 +37,7 @@ These three steps will lead to robust clustering results and next we introduce e
 X = XZ.
 \end{equation} 
 
-\subsection*{Aggregating edge embedding}
+\subsection{Aggregating edge embedding}
 \dan{TODO}
 \begin{equation}
 \label{eq:update_edge}
@@ -46,15 +46,16 @@ X = XZ.
 \end{equation} 
 
 
-\subsection*{Jumping connections for adaptive depth}
+\subsection{Dealing with over-smoothing via adaptive depth}
 \dan{TODO}
+Inspired by DenseNet and ResNet, we alleviate the problem of over-smoothing over graph convolutions by creating jumping connections.
 \begin{equation}
 \label{eq:update_edge}
 %X = XZ,\;\;\; \text{s.t. } diag(Z) = 0.
 X = XZ.
 \end{equation} 
 
-\subsection*{Aggregation across different meta-path semantics}
+\subsection{Aggregation across different meta-path semantics}
 \dan{TODO}
 \begin{equation}
 \label{eq:update_edge}
@@ -67,7 +68,7 @@ Here we propose several metapath aggregators.
 
 $\bullet$ \textbf{Attention}
 
-$\bullet$ \textbf{Element-wise Gated Sum}
+$\bullet$ \textbf{Gated linear unit}
 Inspired by forget gate mechanisms in recurrent networks (RNN) \dan{TODO:cite}, we compute a soft gate between 0 (low importance) and 1 (high importance) to represent different importance to each embedding entry.
 We make the element-wise gated sum layer as follows:
 \begin{multicols}{2}
@@ -87,7 +88,7 @@ The gated unit $o_{\Phi_p}$ with sigmoid output (ranged (0,1)) is used to contro
 $\bullet$ \textbf{Other aggregators}
 In preliminary experiments, CONCAT, MAX-POOLING and MEAN aggregators did not generate a better result, and we omit results of these aggregators in experiment section.
 
-\subsection*{HINGCN: Semi-supervised classification on Heterogeneous Information Network via Graph Convolution Networks}
+\subsection{HINGCN: Semi-supervised classification on Heterogeneous Information Network via Graph Convolution Networks}
 After meta-path aggregation layer, the embeddings are fed to a 2-layer MLP for final output. In semi-supervised classification tasks, we minimize the Cross-Entropy loss and the model generates final prediction based on the largest output value.
 Finally, HINGCN is summarized in Algorithm~\ref{alg}.
 

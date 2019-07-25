@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{0}
+\begin{thebibliography}{1}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -36,5 +36,18 @@
 \providecommand\bibinfo[2]{#2}
 \providecommand\natexlab[1]{#1}
 \providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[\protect\citeauthoryear{Sun, Han, Yan, Yu, and Wu}{Sun
+  et~al\mbox{.}}{2011}]%
+        {SunHYYW11}
+\bibfield{author}{\bibinfo{person}{Yizhou Sun}, \bibinfo{person}{Jiawei Han},
+  \bibinfo{person}{Xifeng Yan}, \bibinfo{person}{Philip~S. Yu}, {and}
+  \bibinfo{person}{Tianyi Wu}.} \bibinfo{year}{2011}\natexlab{}.
+\newblock \showarticletitle{PathSim: Meta Path-Based Top-K Similarity Search in
+  Heterogeneous Information Networks}.
+\newblock \bibinfo{journal}{{\em {PVLDB}\/}} \bibinfo{volume}{4},
+  \bibinfo{number}{11} (\bibinfo{year}{2011}), \bibinfo{pages}{992--1003}.
+\newblock
+
 
 \end{thebibliography}

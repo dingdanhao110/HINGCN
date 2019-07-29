@@ -6,45 +6,74 @@ In this section we describe our HINGCN algorithm. Figure~\ref{figure:flow_graph}
 
 \subsection{Edge features as supplementary information}
 \label{sec:edge}
-We claim that information is loss if we only consider adjacency of target type vertices. For example, in long tailed meta-path $APCPA$, a shrunk $A$-$A$ adjacency loses information from intermediate $PCP$ nodes and cannot distinguish between two instance $p_1 = (a_1 p_1 c_1 p_2 a_2)$ and $p_2 = (a_1 p_3 c_2 p_4 a_2)$. Therefore we propose to add this information back by adding additional edge feature to homogeneous $A$-$A$ edges. These edge features are composed of three different components, namely intermediate node embeddings, path count and PathSim\citep{SunHYYW11}.
+According to research findings of Xu et al. \cite{XuHLJ19}, discriminative power of a graph neural network determines its representation capability.
+We claim that information is loss if we only consider adjacency of target type vertices. 
+\dan{TODO:relate this example to the example figure used in preliminary section}
+For example, in long tailed meta-path $APCPA$, a shrunk $A$-$A$ adjacency loses information from intermediate $PCP$ nodes. And a graph neural network using only adjacency information cannot distinguish between two instance $p_1 = (a_1 p_1 c_1 p_2 a_2)$ and $p_2 = (a_1 p_3 c_2 p_4 a_2)$. 
+Therefore we propose to enhance expressivity of our network by adding additional edge feature to homogeneous $A$-$A$ edges. These edge features are designed to effectly distinguish different intermediate nodes between meta-path instances.
+We propose edge features that is composed of three different components, namely path count, intermediate node embeddings and PathSim\citep{SunHYYW11}.
 
-\noindent{\small$\bullet$}\textbf{Intermediate node embedding}. 
-
-\noindent{\small$\bullet$}\textbf{Path Count}. Different object pairs have different number of path instance between them and this number may reflect object similarity under a given meta-path. We propose to record this count of path between objects $x_u$ and $x_v$  under meta-path $\Phi$ by: 
+\noindent{\small$\bullet$}\textbf{Path Count}. Different object pairs have different number of path instance between them and this number may reflect object similarity under a given meta-path. We propose to record this count of path between objects $x_u$ and $x_v$ under meta-path $\Phi$ by: 
 \begin{equation*}
 c(x_u,x_v) = \vert\{ p_{x_u \rightsquigarrow x_v}:p_{x_u \rightsquigarrow x_v} \vdash \Phi \}\vert
 \end{equation*}
+
+\noindent{\small$\bullet$}\textbf{Intermediate object embedding}. 
+To discriminate between different intermediate objects, we propose to use a sum of pre-trained node embedding as a component of edge feature. This node embedding can be trained from heterogeneous embedding algorithms such as \cite{GroverL16,DongCS17}.
+Given a meta-path instance $p = (x_1x_2\ldots x_{l+1})$, we calculate
+\begin{equation*}
+o(x_1,x_{l+1}) = \dfrac{1}{l \cdot c(x_1,x_{l+1})} \sum\limits_{i=1}^{l+1} e_i
+\end{equation*}
+where $e_i$ is embedding of object $x_i$. Division of Path length $l$ and path count $c(x_u,x_v)$ is proposed to normalize intermediate object embedding to the scale of input object embeddings. Since path count is extracted and recorded as $c(x_u,x_v)$, there is no additional loss of in doing so.
 
 \noindent{\small$\bullet$}\textbf{PathSim}. 
 PathSim is proposed in \citep{SunHYYW11} to measure similarity between two objects of a same type on a heterogeneous graph. Given a symmetric meta-path $\Phi$, PathSim between $x_u$ and $x_v$ is:
 \begin{equation*}
 s(x_u,x_v) = \frac{2\times\vert\{ p_{x_u \rightsquigarrow x_v}:p_{x_u \rightsquigarrow x_v} \vdash \Phi \}\vert}{\vert\{ p_{x_u \rightsquigarrow x_u}:p_{x_u \rightsquigarrow x_u} \vdash \Phi \}\vert +\vert\{ p_{x_v \rightsquigarrow x_v}:p_{x_v \rightsquigarrow x_v} \vdash \Phi \}\vert }
 \end{equation*}
-\dan{TODO}
+
+The edge feature between objects $x_u$ and $x_v$ under meta-path $\Phi$ is therefore concatenated as:
+\begin{equation}
+\label{eq:edge}
+r^{(0)}_\Phi(x_u,x_v) = c(x_u,x_v)\oplus o(x_u,x_v)\oplus s(x_u,x_v)
+\end{equation}
 
 \subsection{Aggregating node embedding}
 
 \dan{TODO}
+We utilize a dot product attention mechanism to aggregate node embedding from its neighbor. Given a meta-path $\Phi$, we update vertex embedding as follow:
 \begin{equation}
-\label{eq:update_node}
-%X = XZ,\;\;\; \text{s.t. } diag(Z) = 0.
-X = XZ.
+\label{eq:dot}
+\alpha^{(t)}_{i,j} = [W_{a1}^{(t)}(\text{tanh}(W_{a2}^{(t)}h^{(t)}_i ))]^T \cdot W_{a3}^{(t)}(\text{tanh}(W_{a4}^{(t)}(h^{(t)}_j \oplus r^{(t)}_{i,j}) ))
+\end{equation}
+
+\begin{equation}
+\label{eq:softmax}
+a^{(t)}_{i,j} = \text{softmax}(\alpha^{(t)}_{i,j}) = \dfrac{\text{exp}(\alpha^{(t)}_{i,j})}{\sum_{k\in N^\Phi_i}\text{exp}(\alpha^{(t)}_{i,k})}
+\end{equation}
+
+and 
+\begin{equation}
+\label{eq:upd_node}
+h^{(t+1)}_i = \text{ReLU}( W_{v} h^{(t)}_i + W_{n} \sum_{j\in N^\Phi_i} a^{(t)}_{i,j} \cdot ( h^{(t)}_j \oplus r^{(t)}_{i,j} ) )
 \end{equation} 
 
 \subsection{Aggregating edge embedding}
 \dan{TODO}
 \begin{equation}
-\label{eq:update_edge}
+\label{eq:upd_edge}
 %X = XZ,\;\;\; \text{s.t. } diag(Z) = 0.
 X = XZ.
 \end{equation} 
 
 
 \subsection{Dealing with over-smoothing via adaptive depth}
-\dan{TODO}
-Inspired by DenseNet and ResNet, we alleviate the problem of over-smoothing over graph convolutions by creating jumping connections.
+\dan{TODO:relate this example to the example figure used in preliminary section}
+Plain GCNs often degrades rapidly as number of layers increases \cite{LiHW18,abs-1904-03751}. Stacking four or more layers into GCNs cause over-smoothing problem and features of vertices tends to converge to the same value. In heterogeneous graphs, this problem is even more severe. Let's consider again meta-path $APCPA$. A two layer $a_1 a_2 a_3$ propagation on the shrank $A-A$ homo-graph actually passes across \textbf{8} edges on the underlying heterogeneous graph, which is a terrible number of layers for plain graph convolution networks.
+To alleviate the over-smoothing problem, in equation \ref{eq:upd_node} and \ref{eq:upd_edge}, we have already included residual connections \cite{HeZRS16} in updating rule. And we propose to further improve the problem by creating jumping connections \cite{XuLTSKJ18}.
+
 \begin{equation}
-\label{eq:update_edge}
+\label{eq:jump}
 %X = XZ,\;\;\; \text{s.t. } diag(Z) = 0.
 X = XZ.
 \end{equation} 
@@ -52,7 +81,7 @@ X = XZ.
 \subsection{Aggregation across different meta-path semantics}
 \dan{TODO}
 \begin{equation}
-\label{eq:update_edge}
+\label{eq:mp}
 %X = XZ,\;\;\; \text{s.t. } diag(Z) = 0.
 X = XZ.
 \end{equation}
@@ -107,6 +136,7 @@ In the future, we will attempt to improve it.
 \begin{algorithmic}[1]
 \Require $S$, $k$.
 \Ensure $\mathcal{C} = \{C_1, ..., C_k\}$
+\State Compose edge features $r^{(0)}$ according to Equation \ref{eq:edge}
 \State Compute the TKNN graph and the reachability matrix $\mathcal{W}$
 \State Calculate $W = D^{-1}S$, where $D_{ii} = \sum_jS_{ij}$
 %\For $j \leftarrow 1$ do

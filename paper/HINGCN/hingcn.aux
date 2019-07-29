@@ -18,6 +18,7 @@
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{JiSDHG10}
 \citation{SunHYYW11}
+\citation{XuHLJ19}
 \citation{SunHYYW11}
 \@writefile{toc}{\contentsline {section}{Abstract}{1}{section*.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
@@ -33,23 +34,30 @@
 \newlabel{sec:pre}{{3}{1}{Preliminary}{section.3}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Algorithm}{1}{section.4}\protected@file@percent }
 \newlabel{sec:algorithm}{{4}{1}{Algorithm}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Edge features as supplementary information}{1}{subsection.4.1}\protected@file@percent }
-\newlabel{sec:edge}{{4.1}{1}{Edge features as supplementary information}{subsection.4.1}{}}
+\citation{GroverL16,DongCS17}
 \citation{SunHYYW11}
+\citation{LiHW18,abs-1904-03751}
+\citation{HeZRS16}
+\citation{XuLTSKJ18}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Edge features as supplementary information}{2}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:edge}{{4.1}{2}{Edge features as supplementary information}{subsection.4.1}{}}
+\newlabel{eq:edge}{{1}{2}{Edge features as supplementary information}{equation.4.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Aggregating node embedding}{2}{subsection.4.2}\protected@file@percent }
-\newlabel{eq:update_node}{{1}{2}{Aggregating node embedding}{equation.4.1}{}}
+\newlabel{eq:dot}{{2}{2}{Aggregating node embedding}{equation.4.2}{}}
+\newlabel{eq:softmax}{{3}{2}{Aggregating node embedding}{equation.4.3}{}}
+\newlabel{eq:upd_node}{{4}{2}{Aggregating node embedding}{equation.4.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Aggregating edge embedding}{2}{subsection.4.3}\protected@file@percent }
-\newlabel{eq:update_edge}{{2}{2}{Aggregating edge embedding}{equation.4.2}{}}
+\newlabel{eq:upd_edge}{{5}{2}{Aggregating edge embedding}{equation.4.5}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Dealing with over-smoothing via adaptive depth}{2}{subsection.4.4}\protected@file@percent }
-\newlabel{eq:update_edge}{{3}{2}{Dealing with over-smoothing via adaptive depth}{equation.4.3}{}}
+\newlabel{eq:jump}{{6}{2}{Dealing with over-smoothing via adaptive depth}{equation.4.6}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Aggregation across different meta-path semantics}{2}{subsection.4.5}\protected@file@percent }
-\newlabel{eq:update_edge}{{4}{2}{Aggregation across different meta-path semantics}{equation.4.4}{}}
-\newlabel{eq:mp_attn}{{5}{2}{Aggregation across different meta-path semantics}{equation.4.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}HINGCN: Semi-supervised classification on Heterogeneous Information Network via Graph Convolution Networks}{2}{subsection.4.6}\protected@file@percent }
-\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces HINGCN\relax }}{2}{algorithm.1}\protected@file@percent }
-\newlabel{alg}{{1}{2}{HINGCN\relax }{algorithm.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Experiment}{2}{section.5}\protected@file@percent }
-\newlabel{sec:exp}{{5}{2}{Experiment}{section.5}{}}
+\newlabel{eq:mp}{{7}{2}{Aggregation across different meta-path semantics}{equation.4.7}{}}
+\newlabel{eq:mp_attn}{{8}{2}{Aggregation across different meta-path semantics}{equation.4.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}HINGCN: Semi-supervised classification on Heterogeneous Information Network via Graph Convolution Networks}{3}{subsection.4.6}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces HINGCN\relax }}{3}{algorithm.1}\protected@file@percent }
+\newlabel{alg}{{1}{3}{HINGCN\relax }{algorithm.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experiment}{3}{section.5}\protected@file@percent }
+\newlabel{sec:exp}{{5}{3}{Experiment}{section.5}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Datasets}{3}{subsection.5.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Algorithms for comparison}{3}{subsection.5.2}\protected@file@percent }
 \newlabel{sec:algo-comp}{{5.2}{3}{Algorithms for comparison}{subsection.5.2}{}}
@@ -58,16 +66,23 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Performance results}{3}{subsection.5.4}\protected@file@percent }
 \newlabel{sec:results}{{5.4}{3}{Performance results}{subsection.5.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions}{3}{section.6}\protected@file@percent }
-\newlabel{sec:conclusion}{{6}{3}{Conclusions}{section.6}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Acknowledgments}{3}{section.7}\protected@file@percent }
 \bibstyle{ACM-Reference-Format}
 \bibdata{hingcn}
-\bibcite{JiSDHG10}{{1}{2010}{{Ji et~al\unhbox \voidb@x \hbox {.}}}{{Ji, Sun, Danilevsky, Han, and Gao}}}
-\bibcite{SunHYYW11}{{2}{2011}{{Sun et~al\unhbox \voidb@x \hbox {.}}}{{Sun, Han, Yan, Yu, and Wu}}}
+\bibcite{DongCS17}{{1}{2017}{{Dong et~al\unhbox \voidb@x \hbox {.}}}{{Dong, Chawla, and Swami}}}
+\bibcite{GroverL16}{{2}{2016}{{Grover and Leskovec}}{{Grover and Leskovec}}}
+\bibcite{HeZRS16}{{3}{2016}{{He et~al\unhbox \voidb@x \hbox {.}}}{{He, Zhang, Ren, and Sun}}}
+\bibcite{JiSDHG10}{{4}{2010}{{Ji et~al\unhbox \voidb@x \hbox {.}}}{{Ji, Sun, Danilevsky, Han, and Gao}}}
+\bibcite{abs-1904-03751}{{5}{2019}{{Li et~al\unhbox \voidb@x \hbox {.}}}{{Li, M{\"{u}}ller, Thabet, and Ghanem}}}
+\bibcite{LiHW18}{{6}{2018}{{Li et~al\unhbox \voidb@x \hbox {.}}}{{Li, Han, and Wu}}}
+\bibcite{SunHYYW11}{{7}{2011}{{Sun et~al\unhbox \voidb@x \hbox {.}}}{{Sun, Han, Yan, Yu, and Wu}}}
+\bibcite{XuHLJ19}{{8}{2019}{{Xu et~al\unhbox \voidb@x \hbox {.}}}{{Xu, Hu, Leskovec, and Jegelka}}}
+\bibcite{XuLTSKJ18}{{9}{2018}{{Xu et~al\unhbox \voidb@x \hbox {.}}}{{Xu, Li, Tian, Sonobe, Kawarabayashi, and Jegelka}}}
 \newlabel{tocindent-1}{0pt}
 \newlabel{tocindent0}{0pt}
 \newlabel{tocindent1}{4.62599pt}
 \newlabel{tocindent2}{11.44798pt}
 \newlabel{tocindent3}{0pt}
+\newlabel{sec:conclusion}{{6}{4}{Conclusions}{section.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Acknowledgments}{4}{section.7}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{References}{4}{section*.6}\protected@file@percent }
 \newlabel{TotPages}{{4}{4}{}{page.4}{}}

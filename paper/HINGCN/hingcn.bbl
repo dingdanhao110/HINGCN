@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{2}
+\begin{thebibliography}{9}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -37,6 +37,41 @@
 \providecommand\natexlab[1]{#1}
 \providecommand\showeprint[2][]{arXiv:#2}
 
+\bibitem[\protect\citeauthoryear{Dong, Chawla, and Swami}{Dong
+  et~al\mbox{.}}{2017}]%
+        {DongCS17}
+\bibfield{author}{\bibinfo{person}{Yuxiao Dong}, \bibinfo{person}{Nitesh~V.
+  Chawla}, {and} \bibinfo{person}{Ananthram Swami}.}
+  \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{metapath2vec: Scalable Representation Learning for
+  Heterogeneous Networks}. In \bibinfo{booktitle}{{\em {KDD}}}.
+  \bibinfo{publisher}{{ACM}}, \bibinfo{pages}{135--144}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Grover and Leskovec}{Grover and
+  Leskovec}{2016}]%
+        {GroverL16}
+\bibfield{author}{\bibinfo{person}{Aditya Grover} {and} \bibinfo{person}{Jure
+  Leskovec}.} \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{node2vec: Scalable Feature Learning for Networks}.
+  In \bibinfo{booktitle}{{\em {KDD}}}. \bibinfo{publisher}{{ACM}},
+  \bibinfo{pages}{855--864}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{He, Zhang, Ren, and Sun}{He
+  et~al\mbox{.}}{2016}]%
+        {HeZRS16}
+\bibfield{author}{\bibinfo{person}{Kaiming He}, \bibinfo{person}{Xiangyu
+  Zhang}, \bibinfo{person}{Shaoqing Ren}, {and} \bibinfo{person}{Jian Sun}.}
+  \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{Deep Residual Learning for Image Recognition}. In
+  \bibinfo{booktitle}{{\em {CVPR}}}. \bibinfo{publisher}{{IEEE} Computer
+  Society}, \bibinfo{pages}{770--778}.
+\newblock
+
+
 \bibitem[\protect\citeauthoryear{Ji, Sun, Danilevsky, Han, and Gao}{Ji
   et~al\mbox{.}}{2010}]%
         {JiSDHG10}
@@ -51,6 +86,28 @@
 \newblock
 
 
+\bibitem[\protect\citeauthoryear{Li, M{\"{u}}ller, Thabet, and Ghanem}{Li
+  et~al\mbox{.}}{2019}]%
+        {abs-1904-03751}
+\bibfield{author}{\bibinfo{person}{Guohao Li}, \bibinfo{person}{Matthias
+  M{\"{u}}ller}, \bibinfo{person}{Ali~K. Thabet}, {and}
+  \bibinfo{person}{Bernard Ghanem}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Can GCNs Go as Deep as CNNs?}
+\newblock \bibinfo{journal}{{\em CoRR\/}}  \bibinfo{volume}{abs/1904.03751}
+  (\bibinfo{year}{2019}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Li, Han, and Wu}{Li et~al\mbox{.}}{2018}]%
+        {LiHW18}
+\bibfield{author}{\bibinfo{person}{Qimai Li}, \bibinfo{person}{Zhichao Han},
+  {and} \bibinfo{person}{Xiao{-}Ming Wu}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Deeper Insights Into Graph Convolutional Networks
+  for Semi-Supervised Learning}. In \bibinfo{booktitle}{{\em {AAAI}}}.
+  \bibinfo{publisher}{{AAAI} Press}, \bibinfo{pages}{3538--3545}.
+\newblock
+
+
 \bibitem[\protect\citeauthoryear{Sun, Han, Yan, Yu, and Wu}{Sun
   et~al\mbox{.}}{2011}]%
         {SunHYYW11}
@@ -61,6 +118,32 @@
   Heterogeneous Information Networks}.
 \newblock \bibinfo{journal}{{\em {PVLDB}\/}} \bibinfo{volume}{4},
   \bibinfo{number}{11} (\bibinfo{year}{2011}), \bibinfo{pages}{992--1003}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Xu, Hu, Leskovec, and Jegelka}{Xu
+  et~al\mbox{.}}{2019}]%
+        {XuHLJ19}
+\bibfield{author}{\bibinfo{person}{Keyulu Xu}, \bibinfo{person}{Weihua Hu},
+  \bibinfo{person}{Jure Leskovec}, {and} \bibinfo{person}{Stefanie Jegelka}.}
+  \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{How Powerful are Graph Neural Networks?}. In
+  \bibinfo{booktitle}{{\em {ICLR}}}. \bibinfo{publisher}{OpenReview.net}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Xu, Li, Tian, Sonobe, Kawarabayashi, and
+  Jegelka}{Xu et~al\mbox{.}}{2018}]%
+        {XuLTSKJ18}
+\bibfield{author}{\bibinfo{person}{Keyulu Xu}, \bibinfo{person}{Chengtao Li},
+  \bibinfo{person}{Yonglong Tian}, \bibinfo{person}{Tomohiro Sonobe},
+  \bibinfo{person}{Ken{-}ichi Kawarabayashi}, {and} \bibinfo{person}{Stefanie
+  Jegelka}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Representation Learning on Graphs with Jumping
+  Knowledge Networks}. In \bibinfo{booktitle}{{\em {ICML}}} {\em
+  (\bibinfo{series}{Proceedings of Machine Learning Research})},
+  Vol.~\bibinfo{volume}{80}. \bibinfo{publisher}{{PMLR}},
+  \bibinfo{pages}{5449--5458}.
 \newblock
 
 

@@ -22,9 +22,9 @@ c(x_u,x_v) = \vert\{ p_{x_u \rightsquigarrow x_v}:p_{x_u \rightsquigarrow x_v} \
 To discriminate between different intermediate objects, we propose to use a sum of pre-trained node embedding as a component of edge feature. This node embedding can be trained from heterogeneous embedding algorithms such as \cite{GroverL16,DongCS17}.
 Given a meta-path instance $p = (x_1x_2\ldots x_{l+1})$, we calculate
 \begin{equation*}
-o(x_1,x_{l+1}) = \dfrac{1}{l \cdot c(x_1,x_{l+1})} \sum\limits_{i=1}^{l+1} e_i
+o(x_1,x_{l+1}) = \dfrac{1}{(l+1) \cdot c(x_1,x_{l+1})} \sum\limits_{i=1}^{l+1} e_i
 \end{equation*}
-where $e_i$ is embedding of object $x_i$. Division of Path length $l$ and path count $c(x_u,x_v)$ is proposed to normalize intermediate object embedding to the scale of input object embeddings. Since path count is extracted and recorded as $c(x_u,x_v)$, there is no additional loss of in doing so.
+where $e_i$ is embedding of object $x_i$. Division of number of vertices $l+1$ and path count $c(x_u,x_v)$ is proposed to normalize intermediate object embedding to the scale of input object embeddings. Since path count is extracted and recorded as $c(x_u,x_v)$, there is no additional loss of in doing so.
 
 \noindent{\small$\bullet$}\textbf{PathSim}. 
 PathSim is proposed in \citep{SunHYYW11} to measure similarity between two objects of a same type on a heterogeneous graph. Given a symmetric meta-path $\Phi$, PathSim between $x_u$ and $x_v$ is:
@@ -41,75 +41,98 @@ r^{(0)}_\Phi(x_u,x_v) = c(x_u,x_v)\oplus o(x_u,x_v)\oplus s(x_u,x_v)
 \subsection{Aggregating node embedding}
 
 \dan{TODO}
-We utilize a dot product attention mechanism to aggregate node embedding from its neighbor. Given a meta-path $\Phi$, we update vertex embedding as follow:
+We utilize a dot product attention mechanism to aggregate node embedding from its neighbor. Given a meta-path $\Phi$, we update vertex embedding as follow. First we apply MLP layers on node embedding and its neighbor respectively:
+\begin{equation}
+\hat{h}_i= W_{a1}^{(t)}(\text{tanh}(W_{a2}^{(t)}h^{(t)}_i ))
+\end{equation}
+and
+\begin{equation}
+n_{i,j} = W_{a3}^{(t)}(\text{tanh}(W_{a4}^{(t)}(h^{(t)}_j \oplus r^{(t)}_{i,j}) ))
+\end{equation}
+Here edge feature $r^{(t)}_{i,j}$ is concatenated to vertex feature of the neighbors, in order to provide additional information. The importance of a neighbor $j$ to object $i$ is then calculated as:
 \begin{equation}
 \label{eq:dot}
-\alpha^{(t)}_{i,j} = [W_{a1}^{(t)}(\text{tanh}(W_{a2}^{(t)}h^{(t)}_i ))]^T \cdot W_{a3}^{(t)}(\text{tanh}(W_{a4}^{(t)}(h^{(t)}_j \oplus r^{(t)}_{i,j}) ))
+\tilde{a}^{(t)}_{i,j} = \hat{h}_i^T \cdot n_{i,j}
 \end{equation}
-
+Then we normalize this importance coefficient by softmax function:
 \begin{equation}
 \label{eq:softmax}
-a^{(t)}_{i,j} = \text{softmax}(\alpha^{(t)}_{i,j}) = \dfrac{\text{exp}(\alpha^{(t)}_{i,j})}{\sum_{k\in N^\Phi_i}\text{exp}(\alpha^{(t)}_{i,k})}
+a^{(t)}_{i,j} = \text{softmax}(\tilde{a}^{(t)}_{i,j}) = \dfrac{\text{exp}(\tilde{a}^{(t)}_{i,j})}{\sum_{k\in N^\Phi_i}\text{exp}(\tilde{a}^{(t)}_{i,k})}
 \end{equation}
-
-and 
+Finally the output of the node aggregation layer is a weighted sum of neighbor embeddings: 
 \begin{equation}
 \label{eq:upd_node}
-h^{(t+1)}_i = \text{ReLU}( W_{v} h^{(t)}_i + W_{n} \sum_{j\in N^\Phi_i} a^{(t)}_{i,j} \cdot ( h^{(t)}_j \oplus r^{(t)}_{i,j} ) )
+h^{(t+1)}_i = \text{ReLU}( W_{h1}\cdot \sum_{j\in N^\Phi_i} a^{(t)}_{i,j} \cdot ( h^{(t)}_j \oplus r^{(t)}_{i,j} ) ) + W_{h2}\cdot h^{(t)}_i
 \end{equation} 
 
 \subsection{Aggregating edge embedding}
-\dan{TODO}
+\dan{TODO} In multi-layer propagation, we propose to update embeddings of edge as well.
 \begin{equation}
 \label{eq:upd_edge}
-%X = XZ,\;\;\; \text{s.t. } diag(Z) = 0.
-X = XZ.
+r^{(t+1)}_{i,j} = \text{ReLU}(W_{r1}\cdot (h^{(t)}_i \oplus h^{(t)}_j \oplus r^{(t)}_{i,j})) + W_{r2}\cdot r^{(t)}_{i,j}
 \end{equation} 
-
 
 \subsection{Dealing with over-smoothing via adaptive depth}
 \dan{TODO:relate this example to the example figure used in preliminary section}
 Plain GCNs often degrades rapidly as number of layers increases \cite{LiHW18,abs-1904-03751}. Stacking four or more layers into GCNs cause over-smoothing problem and features of vertices tends to converge to the same value. In heterogeneous graphs, this problem is even more severe. Let's consider again meta-path $APCPA$. A two layer $a_1 a_2 a_3$ propagation on the shrank $A-A$ homo-graph actually passes across \textbf{8} edges on the underlying heterogeneous graph, which is a terrible number of layers for plain graph convolution networks.
 To alleviate the over-smoothing problem, in equation \ref{eq:upd_node} and \ref{eq:upd_edge}, we have already included residual connections \cite{HeZRS16} in updating rule. And we propose to further improve the problem by creating jumping connections \cite{XuLTSKJ18}.
-
 \begin{equation}
 \label{eq:jump}
-%X = XZ,\;\;\; \text{s.t. } diag(Z) = 0.
-X = XZ.
+h^{(final)}_i = h^{(0)}_i \oplus h^{(1)}_i \cdots \oplus h^{(t)}_i
 \end{equation} 
 
 \subsection{Aggregation across different meta-path semantics}
-\dan{TODO}
-\begin{equation}
-\label{eq:mp}
-%X = XZ,\;\;\; \text{s.t. } diag(Z) = 0.
-X = XZ.
-\end{equation}
 \dan{need some intuition/justification shit}
 Given a node $i$, and its set of embeddings under different semantics, a metapath aggregator is a function $\gamma$ in the form of $y_i = \gamma_\Theta(\{x_{i,1},x_{i,2},..x_{i,P}\})$, where $x_{i,p}$ is the embedding of node $i$ under metapath $p$, and $y_i$ is the aggregated embedding of node $i$ in the HIN. $\Theta$ is the learnable paremeters of the aggregator.
 Here we propose several metapath aggregators. 
 
 $\bullet$ \textbf{Attention}
+\begin{equation}
+\label{eq:mp_mlp}
+\tilde{h}^{\Phi_p}_i = W_{m1} \cdot \text{tanh}(W_{m2} \cdot h^{\Phi_p}_i)
+\end{equation}
+
+\begin{equation}
+\label{eq:mp_attn}
+\tilde{w}_i^{\Phi_p} = W_w \cdot \sigma(\tilde{h}^{\Phi_p}_i)
+\end{equation}
+
+\begin{equation}
+\label{eq:mp_soft}
+w_i^{\Phi_p} = \text{softmax}(\tilde{w}_i^{\Phi_p}) = \dfrac{\text{exp}(\tilde{w}_i^{\Phi_p})}{\sum_q \text{exp}(\tilde{w}_i^{\Phi_q})}
+\end{equation}
+
+\begin{equation}
+\label{eq:mp_asum}
+z_i = \text{ReLU}(\sum_p w_i^{\Phi_p} \cdot h^{\Phi_p}_i)
+\end{equation}
 
 $\bullet$ \textbf{Gated linear unit}
 Inspired by forget gate mechanisms in recurrent networks (RNN) \dan{TODO:cite}, we compute a soft gate between 0 (low importance) and 1 (high importance) to represent different importance to each embedding entry.
 We make the element-wise gated sum layer as follows:
 \begin{multicols}{2}
-\begin{equation*}
-o_{\Phi_p}=\sigma(W_o^T Z_{\Phi_p}),
-\end{equation*}\break
-\begin{equation*}
-\tilde{Z}_{\Phi_p}=\text{tanh}(W_z^T Z_{\Phi_p})
-\end{equation*}
+\begin{equation}
+o^{\Phi_p}_i=\sigma(W_o \cdot h^{\Phi_p}_i)
+\end{equation}\break
+\begin{equation}
+\tilde{h}^{\Phi_p}_i=\text{tanh}(W_z \cdot h^{\Phi_p}_i)
+\end{equation}
 \end{multicols}
 and 
 \begin{equation}
-\label{eq:mp_attn}
-Z'_{\Phi_p}= o_{\Phi_p}\odot \tilde{Z}_{\Phi_p}
+\label{eq:mp_glu}
+\bar{z}^{\Phi_p}_i= o^{\Phi_p}_i\odot \tilde{h}^{\Phi_p}_i
 \end{equation}
-The gated unit $o_{\Phi_p}$ with sigmoid output (ranged (0,1)) is used to control which elements are to be aggregated in the output.  
+Finally, we have
+\begin{equation}
+\label{eq:mp_sum}
+{z}_i= \sum_p \bar{z}^{\Phi_p}_i
+\end{equation}
+
+The gated unit $o_{\Phi_p}$ with sigmoid output (ranged (0,1)) is used to control which elements are to be aggregated in the output. 
+ 
 $\bullet$ \textbf{Other aggregators}
-In preliminary experiments, CONCAT, MAX-POOLING and MEAN aggregators did not generate a better result, and we omit results of these aggregators in experiment section.
+In preliminary experiments, \textbf{Concat}, \textbf{Max-Pooling} and \textbf{Mean} aggregators did not generate a better result, and we omit results of these aggregators in experiment section.
 
 \subsection{HINGCN: Semi-supervised classification on Heterogeneous Information Network via Graph Convolution Networks}
 After meta-path aggregation layer, the embeddings are fed to a 2-layer MLP for final output. In semi-supervised classification tasks, we minimize the Cross-Entropy loss and the model generates final prediction based on the largest output value.

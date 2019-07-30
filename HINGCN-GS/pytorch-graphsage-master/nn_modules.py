@@ -527,7 +527,7 @@ class AttentionAggregator2(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.output_dim)
 
-        self.apply(weight_init)
+        #self.apply(weight_init)
 
     def forward(self, x, neibs, edge_emb, mask):
         # Compute attention weights

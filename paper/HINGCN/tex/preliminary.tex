@@ -3,8 +3,8 @@
 
 \begin{definition}
 \textbf{ Heterogeneous Information Networks (HIN)}\cite{JiSDHG10}. 
-Let $T = \{T_1, ..., T_m\}$ be a set of $m$ object types.
-For each type $T_i$, let $n_i$ and $X_i = {x_i1, ..., x_{in_i} }$ be the number and the set of objects of type $Ti$, respectively. An HIN
+Let $T = \{T_1,\ldots, T_m\}$ be a set of $m$ object types.
+For each type $T_i$, let $n_i$ and $X_i = {x_i1,\ldots, x_{in_i} }$ be the number and the set of objects of type $Ti$, respectively. An HIN
 is a graph $G = (V, E)$, where $V =
 \bigcup\limits_{i=1}^{m} X_i$, and $E$ is a set of
 links, each represents a binary relation between two objects
@@ -12,8 +12,15 @@ in $V$. If $m = 1$ (i.e., there is only one object type), G reduces
 to a homogeneous information network. 
 \end{definition}
 
+\begin{figure}
+    \centering
+        \includegraphics[width = 0.7\linewidth]{figure/example1.pdf}
+        \caption{An example of a heterogeneous information network (DBLP). There are three types of nodes (i.e. author, paper, conference).}
+        \label{figure:example}
+\end{figure}
+
 \begin{example}
-\dan{TODO}
+In Fig.~\ref{figure:example}, we give an example of HIN. There are three types of nodes, Author, Paper and Conference. And we illustrate two types of edges: Author-Paper, Paper-Conference.
 \end{example}
 
 \begin{definition}
@@ -28,8 +35,8 @@ Moreover, in this paper we say $x_v$ is a meta-path $\Phi$ related neighbor of $
 \end{definition}
 
 \begin{example}
-In Fig.~\ref{figure:example1},
-\dan{TODO}
+In Fig.~\ref{figure:example}, $a_3$ is an $APA$-related neighbor of $a_1$, and $a_5$ is an $APCPA$-related neighbor of $a_1$. 
+%We have $a_3 \in N^{APA}(a_1)$ and $a_5 \in N^{APCPA}(a_1)$
 \end{example}
 
 

@@ -655,6 +655,45 @@ class AttentionAggregator3(nn.Module):
 
         return out
 
+class MRAggregator(nn.Module):
+    def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=256,
+                 dropout=0.5,
+                 concat_node=True, concat_edge=True, batchnorm=False):
+        super(MRAggregator, self).__init__()
+
+        self.mlp = nn.Sequential(*[
+            #nn.Linear(input_dim, hidden_dim, bias=True),
+            #nn.tanh(),
+            nn.Linear(hidden_dim, output_dim, bias=True),
+            #nn.ReLU()
+        ])
+        self.fc_x = nn.Linear(input_dim, hidden_dim, bias=False)
+        self.fc_neib = nn.Linear(input_dim, hidden_dim, bias=False)
+        self.fc_edge = nn.Linear(edge_dim, hidden_dim, bias=False)
+
+        self.dropout = nn.Dropout(dropout)
+        self.output_dim = output_dim
+        self.activation = activation
+
+    def forward(self, x, neibs, edge_emb, mask):
+        n_sample = int(neibs.shape[0] / x.shape[0])
+        N = x.shape[0]
+
+        #h_neibs = self.mlp(neibs)
+        agg_neib = neibs.view(x.size(0), -1, neibs.size(1)) - x.repeat(1, n_sample).view(N, n_sample, -1)
+        a = self.fc_x(x.repeat(1, n_sample).view(N, n_sample, -1)) \
+            + self.fc_neib(agg_neib) + self.fc_edge(edge_emb.view(N, n_sample, -1))
+        a = F.relu(a)
+
+        out = torch.max(a,dim=1)[0].squeeze()
+        
+        out = self.mlp(out)
+
+        out = self.dropout(out)
+        if self.activation:
+            out = self.activation(out)
+
+        return out
 
 class EdgeAggregator(nn.Module):
     def __init__(self, input_dim, edge_dim, activation, dropout=0.5, batchnorm=False):
@@ -1237,6 +1276,7 @@ aggregator_lookup = {
     "attention2": AttentionAggregator2,
     "attention3": AttentionAggregator3,
     "edge_emb_attn": EdgeEmbAttentionAggregator,
+    "MR":MRAggregator,
 }
 
 metapath_aggregator_lookup = {

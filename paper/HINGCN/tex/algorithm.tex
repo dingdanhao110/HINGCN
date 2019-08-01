@@ -62,14 +62,14 @@ a^{(t)}_{i,j} = \text{softmax}(\tilde{a}^{(t)}_{i,j}) = \dfrac{\text{exp}(\tilde
 Finally the output of the node aggregation layer is a weighted sum of neighbor embeddings: 
 \begin{equation}
 \label{eq:upd_node}
-h^{(t+1)}_i = \text{ReLU}( W_{h1}\cdot \sum_{j\in N^\Phi_i} a^{(t)}_{i,j} \cdot ( h^{(t)}_j \oplus r^{(t)}_{i,j} ) ) + W_{h2}\cdot h^{(t)}_i
+h^{(t+1)}_i = \text{ReLU}( W_{h1}\cdot \sum_{j\in N^\Phi_i} a^{(t)}_{i,j} \cdot ( h^{(t)}_j \oplus r^{(t)}_{i,j} ) + W_{h2}\cdot h^{(t)}_i ) 
 \end{equation} 
 
 \subsection{Aggregating edge embedding}
 \dan{TODO} In multi-layer propagation, we propose to update embeddings of edge as well.
 \begin{equation}
 \label{eq:upd_edge}
-r^{(t+1)}_{i,j} = \text{ReLU}(W_{r1}\cdot (h^{(t)}_i \oplus h^{(t)}_j \oplus r^{(t)}_{i,j})) + W_{r2}\cdot r^{(t)}_{i,j}
+r^{(t+1)}_{i,j} = \text{ReLU}(W_{r1}\cdot (h^{(t)}_i \oplus h^{(t)}_j \oplus r^{(t)}_{i,j}) + W_{r2}\cdot r^{(t)}_{i,j}) 
 \end{equation} 
 
 \subsection{Dealing with over-smoothing via adaptive depth}
@@ -118,15 +118,10 @@ o^{\Phi_p}_i=\sigma(W_o \cdot h^{\Phi_p}_i)
 \tilde{h}^{\Phi_p}_i=\text{tanh}(W_z \cdot h^{\Phi_p}_i)
 \end{equation}
 \end{multicols}
-and 
-\begin{equation}
-\label{eq:mp_glu}
-\bar{z}^{\Phi_p}_i= o^{\Phi_p}_i\odot \tilde{h}^{\Phi_p}_i
-\end{equation}
 Finally, we have
 \begin{equation}
 \label{eq:mp_sum}
-{z}_i= \sum_p \bar{z}^{\Phi_p}_i
+{z}_i= \sum_p o^{\Phi_p}_i\odot \tilde{h}^{\Phi_p}_i
 \end{equation}
 
 The gated unit $o_{\Phi_p}$ with sigmoid output (ranged (0,1)) is used to control which elements are to be aggregated in the output. 

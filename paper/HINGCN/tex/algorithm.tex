@@ -8,7 +8,7 @@ In this section we describe our HINGCN algorithm. Figure~\ref{figure:flow_graph}
 \label{sec:edge}
 According to research findings of Xu et al. \cite{XuHLJ19}, discriminative power of a graph neural network determines its representation capability.
 We claim that information is loss if we only consider adjacency of target type vertices.
-Let's consider again the example shown in Fig.~\ref{example1}. In long tailed meta-path $APCPA$, a shrinking $A$-$A$ adjacency loses information from intermediate $PCP$ nodes. And a graph neural network using only adjacency information cannot distinguish between two instances $p_1 = (a_1 p_1 c_1 p_2 a_4)$ and $p_2 = (a_1 p_2 c_2 p_3 a_4)$. Instead, both instances are represented as edge $\langle a_1 a_4\rangle$.
+Let's consider again the example shown in Fig.~\ref{figure:example}. In long tailed meta-path $APCPA$, a shrinking $A$-$A$ adjacency loses information from intermediate $PCP$ nodes. And a graph neural network using only adjacency information cannot distinguish between two instances $p_1 = (a_1 p_1 c_1 p_2 a_4)$ and $p_2 = (a_1 p_2 c_2 p_3 a_4)$. Instead, both instances are represented as edge $\langle a_1 a_4\rangle$.
 Therefore we propose to improve expressivity of our network by adding additional edge feature to homogeneous $A$-$A$ edges. These edge features are designed to effectly distinguish different intermediate nodes between meta-path instances.
 We propose edge features that is composed of three different components, namely path count, intermediate node embeddings and PathSim\citep{SunHYYW11}.
 
@@ -73,7 +73,7 @@ r^{(t+1)}_{i,j} = \text{ReLU}(W_{r1}\cdot (h^{(t)}_i \oplus h^{(t)}_j \oplus r^{
 
 \subsection{Dealing with over-smoothing via adaptive depth}
 \dan{TODO:relate this example to the example figure used in preliminary section}
-Plain GCNs often degrades rapidly as number of layers increases \cite{LiHW18,abs-1904-03751}. Stacking four or more layers into GCNs cause over-smoothing problem and features of vertices tends to converge to the same value. In heterogeneous graphs, this problem is even more severe. Let's consider again meta-path $APCPA$. A two layer $a_1 a_2 a_3$ propagation on the shrinking $A-A$ homo-graph actually passes across \textbf{8} edges on the underlying heterogeneous graph, which is a terrible number of layers for plain graph convolution networks.
+Plain GCNs often degrades rapidly as number of layers increases \cite{LiHW18,abs-1904-03751}. Stacking four or more layers into GCNs cause over-smoothing problem and features of vertices tends to converge to the same value. In heterogeneous graphs, this problem is even more severe. Let's consider again meta-path $APCPA$ in Fig.~\ref{figure:example}. A two layer $a_1 a_2 a_3$ propagation on the shrinking $A-A$ homo-graph actually passes across \textbf{8} edges on the underlying heterogeneous graph, which is a terrible number of layers for plain graph convolution networks.
 To alleviate the over-smoothing problem, in equation \ref{eq:upd_node} and \ref{eq:upd_edge}, we have already included residual connections \cite{HeZRS16} in updating rule. And we propose to further improve the problem by creating jumping connections \cite{XuLTSKJ18}.
 \begin{equation}
 \label{eq:jump}
@@ -132,26 +132,17 @@ In preliminary experiments, \textbf{Concat}, \textbf{Max-Pooling} and \textbf{Me
 After meta-path aggregation layer, the embeddings are fed to a 2-layer MLP for final output. In semi-supervised classification tasks, we minimize the Cross-Entropy loss and the model generates final prediction based on the largest output value.
 Finally, HINGCN is summarized in Algorithm~\ref{alg}.
 
-To this end, we summarize ROSC as follows.
-ROSC first computes the TKNN graph $\mathcal{G}$
-and the associated weight matrix $\mathcal{W}_K$. Then it applies power iteration to generate $p$
-pseudo-eigenvectors that form a $p \times n$ matrix $X$.
-After whitening and normalization on $X$,
-the coefficient matrix $Z^*$ can be calculated by solving Eq.~\ref{eq:solution},
-which further leads to the construction of a rectified similarity matrix $\tilde{Z}$.
-Since $\tilde{Z}$ has the grouping effect, 
-the standard spectral clustering methods (e.g., NCuts) will be finally applied to derive more robust clustering results.
-The time complexity of ROSC will be no more than the standard spectral clustering methods,
-which is $O(n^3)$ in general.
-In the future, we will attempt to improve it. 
+To this end, we summarize HINGCN as follows.
+HINGCN first computes initial edge feature $r^{(0)}_{\Phi_p}$ for each edge under each meta-path. Then it applies an alternative update of node embedding and edge embedding.
+After that each node fuses a meta-path specific embedding by jumping connections. These embeddings are further aggregated using either meta-path level attention or gated linear units. Finally, embeddings are fed to a two layer MLP and a softmax layer for classification output.
 
-
+\dan{TODO}
 \begin{algorithm}
 \begin{small}
 \caption{HINGCN}
 \label{alg}
 \begin{algorithmic}[1]
-\Require $S$, $k$.
+\Require $h$, $r$.
 \Ensure $\mathcal{C} = \{C_1, ..., C_k\}$
 \State Compose edge features $r^{(0)}$ according to Equation \ref{eq:edge}
 \State Compute the TKNN graph and the reachability matrix $\mathcal{W}$
@@ -164,8 +155,10 @@ In the future, we will attempt to improve it.
 %\State $t$++
 %\Until $||\delta_j^t+1 - \delta_j^t||_{max} \leq \epsilon$ or $t\geq T$
 %\EndFor
-\State Apply PI on $W$ and generate $p$ pseudo-eigenvectors $\{\bm{v}_r\}_{r=1}^p$
-\State $X = \{\bm{v}_1^T; \bm{v}_2^T; ...; \bm{v}_p^T\}$; $X$ = whiten($X$)
+\State Computes initial edge feature $r^(0)_{\Phi_p}$
+\For $j \leftarrow 1$ do
+
+\EndFor
 \State Normalize each column vector $\bm{x}$ of $X$ such that $\bm{x}^T\bm{x} = 1$
 \State Calculate the coefficient matrix $Z^*$ by Eq.~\ref{eq:solution}
 \State Construct $\tilde{Z} = (|Z^*| + |(Z^*)^T|)/2$

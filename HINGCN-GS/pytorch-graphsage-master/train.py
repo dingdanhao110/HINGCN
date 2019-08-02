@@ -233,7 +233,7 @@ if __name__ == "__main__":
             if args.lr_schedule=='cosine':
                 lr = lr_scheduler(Tcur + epoch_progress, epochs=Ti)
                 LRSchedule.set_lr(optimizer, lr)
-                print(lr)
+                print('learning rate:{}'.format(lr))
             else:
                 set_progress(optimizer, lr_scheduler, (epoch + epoch_progress) / args.epochs)
             loss, preds = train_step(

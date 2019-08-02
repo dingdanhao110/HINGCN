@@ -49,17 +49,19 @@ The notations throughout the rest of paper are shown in Table \ref{table:notatio
 \centering
 \begin{tabular}{cc}
 \hline
-Notation       & Description                                                       \\ \hline
+Symbol       & Description                                                       \\ \hline
 $\Phi$         & Meta-path                                                         \\
 $N^\Phi$       & Set of neighbors with respect to a given meta-path $\Phi$          \\
 $h^{(t)}$        & Node embedding at layer $t$; $h^{(0)}$ is input node feature \\
 $r^{(t)}$        & Edge embedding at layer $t$; $r^{(0)}$ is input edge feature \\
-$e_{i,j}^\Phi$ & Similarity of node pair ($i$,$j$) under meta-path $\Phi$   \\
+%$e_{i,j}^\Phi$ & Similarity of node pair ($i$,$j$) under meta-path $\Phi$   \\
 $a_{i,j}^\Phi$ & Attention of node pair ($i$,$j$) under meta-path $\Phi$    \\
+$w_i^{\Phi_p}$   &  Weight of meta-path $\Phi_p$  related component of $w_i$\\
+$z_i$            & Output embedding for node $i$                                     \\
 $W_F$          & Weight matrix of fully connected layer $F$          \\
 $\sigma$       & Sigmoid function                                                  \\
 $\oplus$       & Concatenate function \\
-$z_i$            & Output embedding for node $i$                                     \\
+$\odot$       & Hadamard (element-wise) product function \\
 \hline
 \end{tabular}
 \label{table:notation}

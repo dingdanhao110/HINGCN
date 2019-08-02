@@ -7,7 +7,7 @@
 """
 
 import numpy as np
-
+import math
 class LRSchedule(object):
     
     @staticmethod
@@ -40,3 +40,7 @@ class LRSchedule(object):
             return 0.05
         else:
             return lr_init * (1 - x % 1) * (epochs - np.floor(x)) / epochs
+
+    @staticmethod
+    def cosine(x, lr_init=0.1, epochs=50, lr_range=(0.0001,0.01)):
+        return lr_range[0]+0.5*(lr_range[1]-lr_range[0])*(1+math.cos(math.pi*x/epochs))

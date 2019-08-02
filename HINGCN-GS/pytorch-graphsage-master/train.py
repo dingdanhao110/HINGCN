@@ -214,15 +214,28 @@ if __name__ == "__main__":
     tolerance = 0
     best_val_loss=100000
     best_result = None
+    
+    if args.lr_schedule=='cosine':
+        Ti=1
+        mult=2
+        Tcur=0
+
     for epoch in range(args.epochs):
         # early stopping
         if tolerance > args.tolerance:
             break
         train_loss = 0
+        
         # Train
         _ = model.train()
         for ids, targets, epoch_progress in problem.iterate(mode='train', shuffle=True, batch_size=args.batch_size):
-            set_progress(optimizer, lr_scheduler, (epoch + epoch_progress) / args.epochs)
+            
+            if args.lr_schedule=='cosine':
+                lr = lr_scheduler(Tcur + epoch_progress, epochs=Ti)
+                LRSchedule.set_lr(optimizer, lr)
+                print(lr)
+            else:
+                set_progress(optimizer, lr_scheduler, (epoch + epoch_progress) / args.epochs)
             loss, preds = train_step(
                 model=model,
                 optimizer=optimizer,
@@ -246,6 +259,14 @@ if __name__ == "__main__":
             "train_loss": train_loss,
         }, double_precision=5))
         sys.stdout.flush()
+
+        #update learning rate for cosine annealing
+        if args.lr_schedule=='cosine':
+            if Tcur%Ti==0 and Tcur>0:
+                Ti*=mult
+                Tcur=0
+            else:
+                Tcur+=1
 
         # Evaluate
         if epoch % args.log_interval == 0:

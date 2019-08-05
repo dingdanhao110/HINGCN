@@ -79,6 +79,7 @@ class HINGCN_GS(nn.Module):
             # agg_layers = []
             # edge_layers = []
             input_dim = self.input_dim
+            out_dim=0
             for i, spec in enumerate(layer_specs):
                 agg = nn.ModuleList( [ aggregator_class(
                     input_dim=input_dim,
@@ -92,7 +93,7 @@ class HINGCN_GS(nn.Module):
                 ) for _ in range(n_head) ])
                 # agg_layers.append(agg)
                 input_dim = agg[0].output_dim * n_head  # May not be the same as spec['output_dim']
-
+                out_dim+=input_dim
                 edge = edgeupt_class(
                     input_dim=input_dim,
                     edge_dim=self.edge_dim,
@@ -104,6 +105,7 @@ class HINGCN_GS(nn.Module):
 
                 self.add_module('agg_{}_{}'.format(mp, i), agg)
                 self.add_module('edge_{}_{}'.format(mp, i), edge)
+        input_dim = out_dim
         if self.bias:
             self.n_homo_nodes = problem.homo_feat.shape[0]
             back_emb = nn.Embedding(self.n_homo_nodes-problem.n_nodes,
@@ -120,6 +122,7 @@ class HINGCN_GS(nn.Module):
             nn.ReLU(), nn.Dropout(self.dropout),
             nn.Linear(16, input_dim),
         ])
+        
         self.mp_agg = mpaggr_class(input_dim,n_head=self.n_mp+int(self.bias),dropout=self.dropout,batchnorm=self.batchnorm,)
 
         self.fc = nn.Linear(self.mp_agg.output_dim, problem.n_classes, bias=True)
@@ -156,6 +159,7 @@ class HINGCN_GS(nn.Module):
 
             # Sequentially apply layers, per original (little weird, IMO)
             # Each iteration reduces length of array by one
+            tmp_out=[]
             for i in range(self.depth):
                 all_feats = [ torch.cat([getattr(self,'agg_{}_{}'.format(mp, i))[h] (all_feats[k], all_feats[k + 1],
                                                      all_edges[k], mask=all_masks[k]) for h in range(self.n_head)], dim=1)
@@ -165,9 +169,9 @@ class HINGCN_GS(nn.Module):
                                                     all_edges[k], mask=all_masks[k]
                                                     ) for k in range(len(all_edges) - 1)]
                 all_edges = [F.dropout(i, self.dropout, training=self.training) for i in all_edges]
-
+                tmp_out.append(all_feats[0])
             assert len(all_feats) == 1, "len(all_feats) != 1"
-            output.append(all_feats[0].unsqueeze(0))
+            output.append( torch.cat(tmp_out,dim=-1).unsqueeze(0) )
         if self.bias:
             tmp_feats = self.feats[ids]
             all_feats = self.prep(torch.arange(self.n_nodes).to(ids.device), tmp_feats, layer_idx=1)

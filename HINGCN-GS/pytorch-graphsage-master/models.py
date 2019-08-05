@@ -144,7 +144,8 @@ class HINGCN_GS(nn.Module):
         for mp in range(self.n_mp):
             ids = tmp_ids
             tmp_feats = self.feats[ids] if has_feats else None
-            all_feats = [self.prep(ids, tmp_feats, layer_idx=0)]
+            tmp_feats = torch.nn.functional.dropout( self.prep(ids, tmp_feats, layer_idx=0),0.2,training=train)
+            all_feats = [tmp_feats]
             all_edges = []
             all_masks = []
             for layer_idx, sampler_fn in enumerate(sample_fns):

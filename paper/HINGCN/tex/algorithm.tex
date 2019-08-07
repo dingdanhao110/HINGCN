@@ -38,31 +38,37 @@ r^{(0)}_\Phi(x_u,x_v) = c(x_u,x_v)\oplus o(x_u,x_v)\oplus s(x_u,x_v)
 \end{equation}
 
 \subsection{Aggregating node embedding}
+We propose a modified version of scaled dot product attention mechanism to aggregate node embedding from its neighbor. Given a meta-path $\Phi$, we update vertex embedding as follow. First we apply 2 layer MLPs on node embedding and its neighbor respectively for scaling purpose. The query vector of node $i$ is
+\begin{equation}
+q_i= W_{a1}^{(t)}(\text{tanh}(W_{a2}^{(t)}h^{(t)}_i ))
+\end{equation}
+And key vector $k_{i,j}$ is calculated as:
+\begin{equation}
+k_{i,j} = W_{a3}^{(t)}(\text{tanh}(W_{a4}^{(t)}(h^{(t)}_j \oplus r^{(t)}_{i,j}) ))
+\end{equation}
+And the value vector of neighbor $j$ is calculated as: 
+\begin{equation}
+\label{eq:value}
+v^{(t)}_{i,j} = W^{(t)}( h^{(t)}_j \oplus r^{(t)}_{i,j} )
+\end{equation} 
+where edge feature $r^{(t)}_{i,j}$ is concatenated to vertex feature of the neighbors, in order to provide additional information. It is worth noticing that due to unique feature of each edge, both key and value vectors are no longer universal for different query nodes. We believe this uniqueness improves expressivity of self-attention mechanism for HIN embedding tasks.
 
-\dan{TODO}
-We utilize a dot product attention mechanism to aggregate node embedding from its neighbor. Given a meta-path $\Phi$, we update vertex embedding as follow. First we apply MLP layers on node embedding and its neighbor respectively:
-\begin{equation}
-\hat{h}_i= W_{a1}^{(t)}(\text{tanh}(W_{a2}^{(t)}h^{(t)}_i ))
-\end{equation}
-and
-\begin{equation}
-n_{i,j} = W_{a3}^{(t)}(\text{tanh}(W_{a4}^{(t)}(h^{(t)}_j \oplus r^{(t)}_{i,j}) ))
-\end{equation}
-Here edge feature $r^{(t)}_{i,j}$ is concatenated to vertex feature of the neighbors, in order to provide additional information. The importance of a neighbor $j$ to object $i$ is then calculated as:
+\noindent Afterwards, the importance of a neighbor $j$ to object $i$ is calculated as:
 \begin{equation}
 \label{eq:dot}
-\tilde{a}^{(t)}_{i,j} = \hat{h}_i^T \cdot n_{i,j}
+\tilde{a}^{(t)}_{i,j} = q_i^T \cdot k_{i,j}
 \end{equation}
-Then we normalize this importance coefficient by softmax function:
+Then we normalize this importance coefficient by softmax function and calculate attention coefficient as:
 \begin{equation}
 \label{eq:softmax}
 a^{(t)}_{i,j} = \text{softmax}(\tilde{a}^{(t)}_{i,j}) = \dfrac{\text{exp}(\tilde{a}^{(t)}_{i,j})}{\sum_{k\in N^\Phi_i}\text{exp}(\tilde{a}^{(t)}_{i,k})}
 \end{equation}
-Finally the output of the node aggregation layer is a weighted sum of neighbor embeddings: 
+Finally the output of the node aggregation layer is a weighted sum of value vectors. 
 \begin{equation}
 \label{eq:upd_node}
-h^{(t+1)}_i = \text{ReLU}( W_{h1}\cdot \sum_{j\in N^\Phi_i} a^{(t)}_{i,j} \cdot ( h^{(t)}_j \oplus r^{(t)}_{i,j} ) + W_{h2}\cdot h^{(t)}_i ) 
+h^{(t+1)}_i = \text{ReLU}(W_{h2}\cdot h^{(t)}_i + W_{h1}\cdot \sum_{j\in N^\Phi_i} a^{(t)}_{i,j} \cdot v^{(t)}_{i,j} ) 
 \end{equation} 
+Although a vertex $i$ is always in its own meta-path neighbor, we still explicitly add term $h^{(t)}_i$ in equation \ref{eq:upd_node} following GraphSAGE\cite{HamiltonYL17}.
 
 \subsection{Aggregating edge embedding}
 \dan{TODO} In multi-layer propagation, we propose to update embeddings of edge as well.
@@ -86,6 +92,7 @@ Given a node $i$, and its set of embeddings under different semantics, a metapat
 Here we propose several metapath aggregators. 
 
 $\bullet$ \textbf{Attention}
+\dan{cite} The first option we consider is scaled dot-product attention introduced in Transformer. 
 \begin{equation}
 \label{eq:mp_mlp}
 \tilde{h}^{\Phi_p}_i = W_{m1} \cdot \text{tanh}(W_{m2} \cdot h^{\Phi_p}_i)
@@ -101,6 +108,7 @@ $\bullet$ \textbf{Attention}
 w_i^{\Phi_p} = \text{softmax}(\tilde{w}_i^{\Phi_p}) = \dfrac{\text{exp}(\tilde{w}_i^{\Phi_p})}{\sum_q \text{exp}(\tilde{w}_i^{\Phi_q})}
 \end{equation}
 
+After the fully-connected self-attention, we propose to reduce across different meta-path semantics by \textbf{Sum} operation.
 \begin{equation}
 \label{eq:mp_asum}
 z_i = \text{ReLU}(\sum_p w_i^{\Phi_p} \cdot h^{\Phi_p}_i)

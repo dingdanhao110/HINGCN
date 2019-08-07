@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{9}
+\begin{thebibliography}{10}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -57,6 +57,17 @@
 \newblock \showarticletitle{node2vec: Scalable Feature Learning for Networks}.
   In \bibinfo{booktitle}{{\em {KDD}}}. \bibinfo{publisher}{{ACM}},
   \bibinfo{pages}{855--864}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Hamilton, Ying, and Leskovec}{Hamilton
+  et~al\mbox{.}}{2017}]%
+        {HamiltonYL17}
+\bibfield{author}{\bibinfo{person}{William~L. Hamilton},
+  \bibinfo{person}{Zhitao Ying}, {and} \bibinfo{person}{Jure Leskovec}.}
+  \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{Inductive Representation Learning on Large Graphs}.
+  In \bibinfo{booktitle}{{\em {NIPS}}}. \bibinfo{pages}{1024--1034}.
 \newblock
 
 

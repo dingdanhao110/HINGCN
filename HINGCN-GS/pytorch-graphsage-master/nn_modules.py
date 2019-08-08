@@ -467,6 +467,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
         attention = F.softmax(e, dim=1)
         attention = attention.view(N, 1, n_sample)
         # attention = attention.squeeze(2)
+        attention = self.dropout(attention)
 
         # h_prime = [torch.matmul(attention[i], neigh_feat.view(N, n_sample, -1)[i]) for i in range(N)]
         h_prime = torch.bmm(attention, neighs.view(N, n_sample, -1)).squeeze()
@@ -542,6 +543,10 @@ class AttentionAggregator2(nn.Module):
         ws = torch.bmm(neib_att, x_att).squeeze()
         ws += -9999999 * mask
         ws = F.softmax(ws, dim=1)
+
+        #dropout for attention coefficient
+        ws = self.dropout(ws)
+        ws = F.normalize(ws,p=1,dim=1)
 
         # Weighted average of neighbors
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))

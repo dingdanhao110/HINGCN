@@ -66,7 +66,7 @@ a^{(t)}_{i,j} = \text{softmax}(\tilde{a}^{(t)}_{i,j}) = \dfrac{\text{exp}(\tilde
 Finally the output of the node aggregation layer is a weighted sum of value vectors. 
 \begin{equation}
 \label{eq:upd_node}
-h^{(t+1)}_i = \text{ReLU}(W_{h2}\cdot h^{(t)}_i + W_{h1}\cdot \sum_{j\in N^\Phi_i} a^{(t)}_{i,j} \cdot v^{(t)}_{i,j} ) 
+h^{(t+1)}_i = \text{ReLU}( W_{h1}\cdot \sum_{j\in N^\Phi_i} a^{(t)}_{i,j} \cdot v^{(t)}_{i,j} + W_{h2}\cdot h^{(t)}_i) 
 \end{equation} 
 Although a vertex $i$ is always in its own meta-path neighbor, we still explicitly add term $h^{(t)}_i$ in equation \ref{eq:upd_node} following GraphSAGE\cite{HamiltonYL17}.
 
@@ -144,47 +144,54 @@ After meta-path aggregation layer, the embeddings are fed to a 2-layer MLP for f
 \end{equation}
 $ \mathcal{Y}_L$ is the set of labeled nodes in training set. $W$ represents the weight matrices used in the layers of our HINGCN. We use $L_2$ normalization for parameters involved.
 
-To this end, HINGCN is summarized in Algorithm~\ref{alg}.
+To this end, we give a summary of overall process of HINGCN.
+The part of embedding generation is summarized in Algorithm~\ref{alg}.
 HINGCN first computes initial edge feature $r^{(0)}_{\Phi_p}$ for each edge under each meta-path. Then it applies an alternative update of node embedding and edge embedding.
 After that each node fuses a meta-path specific embedding by jumping connections. These embeddings are further aggregated using either meta-path level attention or gated linear units. Finally, embeddings are fed to a two layer MLP and a softmax layer for classification output.
 
-\dan{TODO}
 \begin{algorithm}
-\begin{small}
-\caption{Overall process of HINGCN}
+%\begin{small}
+\caption{HINGCN Embedding Generation}
 \label{alg}
 \begin{algorithmic}[1]
-\Require Labeled type $T$;
+\Require HIN $G=(V,E)$;
+labeled type $T$;
 meta-path set ${\Phi_0,\Phi_1,\ldots ,\Phi_P}$;
 an initial node representation $\{ f_i,\forall x_i \in X_T \}$;
 number of aggregation layers $L$;
-\Ensure $\mathcal{C} = \{C_1, ..., C_k\}$
-\State Compose edge features $r^{(0)}$ according to Equation (\ref{eq:edge})
-\State $h^{(0)}_i \leftarrow f_i$, $\forall x_i \in $
-\For $j \leftarrow 1$ do
-\State Calculate $W = D^{-1}S$, where $D_{ii} = \sum_jS_{ij}$
+\Ensure Final node embeddings $Z = \{z_1, ..., z_i\}$
+\State $h^{(0)}_i \leftarrow f_i$, $\forall x_i \in X_T $
+\For {$p \leftarrow 0$ to $P$}
+\State Compose edge features $r^{(0)}_{\Phi_p}$ according to Eq.\ref{eq:edge}.
 \EndFor
-%\For $j \leftarrow 1$ do
-%\State$t = 0$
-%\Repeat
-%\State $v_j^{t+1} \leftarrow \frac{Wv_j^t}{||Wv_j^t||_1}$
-%\State $ \delta^{t+1} \leftarrow |v_j^{t+1} - v_j^t|$
-%\State $t$++
-%\Until $||\delta_j^t+1 - \delta_j^t||_{max} \leq \epsilon$ or $t\geq T$
-%\EndFor
-\State Computes initial edge feature $r^(0)_{\Phi_p}$
-\For $j \leftarrow 1$ do
+\For {$p \leftarrow 0$ to $P$}
+ \For {$t \leftarrow 0$ to $L-1$}
+ %Update node embeddings:
+  \For {$x_i \in X_T$}
+  \State $q_i= W_{a1}^{(t)}(\text{tanh}(W_{a2}^{(t)}h^{(t)}_i ))$
+ \For {$x_j \in N^{\Phi_p}_i$}
+  \State $k_{i,j} = W_{a3}^{(t)}(\text{tanh}(W_{a4}^{(t)}(h^{(t)}_j \oplus r^{(t)}_{i,j}) ))$
+  \State $v^{(t)}_{i,j} = W^{(t)}( h^{(t)}_j \oplus r^{(t)}_{i,j} )$
+  %Calculate importance of j to i
+  \State $\tilde{a}^{(t)}_{i,j} = q_i^T \cdot k_{i,j}$
+  %Calculate the attention coefficient 
+  \State $a^{(t)}_{i,j} = \text{softmax}(\tilde{a}^{(t)}_{i,j})$
+ \EndFor
+  \State $h^{(t+1)}_i = \text{ReLU}(W_{h1}\cdot \sum_{j\in N^{\Phi_p}_i} a^{(t)}_{i,j} \cdot v^{(t)}_{i,j}+ W_{h2}\cdot h^{(t)}_i) $
+  \EndFor
 
+  %\State Update edge embeddings:
+  \For {$e \in E$}
+  \State $(x_i,x_j) \leftarrow \text{Endpoints}(e)$
+  \State $r^{(t+1)}_{i,j} = \text{ReLU}(W_{r1}\cdot (h^{(t)}_i \oplus h^{(t)}_j \oplus r^{(t)}_{i,j}) + W_{r2}\cdot r^{(t)}_{i,j})$
+  \EndFor
+ \EndFor
+ \State $h^{\Phi_p}_i = h^{(0)}_i \oplus h^{(1)}_i \cdots \oplus h^{(t)}_i$
 \EndFor
-\State Normalize each column vector $\bm{x}$ of $X$ such that $\bm{x}^T\bm{x} = 1$
-\State Calculate the coefficient matrix $Z^*$ by Eq.~\ref{eq:solution}
-\State Construct $\tilde{Z} = (|Z^*| + |(Z^*)^T|)/2$
-\State Run standard spectral clustering methods, e.g., NCuts, with $\tilde{Z}$ as the
-similarity matrix to obtain clusters $\mathcal{C} = \{C_r\}_{r=1}^k$
-%\State Decode $\{C_r\}_{r=1}^k$ from $\{{\bm z_r}\}_{r=1}^k$
-\State \Return $\mathcal{C} = \{C_1, ..., C_k\}$
+\State Aggregate meta-path specific embeddings and compute ${z}_i$ according to \textbf{Attention} (Eq.\ref{eq:mp_asum}) or \textbf{Gated Linear Units} (Eq.\ref{eq:mp_sum})
+\State \Return $Z = \{z_1, ..., z_i\}$ 
 \end{algorithmic}
-\end{small}
+%\end{small}
 \end{algorithm}
 
 

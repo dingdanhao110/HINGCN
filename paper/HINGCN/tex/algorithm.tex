@@ -138,23 +138,32 @@ In preliminary experiments, \textbf{Concat}, \textbf{Max-Pooling} and \textbf{Me
 
 \subsection{HINGCN: Semi-supervised classification on Heterogeneous Information Network via Graph Convolution Networks}
 After meta-path aggregation layer, the embeddings are fed to a 2-layer MLP for final output. In semi-supervised classification tasks, we minimize the Cross-Entropy loss and the model generates final prediction based on the largest output value.
-Finally, HINGCN is summarized in Algorithm~\ref{alg}.
+\begin{equation}
+\label{eq:loss}
+\mathcal{L}(W)=   - \sum_{l\in \mathcal{Y}_L}Y^l ln(z^l)   + \lambda \parallel W \parallel_2
+\end{equation}
+$ \mathcal{Y}_L$ is the set of labeled nodes in training set. $W$ represents the weight matrices used in the layers of our HINGCN. We use $L_2$ normalization for parameters involved.
 
-To this end, we summarize HINGCN as follows.
+To this end, HINGCN is summarized in Algorithm~\ref{alg}.
 HINGCN first computes initial edge feature $r^{(0)}_{\Phi_p}$ for each edge under each meta-path. Then it applies an alternative update of node embedding and edge embedding.
 After that each node fuses a meta-path specific embedding by jumping connections. These embeddings are further aggregated using either meta-path level attention or gated linear units. Finally, embeddings are fed to a two layer MLP and a softmax layer for classification output.
 
 \dan{TODO}
 \begin{algorithm}
 \begin{small}
-\caption{HINGCN}
+\caption{Overall process of HINGCN}
 \label{alg}
 \begin{algorithmic}[1]
-\Require $h$, $r$.
+\Require Labeled type $T$;
+meta-path set ${\Phi_0,\Phi_1,\ldots ,\Phi_P}$;
+an initial node representation $\{ f_i,\forall x_i \in X_T \}$;
+number of aggregation layers $L$;
 \Ensure $\mathcal{C} = \{C_1, ..., C_k\}$
-\State Compose edge features $r^{(0)}$ according to Equation \ref{eq:edge}
-\State Compute the TKNN graph and the reachability matrix $\mathcal{W}$
+\State Compose edge features $r^{(0)}$ according to Equation (\ref{eq:edge})
+\State $h^{(0)}_i \leftarrow f_i$, $\forall x_i \in $
+\For $j \leftarrow 1$ do
 \State Calculate $W = D^{-1}S$, where $D_{ii} = \sum_jS_{ij}$
+\EndFor
 %\For $j \leftarrow 1$ do
 %\State$t = 0$
 %\Repeat

@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{11}
+\begin{thebibliography}{14}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -97,6 +97,16 @@
 \newblock
 
 
+\bibitem[\protect\citeauthoryear{Kipf and Welling}{Kipf and Welling}{2017}]%
+        {KipfW17}
+\bibfield{author}{\bibinfo{person}{Thomas~N. Kipf} {and} \bibinfo{person}{Max
+  Welling}.} \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{Semi-Supervised Classification with Graph
+  Convolutional Networks}. In \bibinfo{booktitle}{{\em {ICLR} (Poster)}}.
+  \bibinfo{publisher}{OpenReview.net}.
+\newblock
+
+
 \bibitem[\protect\citeauthoryear{Li, M{\"{u}}ller, Thabet, and Ghanem}{Li
   et~al\mbox{.}}{2019}]%
         {abs-1904-03751}
@@ -139,6 +149,32 @@
 \newblock \showarticletitle{Ranking-based clustering of heterogeneous
   information networks with star network schema}. In \bibinfo{booktitle}{{\em
   {KDD}}}. \bibinfo{publisher}{{ACM}}, \bibinfo{pages}{797--806}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Velickovic, Cucurull, Casanova, Romero,
+  Li{\`{o}}, and Bengio}{Velickovic et~al\mbox{.}}{2018}]%
+        {VelickovicCCRLB18}
+\bibfield{author}{\bibinfo{person}{Petar Velickovic}, \bibinfo{person}{Guillem
+  Cucurull}, \bibinfo{person}{Arantxa Casanova}, \bibinfo{person}{Adriana
+  Romero}, \bibinfo{person}{Pietro Li{\`{o}}}, {and} \bibinfo{person}{Yoshua
+  Bengio}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Graph Attention Networks}. In
+  \bibinfo{booktitle}{{\em {ICLR} (Poster)}}.
+  \bibinfo{publisher}{OpenReview.net}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Wang, Ji, Shi, Wang, Ye, Cui, and Yu}{Wang
+  et~al\mbox{.}}{2019}]%
+        {WangJSWYCY19}
+\bibfield{author}{\bibinfo{person}{Xiao Wang}, \bibinfo{person}{Houye Ji},
+  \bibinfo{person}{Chuan Shi}, \bibinfo{person}{Bai Wang},
+  \bibinfo{person}{Yanfang Ye}, \bibinfo{person}{Peng Cui}, {and}
+  \bibinfo{person}{Philip~S. Yu}.} \bibinfo{year}{2019}\natexlab{}.
+\newblock \showarticletitle{Heterogeneous Graph Attention Network}. In
+  \bibinfo{booktitle}{{\em {WWW}}}. \bibinfo{publisher}{{ACM}},
+  \bibinfo{pages}{2022--2032}.
 \newblock
 
 

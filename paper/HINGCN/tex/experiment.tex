@@ -15,16 +15,27 @@ clustering quality.
 %Finally, we conduct a parameter sensitivity study of ROSC (Section~\ref{}).
 
 \subsection{Datasets}
-A summary of statistics of the datasets rae shown in table \ref{table:dataset}.
+We use three datasets, namely DBLP \footnote{https://dblp.uni-trier.de/}, Yelp\footnote{https://www.yelp.com/academic{\_}dataset/} and Freebase \footnote{https://www.freebase.com/}. A summary of statistics of the datasets are shown in table \ref{table:dataset}.
 
 \noindent{\small$\bullet$}
-\textbf{DBLP}: We extract a subset of DBLP with contains 4057 authors ($A$), 14328 papers ($P$) and 20 conferences ($C$). Authors are classified into four areas: \textit{database}, \textit{data mining}, \textit{machine learning}, \textit{information retrieval}. Each author's research area is labeled according to the conferences they submitted. In addition, 8789 keyword terms are assigned to each author as feature, following tf-idf transformation. Here we select meta-paths $\{APA,APAPA,APCPA\}$ for experiments.
+\textbf{DBLP }: We extract a subset of DBLP which contains 4057 authors ($A$), 14328 papers ($P$) and 20 conferences ($C$). Authors are classified into four areas: \textit{database}, \textit{data mining}, \textit{machine learning}, \textit{information retrieval}. In addition, 8789 keyword terms are assigned to each author as feature, following tf-idf transformation. 
+Links include A-P ( author publishes a paper) and P-C (paper published at a conference).
+We consider meta-paths $\{APA,APAPA,APCPA\}$ for experiments. The task of semi-supervised classification is to predict which area of research an author is focusing on.
+We obtained the ground truth from the dataset dblp-4area \cite{SunYH09}, which
+labels each author by his/her primary research area.
 
 \noindent{\small$\bullet$}
-\textbf{Yelp}: A standard spectral clustering method with symmetric normalization.
+\textbf{Yelp-Restaurant}: We extracted information related to restaurant businesses in YELP. From extracted information, we constructed a dataset which contains 2614 business objects ($B$); 33360 review objects ($R$); 1286 user objects ($U$) and 82 food relevant keyword objects ($K$).
+Restaurant businesses falls into three categories: "Fast Food", "Sushi Bars" and "American (New) Food".
+Each business object is associated with 3 categorical attributes which includes reservation (whether reservation is required), service (waiter service or self service) and parking; as well as 1 numerical attribute: review count; and 1 ordinal attribute: quality star.
+Links include B-R (business receives a review), U-R (user writes a review), K-R (keyword included in a review). We consider the meta-path set $\{BRURB, BRKRB\}$. The semi-supervised classification task is to classify business objects by state. We use the class information provided in the dataset as the ground truth.
 
 \noindent{\small$\bullet$}
-\textbf{Freebase}: A standard spectral clustering method with symmetric normalization.
+\textbf{Freebase-Movie}: We extract a subset of Freebase movie data which contains ? movies ($M$); ? actors ($A$); ? directors ($D$) and ? writers ($W$). The movies are divided into three classes: \textit{Action}, \textit{Comedy} and \textit{Drama}. 
+%Each movie has a 5-dimensional meta-data as feature.
+No attribute is provided with movies. 
+Links include M-A (movie and its actor), M-D (movie and its director), M-W (movie and its writer).
+We consider meta-paths $\{MAM,MDM,MWM\}$ for experiments. The task of semi-supervised classification is to predict the class of movies. We use the class information provided in the dataset as the ground truth.
 
 \comment{
 \subsection{Measures}

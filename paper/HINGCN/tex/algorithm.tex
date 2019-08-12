@@ -140,7 +140,7 @@ In preliminary experiments, \textbf{Concat}, \textbf{Max-Pooling} and \textbf{Me
 After meta-path aggregation layer, the embeddings are fed to a 2-layer MLP for final output. In semi-supervised classification tasks, we minimize the Cross-Entropy loss and the model generates final prediction based on the largest output value.
 \begin{equation}
 \label{eq:loss}
-\mathcal{L}(W)=   - \sum_{l\in \mathcal{Y}_L}Y^l ln(z^l)   + \lambda \parallel W \parallel_2
+\mathcal{L}(W)=   - \sum_{l\in \mathcal{Y}_L}Y^l ln(z^l)   + \lambda || W ||_2
 \end{equation}
 $ \mathcal{Y}_L$ is the set of labeled nodes in training set. $W$ represents the weight matrices used in the layers of our HINGCN. We use $L_2$ normalization for parameters involved.
 

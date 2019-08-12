@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{10}
+\begin{thebibliography}{11}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -129,6 +129,16 @@
   Heterogeneous Information Networks}.
 \newblock \bibinfo{journal}{{\em {PVLDB}\/}} \bibinfo{volume}{4},
   \bibinfo{number}{11} (\bibinfo{year}{2011}), \bibinfo{pages}{992--1003}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Sun, Yu, and Han}{Sun et~al\mbox{.}}{2009}]%
+        {SunYH09}
+\bibfield{author}{\bibinfo{person}{Yizhou Sun}, \bibinfo{person}{Yintao Yu},
+  {and} \bibinfo{person}{Jiawei Han}.} \bibinfo{year}{2009}\natexlab{}.
+\newblock \showarticletitle{Ranking-based clustering of heterogeneous
+  information networks with star network schema}. In \bibinfo{booktitle}{{\em
+  {KDD}}}. \bibinfo{publisher}{{ACM}}, \bibinfo{pages}{797--806}.
 \newblock
 
 

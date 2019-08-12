@@ -18,7 +18,7 @@ clustering quality.
 A summary of statistics of the datasets rae shown in table \ref{table:dataset}.
 
 \noindent{\small$\bullet$}
-\textbf{DBLP}: We extract a subset of DBLP with contains 4057 authors ($A$), 14328 papers ($P$) and 20 conferences ($C$). 8789 terms of papers are aggregated to each author as feature, after tf-idf transformation. Here we select meta-paths $\{APA,APAPA,APCPA\}$ for experiments.
+\textbf{DBLP}: We extract a subset of DBLP with contains 4057 authors ($A$), 14328 papers ($P$) and 20 conferences ($C$). Authors are classified into four areas: \textit{database}, \textit{data mining}, \textit{machine learning}, \textit{information retrieval}. Each author's research area is labeled according to the conferences they submitted. In addition, 8789 keyword terms are assigned to each author as feature, following tf-idf transformation. Here we select meta-paths $\{APA,APAPA,APCPA\}$ for experiments.
 
 \noindent{\small$\bullet$}
 \textbf{Yelp}: A standard spectral clustering method with symmetric normalization.
@@ -102,7 +102,7 @@ The proposed semi-supervised classification method based on heterogeneous graph 
 \subsection{Experiment setup}
 \label{sec:setup}
 \dan{TODO}
-We implement HINGCN using PyTorch. We use the same learning rate 0.001. The models  are trained with two NVIDIA 1080Ti GPUs using data parallelism. The batch size is 1024 for each GPU. We stack two graph aggregators, and each aggregator samples 16 neighbors for both training and testing. Each aggregator is then followed by a ReLU activation layer and a dropout layer with dropout rate 0.5. Output dimension of the layers are set to 64 and 32 respectively. For dataset without node features, we encode a 1-hot matrix as input feature. As mentioned in section \dan{TODO}, we ensemble edge feature from pre-trained path-sim and node embeddings. These node embeddings are trained using Node2vec with default parameters on the underlying graph neglecting heterogeneity.
+We implement HINGCN using PyTorch. We use the same learning rate 0.001 for all HINGCN variants. The models  are trained with two NVIDIA 1080Ti GPUs using data parallelism. The batch size is 1024 for each GPU. We stack two graph aggregators, and each aggregator samples 16 neighbors for both training and testing. Each aggregator is then followed by a ReLU activation layer and a dropout layer with dropout rate 0.5. Output dimension of the layers are set to 64 and 32 respectively. For dataset without node features, we encode a 1-hot matrix as input feature. As mentioned in section \dan{TODO}, we ensemble edge feature from pre-trained path-sim and node embeddings. These node embeddings are trained using Node2vec with default parameters on the underlying graph neglecting heterogeneity.
 
 The parameters of all the baseline methods are set according to their original papers.
 For each method and dataset,
@@ -114,3 +114,25 @@ we run the experiment 10 times and report average results.
 We apply all 10 methods on \textsc{DBLP}. 
 Due to space limitations, for each category of methods, we only show the best performing one. 
 They are, namely, NJW, PIC-$k$, FUSE, and ROSC. 
+
+\subsection{Analysis of HINGCN layers}
+We provide a detailed analysis of each component layer of HINGCN model.
+
+\textbf{Analysis of edge feature.}
+
+\textbf{Analysis of effect of updating edge.}
+
+\textbf{Analysis of different meta-path aggregation units.}
+
+\subsection{Sensitivity Experiments of Hyper-parameters}
+In this section, we investigate the sensitivity of hyper-parameters. We vary concerned parameters and compare against default settings described in Sec.~\ref{sec:setup} 
+
+\textbf{Dimension of edge feature.}
+
+\textbf{Number of sampled neighbors.}
+
+
+
+
+
+

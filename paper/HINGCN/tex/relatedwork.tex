@@ -1,9 +1,30 @@
 \section{Related Work}
 \label{sec:related}
-\subsection{Heterogeneous graph neural networks}
+\subsection{Semi-supervised Learning on Graphs}
 \dan{TODO}
-\subsection{Heterogeneous graph embedding}
-\dan{TODO}
+The main focus in this paper is semi-supervised classification on graphs. Given a graph with limited labels on a set of nodes, the goal of learning is to predict the label of the remaining vertices.
+
+\dan{traditional semi-supervised classification algorithms}
+
+Graph embedding is a class of algorithms that aims to learn low dimensional representations of vertices while preserving graph structures. In semi-supervised classification, the learnt embeddings serve as vertex features and are fed to downstream classification engines such as logistics, SVM, and MLP classifiers \dan{cite?}. There are various embedding methods designed for homogeneous graphs, which generally falls into three categories: deep neural network methods\cite{WangC016}, random walk based methods\cite{GroverL16,PerozziAS14}, matrix factorization methods and label propagation methods.
+
+Heterogeneous graph embedding methods differ from homogeneous ones, in the sense that meta-path based structure information is considered.
+
+\subsection{Graph Convolution Networks}
+Recently, graph convolution neural networks (GCNNs) have became popular approaches in graph embedding tasks. GCNNs extend convolution neural networks (CNNs) to the graph domain and generally fall into two categories: spectral GNNs and spatial GNNs.
+Spectral GNNs generally convolve on the spectrum of the graph Fourier transform. \citet{BrunaZSL13} generalizes CNNs to graphs by finding Fourier basis of graph Laplacian. 
+\citet{DefferrardBV16} employs a K-order approximation to provide a localized filtering in the transformed Fourier domain.
+Spatial GNNs
+
+Attention GNNs
+
+GCN model neatly combines graph structures and vertex features during convolution, where features of labeled vertices are propagated to unlabeled vertices through multiple layers.
+
+
+
+
+%\subsection{Graph-Based semi-supervised learning}
+%\dan{TODO}
 
 
 

@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{14}
+\begin{thebibliography}{17}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -36,6 +36,17 @@
 \providecommand\bibinfo[2]{#2}
 \providecommand\natexlab[1]{#1}
 \providecommand\showeprint[2][]{arXiv:#2}
+
+\bibitem[\protect\citeauthoryear{Bruna, Zaremba, Szlam, and LeCun}{Bruna
+  et~al\mbox{.}}{2014}]%
+        {BrunaZSL13}
+\bibfield{author}{\bibinfo{person}{Joan Bruna}, \bibinfo{person}{Wojciech
+  Zaremba}, \bibinfo{person}{Arthur Szlam}, {and} \bibinfo{person}{Yann
+  LeCun}.} \bibinfo{year}{2014}\natexlab{}.
+\newblock \showarticletitle{Spectral Networks and Locally Connected Networks on
+  Graphs}. In \bibinfo{booktitle}{{\em {ICLR}}}.
+\newblock
+
 
 \bibitem[\protect\citeauthoryear{Dong, Chawla, and Swami}{Dong
   et~al\mbox{.}}{2017}]%
@@ -129,6 +140,18 @@
 \newblock
 
 
+\bibitem[\protect\citeauthoryear{Perozzi, Al{-}Rfou, and Skiena}{Perozzi
+  et~al\mbox{.}}{2014}]%
+        {PerozziAS14}
+\bibfield{author}{\bibinfo{person}{Bryan Perozzi}, \bibinfo{person}{Rami
+  Al{-}Rfou}, {and} \bibinfo{person}{Steven Skiena}.}
+  \bibinfo{year}{2014}\natexlab{}.
+\newblock \showarticletitle{DeepWalk: online learning of social
+  representations}. In \bibinfo{booktitle}{{\em {KDD}}}.
+  \bibinfo{publisher}{{ACM}}, \bibinfo{pages}{701--710}.
+\newblock
+
+
 \bibitem[\protect\citeauthoryear{Sun, Han, Yan, Yu, and Wu}{Sun
   et~al\mbox{.}}{2011}]%
         {SunHYYW11}
@@ -162,6 +185,17 @@
 \newblock \showarticletitle{Graph Attention Networks}. In
   \bibinfo{booktitle}{{\em {ICLR} (Poster)}}.
   \bibinfo{publisher}{OpenReview.net}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Wang, Cui, and Zhu}{Wang
+  et~al\mbox{.}}{2016}]%
+        {WangC016}
+\bibfield{author}{\bibinfo{person}{Daixin Wang}, \bibinfo{person}{Peng Cui},
+  {and} \bibinfo{person}{Wenwu Zhu}.} \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{Structural Deep Network Embedding}. In
+  \bibinfo{booktitle}{{\em {KDD}}}. \bibinfo{publisher}{{ACM}},
+  \bibinfo{pages}{1225--1234}.
 \newblock
 
 

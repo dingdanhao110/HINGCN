@@ -17,24 +17,27 @@
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{DongCS17}
+\citation{WangC016}
+\citation{GroverL16,PerozziAS14}
+\citation{BrunaZSL13}
 \citation{JiSDHG10}
-\citation{SunHYYW11}
 \@writefile{toc}{\contentsline {section}{Abstract}{1}{section*.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec:intro}{{1}{1}{Introduction}{section.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces An example of a heterogeneous information network (DBLP). There are three types of nodes (i.e. author, paper, conference).\relax }}{1}{figure.caption.4}\protected@file@percent }
-\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{figure:example}{{1}{1}{An example of a heterogeneous information network (DBLP). There are three types of nodes (i.e. author, paper, conference).\relax }{figure.caption.4}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{1}{section.2}\protected@file@percent }
 \newlabel{sec:related}{{2}{1}{Related Work}{section.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Heterogeneous graph neural networks}{1}{subsection.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Heterogeneous graph embedding}{1}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Semi-supervised Learning on Graphs}{1}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Graph Convolution Networks}{1}{subsection.2.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {section}{\numberline {3}Preliminary}{1}{section.3}\protected@file@percent }
 \newlabel{sec:pre}{{3}{1}{Preliminary}{section.3}{}}
+\citation{SunHYYW11}
 \citation{XuHLJ19}
 \citation{SunHYYW11}
 \citation{GroverL16,DongCS17}
 \citation{SunHYYW11}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces An example of a heterogeneous information network (DBLP). There are three types of nodes (i.e. author, paper, conference).\relax }}{2}{figure.caption.4}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{figure:example}{{1}{2}{An example of a heterogeneous information network (DBLP). There are three types of nodes (i.e. author, paper, conference).\relax }{figure.caption.4}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Description of symbols\relax }}{2}{table.caption.5}\protected@file@percent }
 \newlabel{table:notation}{{1}{2}{Description of symbols\relax }{table.caption.5}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {4}Algorithm}{2}{section.4}\protected@file@percent }
@@ -43,14 +46,13 @@
 \newlabel{sec:edge}{{4.1}{2}{Edge features as supplementary information}{subsection.4.1}{}}
 \newlabel{eq:edge}{{1}{2}{Edge features as supplementary information}{equation.4.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Aggregating node embedding}{2}{subsection.4.2}\protected@file@percent }
-\newlabel{eq:value}{{4}{2}{Aggregating node embedding}{equation.4.4}{}}
-\newlabel{eq:dot}{{5}{2}{Aggregating node embedding}{equation.4.5}{}}
-\newlabel{eq:softmax}{{6}{2}{Aggregating node embedding}{equation.4.6}{}}
 \citation{HamiltonYL17}
 \citation{LiHW18,abs-1904-03751}
 \citation{HeZRS16}
 \citation{XuLTSKJ18}
-\citation{SunYH09}
+\newlabel{eq:value}{{4}{3}{Aggregating node embedding}{equation.4.4}{}}
+\newlabel{eq:dot}{{5}{3}{Aggregating node embedding}{equation.4.5}{}}
+\newlabel{eq:softmax}{{6}{3}{Aggregating node embedding}{equation.4.6}{}}
 \newlabel{eq:upd_node}{{7}{3}{Aggregating node embedding}{equation.4.7}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Aggregating edge embedding}{3}{subsection.4.3}\protected@file@percent }
 \newlabel{eq:upd_edge}{{8}{3}{Aggregating edge embedding}{equation.4.8}{}}
@@ -64,41 +66,21 @@
 \newlabel{eq:mp_sum}{{16}{3}{Aggregation across different meta-path semantics}{equation.4.16}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.6}HINGCN: Semi-supervised classification on Heterogeneous Information Network via Graph Convolution Networks}{3}{subsection.4.6}\protected@file@percent }
 \newlabel{eq:loss}{{17}{3}{HINGCN: Semi-supervised classification on Heterogeneous Information Network via Graph Convolution Networks}{equation.4.17}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Experiment}{3}{section.5}\protected@file@percent }
-\newlabel{sec:exp}{{5}{3}{Experiment}{section.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Datasets}{3}{subsection.5.1}\protected@file@percent }
+\citation{SunYH09}
 \citation{GroverL16}
 \citation{DongCS17}
 \citation{KipfW17}
-\citation{VelickovicCCRLB18}
-\citation{WangJSWYCY19}
 \@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces HINGCN Embedding Generation\relax }}{4}{algorithm.1}\protected@file@percent }
 \newlabel{alg}{{1}{4}{HINGCN Embedding Generation\relax }{algorithm.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Experiment}{4}{section.5}\protected@file@percent }
+\newlabel{sec:exp}{{5}{4}{Experiment}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Datasets}{4}{subsection.5.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Algorithms for comparison}{4}{subsection.5.2}\protected@file@percent }
 \newlabel{sec:algo-comp}{{5.2}{4}{Algorithms for comparison}{subsection.5.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Experiment setup}{4}{subsection.5.3}\protected@file@percent }
-\newlabel{sec:setup}{{5.3}{4}{Experiment setup}{subsection.5.3}{}}
-\bibstyle{ACM-Reference-Format}
-\bibdata{hingcn}
-\bibcite{DongCS17}{{1}{2017}{{Dong et~al\unhbox \voidb@x \hbox {.}}}{{Dong, Chawla, and Swami}}}
-\bibcite{GroverL16}{{2}{2016}{{Grover and Leskovec}}{{Grover and Leskovec}}}
-\bibcite{HamiltonYL17}{{3}{2017}{{Hamilton et~al\unhbox \voidb@x \hbox {.}}}{{Hamilton, Ying, and Leskovec}}}
-\bibcite{HeZRS16}{{4}{2016}{{He et~al\unhbox \voidb@x \hbox {.}}}{{He, Zhang, Ren, and Sun}}}
-\bibcite{JiSDHG10}{{5}{2010}{{Ji et~al\unhbox \voidb@x \hbox {.}}}{{Ji, Sun, Danilevsky, Han, and Gao}}}
-\bibcite{KipfW17}{{6}{2017}{{Kipf and Welling}}{{Kipf and Welling}}}
-\bibcite{abs-1904-03751}{{7}{2019}{{Li et~al\unhbox \voidb@x \hbox {.}}}{{Li, M{\"{u}}ller, Thabet, and Ghanem}}}
-\bibcite{LiHW18}{{8}{2018}{{Li et~al\unhbox \voidb@x \hbox {.}}}{{Li, Han, and Wu}}}
-\bibcite{SunHYYW11}{{9}{2011}{{Sun et~al\unhbox \voidb@x \hbox {.}}}{{Sun, Han, Yan, Yu, and Wu}}}
-\bibcite{SunYH09}{{10}{2009}{{Sun et~al\unhbox \voidb@x \hbox {.}}}{{Sun, Yu, and Han}}}
-\bibcite{VelickovicCCRLB18}{{11}{2018}{{Velickovic et~al\unhbox \voidb@x \hbox {.}}}{{Velickovic, Cucurull, Casanova, Romero, Li{\`{o}}, and Bengio}}}
-\bibcite{WangJSWYCY19}{{12}{2019}{{Wang et~al\unhbox \voidb@x \hbox {.}}}{{Wang, Ji, Shi, Wang, Ye, Cui, and Yu}}}
-\bibcite{XuHLJ19}{{13}{2019}{{Xu et~al\unhbox \voidb@x \hbox {.}}}{{Xu, Hu, Leskovec, and Jegelka}}}
-\bibcite{XuLTSKJ18}{{14}{2018}{{Xu et~al\unhbox \voidb@x \hbox {.}}}{{Xu, Li, Tian, Sonobe, Kawarabayashi, and Jegelka}}}
-\newlabel{tocindent-1}{0pt}
-\newlabel{tocindent0}{0pt}
-\newlabel{tocindent1}{4.62599pt}
-\newlabel{tocindent2}{11.44798pt}
-\newlabel{tocindent3}{18.198pt}
+\citation{VelickovicCCRLB18}
+\citation{WangJSWYCY19}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Experiment setup}{5}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:setup}{{5.3}{5}{Experiment setup}{subsection.5.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Performance results}{5}{subsection.5.4}\protected@file@percent }
 \newlabel{sec:results}{{5.4}{5}{Performance results}{subsection.5.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Analysis of HINGCN layers}{5}{subsection.5.5}\protected@file@percent }
@@ -106,5 +88,29 @@
 \@writefile{toc}{\contentsline {section}{\numberline {6}Conclusions}{5}{section.6}\protected@file@percent }
 \newlabel{sec:conclusion}{{6}{5}{Conclusions}{section.6}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {7}Acknowledgments}{5}{section.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{References}{5}{section*.7}\protected@file@percent }
-\newlabel{TotPages}{{5}{5}{}{page.5}{}}
+\bibstyle{ACM-Reference-Format}
+\bibdata{hingcn}
+\bibcite{BrunaZSL13}{{1}{2014}{{Bruna et~al\unhbox \voidb@x \hbox {.}}}{{Bruna, Zaremba, Szlam, and LeCun}}}
+\bibcite{DongCS17}{{2}{2017}{{Dong et~al\unhbox \voidb@x \hbox {.}}}{{Dong, Chawla, and Swami}}}
+\bibcite{GroverL16}{{3}{2016}{{Grover and Leskovec}}{{Grover and Leskovec}}}
+\bibcite{HamiltonYL17}{{4}{2017}{{Hamilton et~al\unhbox \voidb@x \hbox {.}}}{{Hamilton, Ying, and Leskovec}}}
+\bibcite{HeZRS16}{{5}{2016}{{He et~al\unhbox \voidb@x \hbox {.}}}{{He, Zhang, Ren, and Sun}}}
+\bibcite{JiSDHG10}{{6}{2010}{{Ji et~al\unhbox \voidb@x \hbox {.}}}{{Ji, Sun, Danilevsky, Han, and Gao}}}
+\bibcite{KipfW17}{{7}{2017}{{Kipf and Welling}}{{Kipf and Welling}}}
+\bibcite{abs-1904-03751}{{8}{2019}{{Li et~al\unhbox \voidb@x \hbox {.}}}{{Li, M{\"{u}}ller, Thabet, and Ghanem}}}
+\bibcite{LiHW18}{{9}{2018}{{Li et~al\unhbox \voidb@x \hbox {.}}}{{Li, Han, and Wu}}}
+\bibcite{PerozziAS14}{{10}{2014}{{Perozzi et~al\unhbox \voidb@x \hbox {.}}}{{Perozzi, Al{-}Rfou, and Skiena}}}
+\bibcite{SunHYYW11}{{11}{2011}{{Sun et~al\unhbox \voidb@x \hbox {.}}}{{Sun, Han, Yan, Yu, and Wu}}}
+\bibcite{SunYH09}{{12}{2009}{{Sun et~al\unhbox \voidb@x \hbox {.}}}{{Sun, Yu, and Han}}}
+\bibcite{VelickovicCCRLB18}{{13}{2018}{{Velickovic et~al\unhbox \voidb@x \hbox {.}}}{{Velickovic, Cucurull, Casanova, Romero, Li{\`{o}}, and Bengio}}}
+\bibcite{WangC016}{{14}{2016}{{Wang et~al\unhbox \voidb@x \hbox {.}}}{{Wang, Cui, and Zhu}}}
+\bibcite{WangJSWYCY19}{{15}{2019}{{Wang et~al\unhbox \voidb@x \hbox {.}}}{{Wang, Ji, Shi, Wang, Ye, Cui, and Yu}}}
+\bibcite{XuHLJ19}{{16}{2019}{{Xu et~al\unhbox \voidb@x \hbox {.}}}{{Xu, Hu, Leskovec, and Jegelka}}}
+\bibcite{XuLTSKJ18}{{17}{2018}{{Xu et~al\unhbox \voidb@x \hbox {.}}}{{Xu, Li, Tian, Sonobe, Kawarabayashi, and Jegelka}}}
+\newlabel{tocindent-1}{0pt}
+\newlabel{tocindent0}{0pt}
+\newlabel{tocindent1}{4.62599pt}
+\newlabel{tocindent2}{11.44798pt}
+\newlabel{tocindent3}{18.198pt}
+\@writefile{toc}{\contentsline {section}{References}{6}{section*.7}\protected@file@percent }
+\newlabel{TotPages}{{6}{6}{}{page.6}{}}

@@ -1,25 +1,29 @@
 \section{Related Work}
 \label{sec:related}
 \subsection{Semi-supervised Learning on Graphs}
-\dan{TODO}
-The main focus in this paper is semi-supervised classification on graphs. Given a graph with limited labels on a set of nodes, the goal of learning is to predict the label of the remaining vertices.
+The main focus in this paper is semi-supervised classification on graphs. Given a graph with limited labels on a set of nodes, the goal of learning is to predict the label of the remaining vertices. 
 
-\dan{traditional semi-supervised classification algorithms}
+In the past few decades, graph-based semi-supervised algorithms often rely on the clustering assumption \citep{ChapelleZ05}, which assumes that spatially close vertices on a graph usually share the same label. Min-cuts, randomized min-cuts, spectral graph transducer, label propagation, iterative classification are examples of this line of research.
 
-Graph embedding is a class of algorithms that aims to learn low dimensional representations of vertices while preserving graph structures. In semi-supervised classification, the learnt embeddings serve as vertex features and are fed to downstream classification engines such as logistics, SVM, and MLP classifiers \dan{cite?}. There are various embedding methods designed for homogeneous graphs, which generally falls into three categories: deep neural network methods\cite{WangC016}, random walk based methods\cite{GroverL16,PerozziAS14}, matrix factorization methods and label propagation methods.
+In many applications, vertex instances often come along with feature vectors that needs to be considered apart from the graph. Regularization-based algorithms like LapSVM \citep{BelkinNS06} and Planetoid \citep{YangCS16} rely on adding graph Laplacian regularizer to supervised learners.
+Graph embedding is a class of algorithms aimed to learn low dimensional representations that jointly model vertex attributes and graph structure. In semi-supervised classification, the learnt embeddings serve as input features of downstream classification engines such as logistics, SVM, and MLP classifiers \dan{cite?}. There are various embedding methods designed for homogeneous graphs, which generally falls into three categories: deep neural network methods\cite{WangC016}, random walk based methods\cite{GroverL16,PerozziAS14}, matrix factorization methods and label propagation methods.
 
-Heterogeneous graph embedding methods differ from homogeneous ones, in the sense that meta-path based structure information is considered.
+Heterogeneous graph embedding methods differ from homogeneous ones, in the sense that meta-path based structure information is considered. 
+ESim\citep{ShangQLKHP16} is proposed to learn structure-embedded similarity by sampling meta-path instances.  
+Metapath2vec \cite{DongCS17} proposes a meta-path based random walk and feed these walk instances to skip-gram engine.
+HIN2Vec \cite{FuLL17} considers a joint loss of multiple tasks, where embeddings of vertex and meta-path are learnt simultaneously.
+\citet{Sun00CXWY18} proposes a meta-graph model, which captures hidden relations in a meta-graph by tensor decomposition.
 
 \subsection{Graph Convolution Networks}
-Recently, graph convolution neural networks (GCNNs) have became popular approaches in graph embedding tasks. GCNNs extend convolution neural networks (CNNs) to the graph domain and generally fall into two categories: spectral GNNs and spatial GNNs.
-Spectral GNNs generally convolve on the spectrum of the graph Fourier transform. \citet{BrunaZSL13} generalizes CNNs to graphs by finding Fourier basis of graph Laplacian. 
-\citet{DefferrardBV16} employs a K-order approximation to provide a localized filtering in the transformed Fourier domain.
-Spatial GNNs
+Recently, graph convolution neural networks (GCNNs) have became popular approaches in graph embedding tasks. Inspired by convolution neural networks (CNNs), GCNNs neatly combine graph structures and vertex features, by propagating features of labeled vertices  to unlabeled neighbors through multiple layers of convolution.
+These methods generally fall into two categories: spectral GCNNs and spatial GCNNs.
+Spectral GCNNs generally decompose graph signals on the spectral domain using graph Fourier transform, and then convolve on the spectral components. \citet{BrunaZSL13} generalizes CNNs to graphs by finding Fourier basis of graph Laplacian. 
+To reduce computation cost in large graphs, \citet{DefferrardBV16} employs a K-order Chebyshev polynomial approximation to provide a faster filtering.
+Spatial GCNNs view convolutions differently, where a new feature vector is constructed for each vertex using an aggregation of spatially close neighbors. \citet{HamiltonYL17} proposes GraphSAGE for inductive learning on unseen data. GraphSAGE learns a function that aggregate node embeddings from a fixed size neighborhood.
 
-Attention GNNs
+It is also worth mentioning Graph Attention Networks \citep{VelickovicCCRLB18}, where attention mechanisms \citep{VaswaniSPUJGKP17,BahdanauCB14} are applied to discriminate different nodes in a neighborhood. New embeddings are generated as a weighted sum of attention coefficients and neighbor feature vectors. 
 
-GCN model neatly combines graph structures and vertex features during convolution, where features of labeled vertices are propagated to unlabeled vertices through multiple layers.
-
+More recently, HAN \citep{WangJSWYCY19} is proposed to compute node embeddings on heterogeneous graphs, where all meta-paths are simultaneously considered. This method, however, only consider meta-path specific neighbors of target nodes and is unable to discriminate different intermediate nodes in meta-path instances.
 
 
 

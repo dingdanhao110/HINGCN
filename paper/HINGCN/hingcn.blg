@@ -1,10 +1,18 @@
 This is BibTeX, Version 0.99dThe top-level auxiliary file: hingcn.aux
 The style file: ACM-Reference-Format.bst
 Database file #1: hingcn.bib
+Warning--empty publisher in BahdanauCB14
+Warning--empty address in BahdanauCB14
+Warning--page numbers missing in both pages and numpages fields in BahdanauCB14
 Warning--empty publisher in BrunaZSL13
 Warning--empty address in BrunaZSL13
 Warning--page numbers missing in both pages and numpages fields in BrunaZSL13
+Warning--empty address in ChapelleZ05
+Warning--page numbers missing in both pages and numpages fields in ChapelleZ05
+Warning--empty publisher in DefferrardBV16
+Warning--empty address in DefferrardBV16
 Warning--empty address in DongCS17
+Warning--empty address in FuLL17
 Warning--empty address in GroverL16
 Warning--empty publisher in HamiltonYL17
 Warning--empty address in HamiltonYL17
@@ -15,7 +23,11 @@ Warning--page numbers missing in both pages and numpages fields in KipfW17
 Warning--page numbers missing in both pages and numpages fields in abs-1904-03751
 Warning--empty address in LiHW18
 Warning--empty address in PerozziAS14
+Warning--page numbers missing in both pages and numpages fields in ShangQLKHP16
+Warning--empty address in Sun00CXWY18
 Warning--empty address in SunYH09
+Warning--empty publisher in VaswaniSPUJGKP17
+Warning--empty address in VaswaniSPUJGKP17
 Warning--empty address in VelickovicCCRLB18
 Warning--page numbers missing in both pages and numpages fields in VelickovicCCRLB18
 Warning--empty address in WangC016
@@ -23,4 +35,5 @@ Warning--empty address in WangJSWYCY19
 Warning--empty address in XuHLJ19
 Warning--page numbers missing in both pages and numpages fields in XuHLJ19
 Warning--empty address in XuLTSKJ18
-(There were 22 warnings)
+Warning--empty address in YangCS16
+(There were 35 warnings)

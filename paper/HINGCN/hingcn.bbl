@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{17}
+\begin{thebibliography}{26}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -37,6 +37,30 @@
 \providecommand\natexlab[1]{#1}
 \providecommand\showeprint[2][]{arXiv:#2}
 
+\bibitem[\protect\citeauthoryear{Bahdanau, Cho, and Bengio}{Bahdanau
+  et~al\mbox{.}}{2015}]%
+        {BahdanauCB14}
+\bibfield{author}{\bibinfo{person}{Dzmitry Bahdanau},
+  \bibinfo{person}{Kyunghyun Cho}, {and} \bibinfo{person}{Yoshua Bengio}.}
+  \bibinfo{year}{2015}\natexlab{}.
+\newblock \showarticletitle{Neural Machine Translation by Jointly Learning to
+  Align and Translate}. In \bibinfo{booktitle}{{\em {ICLR}}}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Belkin, Niyogi, and Sindhwani}{Belkin
+  et~al\mbox{.}}{2006}]%
+        {BelkinNS06}
+\bibfield{author}{\bibinfo{person}{Mikhail Belkin}, \bibinfo{person}{Partha
+  Niyogi}, {and} \bibinfo{person}{Vikas Sindhwani}.}
+  \bibinfo{year}{2006}\natexlab{}.
+\newblock \showarticletitle{Manifold Regularization: {A} Geometric Framework
+  for Learning from Labeled and Unlabeled Examples}.
+\newblock \bibinfo{journal}{{\em J. Mach. Learn. Res.\/}}  \bibinfo{volume}{7}
+  (\bibinfo{year}{2006}), \bibinfo{pages}{2399--2434}.
+\newblock
+
+
 \bibitem[\protect\citeauthoryear{Bruna, Zaremba, Szlam, and LeCun}{Bruna
   et~al\mbox{.}}{2014}]%
         {BrunaZSL13}
@@ -45,6 +69,28 @@
   LeCun}.} \bibinfo{year}{2014}\natexlab{}.
 \newblock \showarticletitle{Spectral Networks and Locally Connected Networks on
   Graphs}. In \bibinfo{booktitle}{{\em {ICLR}}}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Chapelle and Zien}{Chapelle and Zien}{2005}]%
+        {ChapelleZ05}
+\bibfield{author}{\bibinfo{person}{Olivier Chapelle} {and}
+  \bibinfo{person}{Alexander Zien}.} \bibinfo{year}{2005}\natexlab{}.
+\newblock \showarticletitle{Semi-Supervised Classification by Low Density
+  Separation}. In \bibinfo{booktitle}{{\em {AISTATS}}}.
+  \bibinfo{publisher}{Society for Artificial Intelligence and Statistics}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Defferrard, Bresson, and
+  Vandergheynst}{Defferrard et~al\mbox{.}}{2016}]%
+        {DefferrardBV16}
+\bibfield{author}{\bibinfo{person}{Micha{\"{e}}l Defferrard},
+  \bibinfo{person}{Xavier Bresson}, {and} \bibinfo{person}{Pierre
+  Vandergheynst}.} \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{Convolutional Neural Networks on Graphs with Fast
+  Localized Spectral Filtering}. In \bibinfo{booktitle}{{\em {NIPS}}}.
+  \bibinfo{pages}{3837--3845}.
 \newblock
 
 
@@ -57,6 +103,18 @@
 \newblock \showarticletitle{metapath2vec: Scalable Representation Learning for
   Heterogeneous Networks}. In \bibinfo{booktitle}{{\em {KDD}}}.
   \bibinfo{publisher}{{ACM}}, \bibinfo{pages}{135--144}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Fu, Lee, and Lei}{Fu et~al\mbox{.}}{2017}]%
+        {FuLL17}
+\bibfield{author}{\bibinfo{person}{Tao{-}Yang Fu},
+  \bibinfo{person}{Wang{-}Chien Lee}, {and} \bibinfo{person}{Zhen Lei}.}
+  \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{HIN2Vec: Explore Meta-paths in Heterogeneous
+  Information Networks for Representation Learning}. In
+  \bibinfo{booktitle}{{\em {CIKM}}}. \bibinfo{publisher}{{ACM}},
+  \bibinfo{pages}{1797--1806}.
 \newblock
 
 
@@ -152,6 +210,33 @@
 \newblock
 
 
+\bibitem[\protect\citeauthoryear{Shang, Qu, Liu, Kaplan, Han, and Peng}{Shang
+  et~al\mbox{.}}{2016}]%
+        {ShangQLKHP16}
+\bibfield{author}{\bibinfo{person}{Jingbo Shang}, \bibinfo{person}{Meng Qu},
+  \bibinfo{person}{Jialu Liu}, \bibinfo{person}{Lance~M. Kaplan},
+  \bibinfo{person}{Jiawei Han}, {and} \bibinfo{person}{Jian Peng}.}
+  \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{Meta-Path Guided Embedding for Similarity Search in
+  Large-Scale Heterogeneous Information Networks}.
+\newblock \bibinfo{journal}{{\em CoRR\/}}  \bibinfo{volume}{abs/1610.09769}
+  (\bibinfo{year}{2016}).
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Sun, He, Huang, Cao, Xia, Wei, and Yu}{Sun
+  et~al\mbox{.}}{2018}]%
+        {Sun00CXWY18}
+\bibfield{author}{\bibinfo{person}{Lichao Sun}, \bibinfo{person}{Lifang He},
+  \bibinfo{person}{Zhipeng Huang}, \bibinfo{person}{Bokai Cao},
+  \bibinfo{person}{Congying Xia}, \bibinfo{person}{Xiaokai Wei}, {and}
+  \bibinfo{person}{Philip~S. Yu}.} \bibinfo{year}{2018}\natexlab{}.
+\newblock \showarticletitle{Joint Embedding of Meta-Path and Meta-Graph for
+  Heterogeneous Information Networks}. In \bibinfo{booktitle}{{\em {ICBK}}}.
+  \bibinfo{publisher}{{IEEE} Computer Society}, \bibinfo{pages}{131--138}.
+\newblock
+
+
 \bibitem[\protect\citeauthoryear{Sun, Han, Yan, Yu, and Wu}{Sun
   et~al\mbox{.}}{2011}]%
         {SunHYYW11}
@@ -172,6 +257,19 @@
 \newblock \showarticletitle{Ranking-based clustering of heterogeneous
   information networks with star network schema}. In \bibinfo{booktitle}{{\em
   {KDD}}}. \bibinfo{publisher}{{ACM}}, \bibinfo{pages}{797--806}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Vaswani, Shazeer, Parmar, Uszkoreit, Jones,
+  Gomez, Kaiser, and Polosukhin}{Vaswani et~al\mbox{.}}{2017}]%
+        {VaswaniSPUJGKP17}
+\bibfield{author}{\bibinfo{person}{Ashish Vaswani}, \bibinfo{person}{Noam
+  Shazeer}, \bibinfo{person}{Niki Parmar}, \bibinfo{person}{Jakob Uszkoreit},
+  \bibinfo{person}{Llion Jones}, \bibinfo{person}{Aidan~N. Gomez},
+  \bibinfo{person}{Lukasz Kaiser}, {and} \bibinfo{person}{Illia Polosukhin}.}
+  \bibinfo{year}{2017}\natexlab{}.
+\newblock \showarticletitle{Attention is All you Need}. In
+  \bibinfo{booktitle}{{\em {NIPS}}}. \bibinfo{pages}{5998--6008}.
 \newblock
 
 
@@ -235,6 +333,20 @@
   (\bibinfo{series}{Proceedings of Machine Learning Research})},
   Vol.~\bibinfo{volume}{80}. \bibinfo{publisher}{{PMLR}},
   \bibinfo{pages}{5449--5458}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Yang, Cohen, and Salakhutdinov}{Yang
+  et~al\mbox{.}}{2016}]%
+        {YangCS16}
+\bibfield{author}{\bibinfo{person}{Zhilin Yang}, \bibinfo{person}{William~W.
+  Cohen}, {and} \bibinfo{person}{Ruslan Salakhutdinov}.}
+  \bibinfo{year}{2016}\natexlab{}.
+\newblock \showarticletitle{Revisiting Semi-Supervised Learning with Graph
+  Embeddings}. In \bibinfo{booktitle}{{\em {ICML}}} {\em
+  (\bibinfo{series}{{JMLR} Workshop and Conference Proceedings})},
+  Vol.~\bibinfo{volume}{48}. \bibinfo{publisher}{JMLR.org},
+  \bibinfo{pages}{40--48}.
 \newblock
 
 

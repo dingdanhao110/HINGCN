@@ -386,8 +386,144 @@ def gen_homoadj():
     #np.savetxt("{}{}.txt".format(path, 'APCPA'),APA,fmt='%u')
 
 
+def gen_walk(path='data/dblp2/'):
+    APA_file = "APA"
+    APAPA_file = "APAPA"
+    APCPA_file = "APCPA"
+
+    PA_file = "PA"
+    PC_file = "PC"
+
+    PA = np.genfromtxt("{}{}.txt".format(path, PA_file),
+                       dtype=np.int32)
+    PC = np.genfromtxt("{}{}.txt".format(path, PC_file),
+                       dtype=np.int32)
+    PA[:, 0] -= 1
+    PA[:, 1] -= 1
+    PC[:, 0] -= 1
+    PC[:, 1] -= 1
+
+    PAi={}
+    APi={}
+    PCi={}
+    CPi={}
+
+    for i in range(PA.shape[0]):
+        p=PA[i,0]
+        a=PA[i,1]
+
+        if p not in PAi:
+            PAi[p]=set()
+        if a not in APi:
+            APi[a]=set()
+
+        PAi[p].add(a)
+        APi[a].add(p)
+
+    for i in range(PC.shape[0]):
+        p=PC[i,0]
+        c=PC[i,1]
+
+        if p not in PCi:
+            PCi[p]=set()
+        if c not in CPi:
+            CPi[c]=set()
+
+        PCi[p].add(c)
+        CPi[c].add(p)
+
+    APAi={}
+    APCi={}
+    CPAi={}
+
+    for v in APi:
+        for p in APi[v]:
+            if p not in PAi:
+                continue
+            for a in PAi[p]:
+                if a not in APAi:
+                    APAi[a] ={}
+                if v not in APAi:
+                    APAi[v] ={}
+
+                if v not in APAi[a]:
+                    APAi[a][v]=set()
+                if a not in APAi[v]:
+                    APAi[v][a]=set()
+
+                APAi[a][v].add(p)
+                APAi[v][a].add(p)
+    
+    for v in APi:
+        for p in APi[v]:
+            if p not in PCi:
+                continue
+            for c in PCi[p]:
+                if v not in APCi:
+                    APCi[v] ={}
+                if c not in CPAi:
+                    CPAi[c] ={}
+
+                if c not in APCi[v]:
+                    APCi[v][c]=set()
+                if v not in CPAi[c]:
+                    CPAi[c][v]=set()
+
+                CPAi[c][v].add(p)
+                APCi[v][c].add(p)
+
+    #(1) number of walks per node w: 1000; TOO many
+    #(2) walk length l: 100;
+    #(3) vector dimension d: 128 (LINE: 128 for each order);
+    #(4) neighborhood size k: 7; --default is 5
+    #(5) size of negative samples: 5
+    #mapping of notation: a:author v:paper i:conference
+    l = 100
+    w = 1000
+
+    import random
+    #gen random walk for meta-path APCPA
+    with open("{}{}.walk".format(path,APCPA_file),mode='w') as f:
+        for _ in range(w):
+            for a in APi:
+                #print(a)
+                result="a{}".format(a)
+                for _ in range(int(l/4)):
+                    p = random.sample(APi[a],1)[0]
+                    c = random.sample(PCi[p],1)[0]
+                    result+=" v{} i{}".format(p,c)
+                    p = random.sample(CPi[c],1)[0]
+                    while p not in PAi:
+                        p = random.sample(CPi[c],1)[0]
+                    a = random.sample(PAi[p],1)[0]
+                    result+=" v{} a{}".format(p,a)
+                f.write(result+"\n")
+
+    #gen random walk for meta-path APA
+    with open("{}{}.walk".format(path,APA_file),mode='w') as f:
+        for _ in range(w):
+            for a in APi:
+                result="a{}".format(a)
+                for _ in range(int(l/2)):
+                    p = random.sample(APi[a],1)[0]
+                    a = random.sample(PAi[p],1)[0]
+                    result+=" v{} a{}".format(p,a)
+                f.write(result+"\n")
+    ##gen random walk for meta-path APAPA
+    #with open("{}{}.walk".format(path,APAPA_file),mode='w') as f:
+    #    for _ in range(w):
+    #        for a in APi:
+    #            result="a{}".format(a)
+    #            for _ in range(int(l/2)):
+    #                p = random.sample(APi[a],1)[0]
+    #                a = random.sample(PAi[p],1)[0]
+    #                result+=" v{} a{}".format(p,a)
+    #            f.write(result+"\n")
+    
+    pass
 
 #clean_dblp()
 #gen_homograph()
-dump_edge_emb()
+#dump_edge_emb()
 #gen_homoadj()
+gen_walk()

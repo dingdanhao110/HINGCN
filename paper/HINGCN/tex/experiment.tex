@@ -15,7 +15,28 @@ clustering quality.
 %Finally, we conduct a parameter sensitivity study of ROSC (Section~\ref{}).
 
 \subsection{Datasets}
-We use three datasets, namely DBLP \footnote{https://dblp.uni-trier.de/}, Yelp\footnote{https://www.yelp.com/academic{\_}dataset/} and Freebase \footnote{https://www.freebase.com/}. A summary of statistics of the datasets are shown in table \ref{table:dataset}.
+We use three datasets, namely DBLP \footnote{https://dblp.uni-trier.de/}, Yelp\footnote{https://www.yelp.com/academic{\_}dataset/} and Freebase \footnote{https://www.freebase.com/}. A summary of statistics of the datasets are shown in table \ref{tab:dataset}.
+
+% Please add the following required packages to your document preamble:
+% \usepackage{multirow}
+\begin{table*}[!htbp]
+\centering
+\caption{Statistics of the datasets}
+\label{tab:dataset}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+Dataset                   & Relations                     & Number of A            & Number of B           & Number o A-B      & Feature               & Number of target nodes & Meta-paths \\ \hline
+\multirow{3}{*}{DBLP}     & \multirow{2}{*}{Paper-Author} & \multirow{2}{*}{14328} & \multirow{2}{*}{4057} & \multirow{2}{*}{} & \multirow{3}{*}{8789} & \multirow{3}{*}{4057}  & APA        \\ \cline{8-8} 
+                          &                               &                        &                       &                   &                       &                        & APAPA      \\ \cline{2-5} \cline{8-8} 
+                          & Paper-Conf                    & 14328                  & 20                    &                   &                       &                        & APCPA      \\ \hline
+\multirow{3}{*}{Yelp}     & Business-Review               &                        &                       &                   & \multirow{3}{*}{}     & \multirow{3}{*}{}      & -          \\ \cline{2-5} \cline{8-8} 
+                          & Review-Keyword                &                        &                       &                   &                       &                        & BRKRB      \\ \cline{2-5} \cline{8-8} 
+                          & Review-User                   &                        &                       &                   &                       &                        & BRURB      \\ \hline
+\multirow{3}{*}{Freebase} & Movie-Actor                   &                        &                       &                   & \multirow{3}{*}{}     & \multirow{3}{*}{}      & MAM        \\ \cline{2-5} \cline{8-8} 
+                          & Movie-Director                &                        &                       &                   &                       &                        & MDM        \\ \cline{2-5} \cline{8-8} 
+                          & Movie-Writer                  &                        &                       &                   &                       &                        & MWM        \\ \hline
+\end{tabular}
+\end{table*}
 
 \noindent{\small$\bullet$}
 \textbf{DBLP }: We extract a subset of DBLP which contains 4057 authors ($A$), 14328 papers ($P$) and 20 conferences ($C$). Authors are classified into four areas: \textit{database}, \textit{data mining}, \textit{machine learning}, \textit{information retrieval}. In addition, 8789 keyword terms are assigned to each author as feature, following tf-idf transformation. 
@@ -120,9 +141,43 @@ we run the experiment 10 times and report average results.
 \subsection{Performance results}
 \label{sec:results}
 
-We apply all 10 methods on \textsc{DBLP}. 
-Due to space limitations, for each category of methods, we only show the best performing one. 
-They are, namely, NJW, PIC-$k$, FUSE, and ROSC. 
+We apply all 10 methods on \textsc{DBLP},\textsc{Yelp} and \textsc{Freebase}. 
+
+%Results
+\begin{table*}[!htbp]
+\centering
+%\resizebox{0.9\linewidth}{!}
+\caption{Quantitative results (\%) on semi-supervised classification task}
+\label{tab:result}
+\begin{tabular}{|c|c|c||c|c|c|c|c||c|c|c|c|}
+\hline
+Datasets                  & Metrics                   & Training & Node2vec & Metapath2vec & GCN & GAT & HAN & HINGCN & HINGCN & HINGCN & HINGCN \\ \hline
+\multirow{8}{*}{DBLP}     & \multirow{4}{*}{Macro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \cline{2-12} 
+                          & \multirow{4}{*}{Micro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \hline
+\multirow{8}{*}{Yelp}     & \multirow{4}{*}{Macro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \cline{2-12} 
+                          & \multirow{4}{*}{Micro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \hline
+\multirow{8}{*}{Freebase} & \multirow{4}{*}{Macro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \cline{2-12} 
+                          & \multirow{4}{*}{Micro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \hline
+\end{tabular}
+\end{table*}
 
 \subsection{Analysis of HINGCN layers}
 We provide a detailed analysis of each component layer of HINGCN model.

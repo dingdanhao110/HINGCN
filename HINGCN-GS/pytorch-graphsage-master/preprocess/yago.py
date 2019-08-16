@@ -456,14 +456,14 @@ def gen_yago_randomwalk(path='../../../data/yago/',
             for v in ind1:
 
                 for n in range(n_walks):
-                    out="{}".format(v)
+                    out="a{}".format(v)
 
                     m = v
                     for w in range(int(walk_length/2)):
                         a = np.random.choice(tuple(ind1[m]))
-                        out += " {}".format(a)
+                        out += " v{}".format(a)
                         m = np.random.choice(tuple(ind2[a]))
-                        out += " {}".format(m)
+                        out += " a{}".format(m)
 
                     f.write(out+"\n")
             pass
@@ -571,9 +571,9 @@ def gen_homoadj(path):
 
 # gen_homograph(path='../../../data/freebase/')
 
-dump_yago_edge_emb(path='data/freebase/')
+#dump_yago_edge_emb(path='data/freebase/')
 
-# gen_yago_randomwalk(path='../../../data/freebase/',
-#                     walk_length=80,n_walks=10)
+gen_yago_randomwalk(path='data/freebase/',
+                     walk_length=100,n_walks=1000)
 
 #gen_homoadj(path='data/freebase/')

@@ -328,7 +328,119 @@ def gen_homoadj(path = "data/yelp/", out_file = "homograph"):
     #np.savetxt("{}{}.txt".format(path, 'BRURB'),BRURB,fmt='%u')
     #np.savetxt("{}{}.txt".format(path, 'BRKRB'),BRKRB,fmt='%u')
 
+def gen_walk(path='../../../data/yelp/',
+                        walk_length=100,n_walks=1000):
+    RB_file = "RB"
+    RK_file = "RK"
+    RU_file = "RU"
+
+    RB = np.genfromtxt("{}{}.txt".format(path, RB_file),
+                       dtype=np.int32)
+    RK = np.genfromtxt("{}{}.txt".format(path, RK_file),
+                       dtype=np.int32)
+    RU = np.genfromtxt("{}{}.txt".format(path, RU_file),
+                       dtype=np.int32)
+    RB[:, 0] -= 1
+    RB[:, 1] -= 1
+    RK[:, 0] -= 1
+    RK[:, 1] -= 1
+    RU[:, 0] -= 1
+    RU[:, 1] -= 1
+
+    # BR = np.copy(RB[:, [1, 0]])
+    # KR = np.copy(RK[:, [1, 0]])
+    # UR = np.copy(RU[:, [1, 0]])
+    #
+    # BR = BR[BR[:, 0].argsort()]
+    # KR = KR[KR[:, 0].argsort()]
+    # UR = UR[UR[:, 0].argsort()]
+
+    #--
+    #build index for 2hop adjs
+
+    RBi={}
+    BRi={}
+    RKi={}
+    KRi={}
+    RUi={}
+    URi={}
+
+    for i in range(RB.shape[0]):
+        r=RB[i,0]
+        b=RB[i,1]
+
+        if r not in RBi:
+            RBi[r]=set()
+        if b not in BRi:
+            BRi[b]=set()
+
+        RBi[r].add(b)
+        BRi[b].add(r)
+
+    for i in range(RK.shape[0]):
+        r=RK[i,0]
+        k=RK[i,1]
+
+        if r not in RKi:
+            RKi[r]=set()
+        if k not in KRi:
+            KRi[k]=set()
+
+        RKi[r].add(k)
+        KRi[k].add(r)
+
+    for i in range(RU.shape[0]):
+        r=RU[i,0]
+        u=RU[i,1]
+
+        if r not in RUi:
+            RUi[r]=set()
+        if u not in URi:
+            URi[u]=set()
+
+        RUi[r].add(u)
+        URi[u].add(r)
+    
+    index={}
+    index['BR'] = BRi
+    index['RB'] = RBi
+    index['UR'] = URi
+    index['RU'] = RUi
+    index['KR'] = KRi
+    index['RK'] = RKi
+
+    schemes=["BRURB","BRKRB"]
+
+    for scheme in schemes:
+        ind1 = index[scheme[0:2]]
+        ind2 = index[scheme[1:3]]
+        ind3 = index[scheme[2:4]]
+        ind4 = index[scheme[3:5]]
+        with open('{}{}.walk'.format(path,scheme),'w') as f:
+
+            for v in ind1:
+
+                for n in range(n_walks):
+                    out="a{}".format(v)
+
+                    b = v
+                    for w in range(int(walk_length/4)):
+                        r = np.random.choice(tuple(ind1[b]))
+                        out += " v{}".format(r)
+                        u = np.random.choice(tuple(ind2[r]))
+                        out += " i{}".format(u)
+                        r = np.random.choice(tuple(ind3[u]))
+                        out += " v{}".format(r)
+                        b = np.random.choice(tuple(ind4[r]))
+                        out += " a{}".format(b)
+
+                    f.write(out+"\n")
+            pass
+
+        pass
 
 # gen_homograph()
-dump_yelp_edge_emb(path='data/yelp/')
+#dump_yelp_edge_emb(path='data/yelp/')
 #gen_homoadj()
+gen_walk(path='data/yelp/',
+                        walk_length=100,n_walks=1000)

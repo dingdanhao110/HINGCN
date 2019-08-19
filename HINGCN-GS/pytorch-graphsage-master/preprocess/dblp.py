@@ -403,6 +403,14 @@ def gen_walk(path='data/dblp2/'):
     PC[:, 0] -= 1
     PC[:, 1] -= 1
 
+    paper_max = max(PA[:, 0]) + 1
+    author_max = max(PA[:, 1]) + 1
+    conf_max = max(PC[:, 1]) + 1
+
+    PA[:, 0] += author_max
+    PC[:, 0] += author_max
+    PC[:, 1] += author_max+paper_max
+
     PAi={}
     APi={}
     PCi={}

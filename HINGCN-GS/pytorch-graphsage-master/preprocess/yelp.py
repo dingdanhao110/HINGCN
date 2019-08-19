@@ -347,13 +347,23 @@ def gen_walk(path='../../../data/yelp/',
     RU[:, 0] -= 1
     RU[:, 1] -= 1
 
-    # BR = np.copy(RB[:, [1, 0]])
-    # KR = np.copy(RK[:, [1, 0]])
-    # UR = np.copy(RU[:, [1, 0]])
-    #
-    # BR = BR[BR[:, 0].argsort()]
-    # KR = KR[KR[:, 0].argsort()]
-    # UR = UR[UR[:, 0].argsort()]
+    rate_max = max(RB[:, 0]) + 1   #33360
+    busi_max = max(RB[:, 1]) + 1   #2614
+    key_max = max(RK[:, 1]) + 1    #82
+    user_max = max(RU[:, 1]) + 1   #1286
+
+    # busi: [0,busi_max)
+    # rate: [busi_max,busi_max+rate_max)
+    # key: [busi_max+rate_max,busi_max+rate_max+key_max)
+    # user: [busi_max+rate_max+key_max,busi_max+rate_max+key_max+user_max)
+
+    RU[:, 0] += busi_max
+    RB[:, 0] += busi_max
+    RK[:, 0] += busi_max
+
+    RK[:, 1] += busi_max+rate_max
+
+    RU[:, 1] += busi_max+rate_max+key_max
 
     #--
     #build index for 2hop adjs

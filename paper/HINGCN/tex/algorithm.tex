@@ -40,10 +40,12 @@ r^{(0)}_\Phi(x_u,x_v) = c(x_u,x_v)\oplus o(x_u,x_v)\oplus s(x_u,x_v)
 \subsection{Aggregating node embedding}
 We propose a modified version of scaled dot product attention mechanism to aggregate node embedding from its neighbor. Given a meta-path $\Phi$, we update vertex embedding as follow. First we apply 2 layer MLPs on node embedding and its neighbor respectively for scaling purpose. The query vector of node $i$ is
 \begin{equation}
+\label{eq:query}
 q_i= W_{a1}^{(t)}(\text{tanh}(W_{a2}^{(t)}h^{(t)}_i ))
 \end{equation}
 And key vector $k_{i,j}$ is calculated as:
 \begin{equation}
+\label{eq:key}
 k_{i,j} = W_{a3}^{(t)}(\text{tanh}(W_{a4}^{(t)}(h^{(t)}_j \oplus r^{(t)}_{i,j}) ))
 \end{equation}
 And the value vector of neighbor $j$ is calculated as: 

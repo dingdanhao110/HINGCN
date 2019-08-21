@@ -13,6 +13,8 @@ from torch.autograd import Variable
 import scipy.sparse as sp
 from sklearn.feature_extraction.text import TfidfTransformer
 
+train_per=0.4
+
 def set_seeds(seed=0):
     np.random.seed(seed)
     _ = torch.manual_seed(seed)
@@ -118,8 +120,8 @@ def read_mpindex_dblp(path="./data/dblp2/"):
     reordered = np.random.permutation(labels_raw[:, 0])
     total_labeled = labels_raw.shape[0]
 
-    idx_train = reordered[range(int(total_labeled * 0.05))]
-    idx_val = reordered[range(int(total_labeled * 0.05), int(total_labeled * 0.8))]
+    idx_train = reordered[range(int(total_labeled * train_per))]
+    idx_val = reordered[range(int(total_labeled * train_per), int(total_labeled * 0.8))]
     idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
 
     folds = {'train':idx_train,'val':idx_val,'test':idx_test}
@@ -192,8 +194,8 @@ def read_mpindex_yelp(path="../../data/yelp/"):
     reordered = np.random.permutation(np.arange(labels.shape[0]))
     total_labeled = labels.shape[0]
 
-    idx_train = reordered[range(int(total_labeled * 0.4))]
-    idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
+    idx_train = reordered[range(int(total_labeled * train_per))]
+    idx_val = reordered[range(int(total_labeled * train_per), int(total_labeled * 0.8))]
     idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
 
     folds = {'train':idx_train,'val':idx_val,'test':idx_test}
@@ -226,8 +228,8 @@ def read_mpindex_yago(path="../../data/yago/", label_file = "labels"):
     reordered = np.random.permutation(labels_raw[:, 0])
     total_labeled = labels_raw.shape[0]
 
-    idx_train = reordered[range(int(total_labeled * 0.4))]
-    idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
+    idx_train = reordered[range(int(total_labeled * train_per))]
+    idx_val = reordered[range(int(total_labeled * train_per), int(total_labeled * 0.8))]
     idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
 
     folds = {'train': idx_train, 'val': idx_val, 'test': idx_test}

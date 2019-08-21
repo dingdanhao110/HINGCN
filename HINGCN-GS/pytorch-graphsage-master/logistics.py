@@ -108,7 +108,8 @@ if __name__ == "__main__":
 
     # --
     # Load problem
-    schemes = ['MAM',]  # ,'APAPA','APCPA'  yelp: 'BRURB', 'BRKRB'; YAGO: 'MAM','MDM','MWM'
+    s={'dblp':['APA'],'yelp': ['BRURB'], 'yago': ['MAM']}
+    schemes = s[args.problem]
     device = torch.device("cuda:0" if torch.cuda.is_available() and args.cuda else "cpu")
     problem = NodeProblem(problem_path=args.problem_path, problem=args.problem, device=device, schemes=schemes)
 
@@ -231,17 +232,23 @@ if __name__ == "__main__":
         y_test = targets
 
     from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import f1_score
 
     logreg = LogisticRegression()
     logreg.fit(x_train, y_train)
     # fpr, tpr, thresholds = metrics.roc_curve(y_test, y_scores, pos_label=2)
     # plot_roc_curve(fpr,tpr,'ROC')
+    y_pred=logreg.predict(x_test)
     y_train_scores = logreg.predict_proba(x_train)[:, 1]
     y_test_scores = logreg.predict_proba(x_test)[:, 1]
     print('Accuracy of Logistic regression classifier on training set: {:.4f}'
           .format(logreg.score(x_train, y_train)))
     print('Accuracy of Logistic regression classifier on test set: {:.4f}'
           .format(logreg.score(x_test, y_test)))
+    print('Macro of Logistic regression classifier on test set: {:.4f}'
+          .format(f1_score(y_test,y_pred, average='macro')))
+    print('Micro of Logistic regression classifier on test set: {:.4f}'
+          .format(f1_score(y_test,y_pred, average='micro')))
 
     from sklearn.neighbors import KNeighborsClassifier
 

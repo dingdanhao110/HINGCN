@@ -18,7 +18,7 @@ c(x_u,x_v) = \vert\{ p_{x_u \rightsquigarrow x_v}:p_{x_u \rightsquigarrow x_v} \
 \end{equation*}
 
 \noindent{\small$\bullet$}\textbf{Intermediate object embedding}. 
-To discriminate between different intermediate objects, we propose to use a sum of pre-trained node embedding as a component of edge feature. This node embedding can be trained from heterogeneous embedding algorithms such as \cite{GroverL16,DongCS17}.
+To discriminate between different intermediate objects, we propose to use a sum of pre-trained node embedding as a component of edge feature. This node embedding can be trained from heterogeneous embedding algorithms such as \cite{GroverL16,DongCS17}. We favor sum over other aggregators since this operation possibly preserves maximum discriminant power on graphs \citep{XuHLJ19}.
 Given a meta-path instance $p = (x_1x_2\ldots x_{l+1})$, we calculate
 \begin{equation*}
 o(x_1,x_{l+1}) = \dfrac{1}{(l+1) \cdot c(x_1,x_{l+1})} \sum\limits_{i=1}^{l+1} e_i
@@ -80,15 +80,15 @@ r^{(t+1)}_{i,j} = \text{ReLU}(W_{r1}\cdot (h^{(t)}_i \oplus h^{(t)}_j \oplus r^{
 \end{equation} 
 
 \subsection{Dealing with over-smoothing via adaptive depth}
-\dan{TODO:relate this example to the example figure used in preliminary section}
 Plain GCNs often degrades rapidly as number of layers increases \cite{LiHW18,abs-1904-03751}. Stacking four or more layers into GCNs cause over-smoothing problem and features of vertices tends to converge to the same value. In heterogeneous graphs, this problem is even more severe. Let's consider again meta-path $APCPA$ in Fig.~\ref{figure:example}. A two layer $a_1 a_2 a_3$ propagation on the shrinking $A-A$ homo-graph actually passes across \textbf{8} edges on the underlying heterogeneous graph, which is a terrible number of layers for plain graph convolution networks.
-To alleviate the over-smoothing problem, in equation \ref{eq:upd_node} and \ref{eq:upd_edge}, we have already included residual connections \cite{HeZRS16} in updating rule. And we propose to further improve the problem by creating jumping connections \cite{XuLTSKJ18}.
+In previous sections, our model already address this problem by including edge features in node update and updating edge feature. To further alleviate the over-smoothing problem, in equation \ref{eq:upd_node} and \ref{eq:upd_edge}, we have already included residual connections \cite{HeZRS16} in updating rule. And we propose to further improve the problem by creating jumping connections \cite{XuLTSKJ18}.
 \begin{equation}
 \label{eq:jump}
 h^{(final)}_i = h^{(0)}_i \oplus h^{(1)}_i \cdots \oplus h^{(t)}_i
 \end{equation} 
 
 \subsection{Aggregation across different meta-path semantics}
+\label{sec:mp_aggr}
 \dan{need some intuition/justification shit}
 Given a node $i$, and its set of embeddings under different semantics, a metapath aggregator is a function $\gamma$ in the form of $y_i = \gamma_\Theta(\{x_{i,1},x_{i,2},..x_{i,P}\})$, where $x_{i,p}$ is the embedding of node $i$ under metapath $p$, and $y_i$ is the aggregated embedding of node $i$ in the HIN. $\Theta$ is the learnable paremeters of the aggregator.
 Here we propose several metapath aggregators. 

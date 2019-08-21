@@ -116,6 +116,10 @@ We evaluate HINGCN and 9 other methods. To demonstrate effectiveness of our edge
 A hierarchical semi-supervised graph neural network on heterogeneous graphs. HAN employs node-level attention and meta-path level aggregation to capture node-level and semantic-level heterogeneity.
 
 \noindent{\small$\bullet$}
+\textbf{HINGCN$_ne$}: 
+A variant of HINGCN which removes edge feature in the update process of node embeddings.
+
+\noindent{\small$\bullet$}
 \textbf{HINGCN$_ed$}: 
 A variant of HINGCN which replace update of edge embedding by identity propagation.
 
@@ -143,6 +147,7 @@ For each experiment setting, we set 10 different random seed for dataset partiti
 Here we present the experiment result of applying all \dan{10?} methods on \textsc{DBLP},\textsc{Yelp} and \textsc{Freebase}. We report the averaged \textit{Macro-F1} and \textit{Micro-F1} on Tab.~\ref{tab:result}.
 
 As is shown in Tab.~\ref{tab:result}, HINGCN generally achieves the best results on all datasets.
+Surprisingly, although Metapath2vec was proposed for heterogeneous graphs, it cannot produce a better result than methods designed for homogeneous graphs. One possible reason is that during training process, only part of semantic (i.e. single meta-path) is considered. ESim, however, considers multiple meta-paths at the same time and gives a better result than Node2vec. Graph neural network methods utilize both graph structure information and node feature information, and generally perform best. Among  these GCNN methods, we can see that highly engineered neural structures tailored for heterogeneous graph, e.g. HAN and HINGCN, usually perform better. Compared to GCN and GAT, HAN considers hierarchical semantic relationship instead of entire neighborhood of nodes in heterogeneous graphs. And HINGCN further includes edge features that are excluded from HAN model. Also, without edge features (HINGCN$_ne$) or without edge updates (HINGCN$_ne$), the performance is worse than HINGCN, indicating the effectiveness of proposed architecture. A comparison between HINGCN$_at$ and HINGCN suggest that GLU is indeed a better choice for meta-path level aggregation as suggested in section \ref{sec:mp_aggr}.
 
 %Results
 \begin{table*}[!htbp]
@@ -152,31 +157,31 @@ As is shown in Tab.~\ref{tab:result}, HINGCN generally achieves the best results
 \label{tab:result}
 \begin{tabular}{|c|c|c||c|c|c|c|c||c|c|c|c|}
 \hline
-Datasets                  & Metrics                   & Training & Node2vec & Metapath2vec & GCN & GAT & HAN & HINGCN & HINGCN & HINGCN & HINGCN \\ \hline
-\multirow{8}{*}{DBLP}     & \multirow{4}{*}{Macro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \cline{2-12} 
-                          & \multirow{4}{*}{Micro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \hline
-\multirow{8}{*}{Yelp}     & \multirow{4}{*}{Macro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \cline{2-12} 
-                          & \multirow{4}{*}{Micro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \hline
-\multirow{8}{*}{Freebase} & \multirow{4}{*}{Macro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \cline{2-12} 
-                          & \multirow{4}{*}{Micro-F1} & 10\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 20\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 30\%     &          &              &     &     &     &        &        &        &        \\
-                          &                           & 40\%     &          &              &     &     &     &        &        &        &        \\ \hline
+Datasets                  & Metrics                   & Training & Node2vec & Metapath2vec & GCN & GAT & HAN & HINGCN$_ne$ & HINGCN$_nu$ & HINGCN$_at$ & HINGCN \\ \hline
+\multirow{8}{*}{DBLP}     & \multirow{4}{*}{Macro-F1} & 10\%     &  92.63   &   92.08      &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &  93.97   &   93.21      &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &  93.47   &   92.80      &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &  93.84   &   92.14      &     &     &     &        &        &        &        \\ \cline{2-12} 
+                          & \multirow{4}{*}{Micro-F1} & 10\%     &  92.86   &   92.36      &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &  94.21   &   93.47      &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &  93.72   &   93.10      &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &  94.09   &   92.49      &     &     &     &        &        &        &        \\ \hline
+\multirow{8}{*}{Yelp}     & \multirow{4}{*}{Macro-F1} & 10\%     &          &   90.59      &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &          &   91.08      &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &          &   93.07      &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &          &   93.07      &     &     &     &        &        &        &        \\ \cline{2-12} 
+                          & \multirow{4}{*}{Micro-F1} & 10\%     &          &   89.48      &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &          &   90.06      &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &          &   92.16      &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &          &   92.16      &     &     &     &        &        &        &        \\ \hline
+\multirow{8}{*}{Freebase} & \multirow{4}{*}{Macro-F1} & 10\%     &          &   64.68      &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &          &   66.10      &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &          &   65.66      &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &          &   65.35      &     &     &     &        &        &        &        \\ \cline{2-12} 
+                          & \multirow{4}{*}{Micro-F1} & 10\%     &          &   70.53      &     &     &     &        &        &        &        \\
+                          &                           & 20\%     &          &   72.10      &     &     &     &        &        &        &        \\
+                          &                           & 30\%     &          &   72.39      &     &     &     &        &        &        &        \\
+                          &                           & 40\%     &          &   72.25      &     &     &     &        &        &        &        \\ \hline
 \end{tabular}
 \end{table*}
 
@@ -184,6 +189,7 @@ Datasets                  & Metrics                   & Training & Node2vec & Me
 We provide a detailed analysis of each component layer of HINGCN model.
 
 \textbf{Analysis of edge feature.}
+As mentioned in section \ref{sec:edge}, before training of HINGCN, we fuse edge features as supplementary information. To justify its effectiveness, we make a variant of HINGCN by removing edge feature in the update process in Eq.~\ref{eq:key}. We name this variant as HINGCN$_ne$. From Fig.~\ref{tab:result}, we can see that compared to HINGCN, removal of edge feature results in a severe degradation of performance. This experiment result confirms our claim.
 
 \textbf{Analysis of effect of updating edge.}
 
@@ -193,9 +199,13 @@ We provide a detailed analysis of each component layer of HINGCN model.
 In this section, we investigate the sensitivity of hyper-parameters. We vary concerned parameters and compare against default settings described in Sec.~\ref{sec:setup} 
 
 %\textbf{Learning rate.}We first analysis the effect of changing learning rate. 
-\textbf{Dimension of edge feature.}We first analysis the effect of changing edge dimension in pre-processing. In principle, edge feature is learned from graph structures, independent of vertex feature. Intuitively, different edge feature dimension may impose different significance in attention calculation and therefore affect model performance. On the other hand, however, the 2 layer MLP in Eq.~\ref{eq:key} may be capable address this difference. We use experiment to see whether HINGCN is sensitive to input feature dimensions. The result is shown in Fig.~\ref{??}.
+\textbf{Dimension of edge feature.}We first analysis the effect of changing edge dimension in pre-processing.  We use experiment to see whether HINGCN is sensitive to input feature dimensions. The result is shown in Fig.~\ref{??}.
+%In principle, edge feature is learned from graph structures, independent of vertex feature. Intuitively, different edge feature dimension may impose different significance in attention calculation and therefore affect model performance. On the other hand, however, the 2 layer MLP in Eq.~\ref{eq:key} may be capable address this difference.
+
 
 \textbf{Number of sampled neighbors.}
+
+\textbf{Number of node update layers.} In HINGCN, we adopt an alternative update scheme of node and edge embeddings. We would like to see if stacking more update layers would cause degradation of performance. The performance of HINGCN variants with or withour jumping connections is shown in Fig.~\ref{fig:??}. 
 
 
 

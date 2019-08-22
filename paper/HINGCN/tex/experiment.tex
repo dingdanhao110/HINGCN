@@ -116,15 +116,15 @@ We evaluate HINGCN and 9 other methods. To demonstrate effectiveness of our edge
 A hierarchical semi-supervised graph neural network on heterogeneous graphs. HAN employs node-level attention and meta-path level aggregation to capture node-level and semantic-level heterogeneity.
 
 \noindent{\small$\bullet$}
-\textbf{HINGCN$_ne$}: 
+\textbf{HINGCN$_{ne}$}: 
 A variant of HINGCN which removes edge feature in the update process of node embeddings.
 
 \noindent{\small$\bullet$}
-\textbf{HINGCN$_ed$}: 
+\textbf{HINGCN$_{nu}$}: 
 A variant of HINGCN which replace update of edge embedding by identity propagation.
 
 \noindent{\small$\bullet$}
-\textbf{HINGCN$_at$}:
+\textbf{HINGCN$_{at}$}:
 A variant of HINGCN which uses attention mechanism for meta-path level aggregation.
 
 \noindent{\small$\bullet$}
@@ -147,7 +147,7 @@ For each experiment setting, we set 10 different random seed for dataset partiti
 Here we present the experiment result of applying all \dan{10?} methods on \textsc{DBLP},\textsc{Yelp} and \textsc{Freebase}. We report the averaged \textit{Macro-F1} and \textit{Micro-F1} on Tab.~\ref{tab:result}.
 
 As is shown in Tab.~\ref{tab:result}, HINGCN generally achieves the best results on all datasets.
-Surprisingly, although Metapath2vec was proposed for heterogeneous graphs, it cannot produce a better result than methods designed for homogeneous graphs. One possible reason is that during training process, only part of semantic (i.e. single meta-path) is considered. ESim, however, considers multiple meta-paths at the same time and gives a better result than Node2vec. Graph neural network methods utilize both graph structure information and node feature information, and generally perform best. Among  these GCNN methods, we can see that highly engineered neural structures tailored for heterogeneous graph, e.g. HAN and HINGCN, usually perform better. Compared to GCN and GAT, HAN considers hierarchical semantic relationship instead of entire neighborhood of nodes in heterogeneous graphs. And HINGCN further includes edge features that are excluded from HAN model. Also, without edge features (HINGCN$_ne$) or without edge updates (HINGCN$_ne$), the performance is worse than HINGCN, indicating the effectiveness of proposed architecture. A comparison between HINGCN$_at$ and HINGCN suggest that GLU is indeed a better choice for meta-path level aggregation as suggested in section \ref{sec:mp_aggr}.
+Surprisingly, although Metapath2vec was proposed for heterogeneous graphs, it cannot produce a better result than methods designed for homogeneous graphs. One possible reason is that during training process, only part of semantic (i.e. single meta-path) is considered. ESim, however, considers multiple meta-paths at the same time and gives a better result than Node2vec. Graph neural network methods utilize both graph structure information and node feature information, and generally perform best. Among  these GCNN methods, we can see that highly engineered neural structures tailored for heterogeneous graph, e.g. HAN and HINGCN, usually perform better. Compared to GCN and GAT, HAN considers hierarchical semantic relationship instead of entire neighborhood of nodes in heterogeneous graphs. And HINGCN further includes edge features that are excluded from HAN model. Also, without edge features (HINGCN$_{ne}$) or without edge updates (HINGCN$_{ne}$), the performance is worse than HINGCN, indicating the effectiveness of proposed architecture. A comparison between HINGCN$_{at}$ and HINGCN suggest that GLU is indeed a better choice for meta-path level aggregation as suggested in section \ref{sec:mp_aggr}.
 
 %Results
 \begin{table*}[!htbp]
@@ -157,7 +157,7 @@ Surprisingly, although Metapath2vec was proposed for heterogeneous graphs, it ca
 \label{tab:result}
 \begin{tabular}{|c|c|c||c|c|c|c|c||c|c|c|c|}
 \hline
-Datasets                  & Metrics                   & Training & Node2vec & Metapath2vec & GCN & GAT & HAN & HINGCN$_ne$ & HINGCN$_nu$ & HINGCN$_at$ & HINGCN \\ \hline
+Datasets                  & Metrics                   & Training & Node2vec & Metapath2vec & GCN & GAT & HAN & HINGCN$_{ne}$ & HINGCN$_{nu}$ & HINGCN$_{at}$ & HINGCN \\ \hline
 \multirow{8}{*}{DBLP}     & \multirow{4}{*}{Macro-F1} & 10\%     &  92.63   &   92.08      &     &     &     &        &        &        &        \\
                           &                           & 20\%     &  93.97   &   93.21      &     &     &     &        &        &        &        \\
                           &                           & 30\%     &  93.47   &   92.80      &     &     &     &        &        &        &        \\
@@ -189,7 +189,7 @@ Datasets                  & Metrics                   & Training & Node2vec & Me
 We provide a detailed analysis of each component layer of HINGCN model.
 
 \textbf{Analysis of edge feature.}
-As mentioned in section \ref{sec:edge}, before training of HINGCN, we fuse edge features as supplementary information. To justify its effectiveness, we make a variant of HINGCN by removing edge feature in the update process in Eq.~\ref{eq:key}. We name this variant as HINGCN$_ne$. From Fig.~\ref{tab:result}, we can see that compared to HINGCN, removal of edge feature results in a severe degradation of performance. This experiment result confirms our claim.
+As mentioned in section \ref{sec:edge}, before training of HINGCN, we fuse edge features as supplementary information. To justify its effectiveness, we make a variant of HINGCN by removing edge feature in the update process in Eq.~\ref{eq:key}. We name this variant as HINGCN$_{ne}$. From Fig.~\ref{tab:result}, we can see that compared to HINGCN, removal of edge feature results in a severe degradation of performance. This experiment result confirms our claim.
 
 \textbf{Analysis of effect of updating edge.}
 

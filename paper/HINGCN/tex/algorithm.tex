@@ -73,12 +73,18 @@ h^{(t+1)}_i = \text{ReLU}( W_{h1}\cdot \sum_{j\in N^\Phi_i} a^{(t)}_{i,j} \cdot 
 Although a vertex $i$ is always in its own meta-path neighbor, we still explicitly add term $h^{(t)}_i$ in equation \ref{eq:upd_node} following GraphSAGE\cite{HamiltonYL17}.
 
 \subsection{Aggregating edge embedding}
-\dan{TODO} In multi-layer propagation, we propose to update embeddings of edge as well.
+It is a natural idea to treat edge embeddings as parameters and update on pre-trained edge embeddings by gradient descend. However, this is not feasible in our experiment condition. Unlike language models where only a small portion of pre-trained embeddings are involved, in transductive settings, all edge embeddings we processed contribute to training process. 
+Due to the fact that the shrinking homograph is much denser than original graph, treating these edge embeddings as parameters would drastically increase number of parameters involved the model. A dense homogeneous adjacency could result in billions of parameters, especially in long tail meta-paths like $APCPA$ in DBLP dataset, where density of adjacency matrix could reach \dan{30\%?} or more.
+
+Therefore, we propose another way to fine-tune edge embeddings by allowing convolution on edge embeddings. Pre-trained embeddings are served as initial feature, and the edge convolution layer is allowed to update edge embeddings by aggregating information from its endpoint nodes. 
 \begin{equation}
 \label{eq:upd_edge}
 r^{(t+1)}_{i,j} = \text{ReLU}(W_{r1}\cdot (h^{(t)}_i \oplus h^{(t)}_j \oplus r^{(t)}_{i,j}) + W_{r2}\cdot r^{(t)}_{i,j}) 
 \end{equation} 
 
+Term $W_{r2}\cdot r^{(t)}_{i,j}$ at the end of the equation serve as a shortcut residual, in order to guarantee a feasible convergence.
+
+In multi-layer HINGCN, we propose an alternative update scheme of node embedding and edge embedding. 
 \subsection{Dealing with over-smoothing via adaptive depth}
 Plain GCNs often degrades rapidly as number of layers increases \cite{LiHW18,abs-1904-03751}. Stacking four or more layers into GCNs cause over-smoothing problem and features of vertices tends to converge to the same value. In heterogeneous graphs, this problem is even more severe. Let's consider again meta-path $APCPA$ in Fig.~\ref{figure:example}. A two layer $a_1 a_2 a_3$ propagation on the shrinking $A-A$ homo-graph actually passes across \textbf{8} edges on the underlying heterogeneous graph, which is a terrible number of layers for plain graph convolution networks.
 In previous sections, our model already address this problem by including edge features in node update and updating edge feature. To further alleviate the over-smoothing problem, in equation \ref{eq:upd_node} and \ref{eq:upd_edge}, we have already included residual connections \cite{HeZRS16} in updating rule. And we propose to further improve the problem by creating jumping connections \cite{XuLTSKJ18}.

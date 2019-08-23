@@ -53,7 +53,9 @@ And the value vector of neighbor $j$ is calculated as:
 \label{eq:value}
 v^{(t)}_{i,j} = W^{(t)}( h^{(t)}_j \oplus r^{(t)}_{i,j} )
 \end{equation} 
-where edge feature $r^{(t)}_{i,j}$ is concatenated to vertex feature of the neighbors, in order to provide additional information. It is worth noticing that due to unique feature of each edge, both key and value vectors are no longer universal for different query nodes. We believe this uniqueness improves expressivity of self-attention mechanism for HIN embedding tasks.
+where edge feature $r^{(t)}_{i,j}$ is concatenated to vertex feature of the neighbors, in order to provide additional information. 
+
+It is worth noticing that due to unique feature of each edge, both key and value vectors are no longer universal for different query nodes. We believe this uniqueness improves expressivity of self-attention mechanism for HIN embedding tasks.
 
 \noindent Afterwards, the importance of a neighbor $j$ to object $i$ is calculated as:
 \begin{equation}

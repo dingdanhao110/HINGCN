@@ -1,10 +1,30 @@
 \section{Introduction}
 \label{sec:intro}
 \dan{TODO}
-Recent advances in graph representation learning... \textbf{Graph Convolution Network} (GCN) gives a new direction on interpretative deep learning on graphs. Compared to traditional classification methods on graph like label propagation or matrix factorization, GCN models provides an end-to-end solution as well as state-of-art performance results.
+%Introduce GCNN
+Recent researches in graph representation learning leverage
+\textbf{Graph Convolution Neural Networks} (GCNNs) suggest a new direction on deep learning on graphs. Compared to traditional classification methods on graph like label propagation or matrix factorization, GCNN models provides user-friendly end-to-end solutions as well as state-of-art performance results. GCNN models layer-level interpretability
 
-On the other hand, however, deep learnings on heterogeneous graphs have been less explored. Successes of HIN-enhanced algorithms such as metapath2vec \cite{DongCS17}, \dan{cite another few} suggest that models that consider heterogeneous data may produce better results. Intuitively, deep learning models taking heterogeneity into account may produce decent results as well.
-Recently, some primitive application of GCN on heterogeneous information graphs have been proposed. However these methods did not fully utilize heterogeneity of information..
+
+%Introduce HIN and metapath.
+Homogeneous methods can be directly applied to heterogeneous graphs by neglecting different roles of nodes in the graph.
+However, previous successes of traditional algorithms such as metapath2vec \cite{DongCS17} and ESim \cite{ShangQLKHP16} suggest that models that consider heterogeneity of data may produce better results. Intuitively, deep learning models taking heterogeneity into account may produce decent results as well.
+
+Compared to the vast volume of GCNN researches published on homogeneous graphs, deep learnings on heterogeneous graphs have been less explored. 
+Some methods convert heterogeneous graphs to homogeneous graphs by
+\textbf{Topology Shrinking Sub-network} (TSSN) \cite{WanOKH15}, 
+
+so that methods designed for homogeneous graphs can be applied. 
+%briefly describe TSSN
+Given an HIN $G$ = ($V$, $E$), the TSSN of a certain object type $T_i$ derived from a meta-path $\Phi$ is a graph whose nodes consist of only objects of type $T_i$ and whose edges connect objects that are related by instances of $\Phi$.
+HAN is a state-of-art GCNN model proposed along this line of research.
+  
+  
+%What information does HAN fail to capture in their model?
+HAN considers hierarchical attention mechanism on heterogeneous graphs, yet fails to address differences of intermediate nodes during the shrinking pre-process of graph structure. 
+
+However methods relying on TSSNs did not fully capture of heterogeneous graphs.
+\dan{TODO:problem yet to solve}
 
 \comment{
 \begin{figure}
@@ -15,14 +35,16 @@ Recently, some primitive application of GCN on heterogeneous information graphs 
 \end{figure}
 }
 
+In this paper, we propose a novel semi-supervised classification algorithm on \textbf{H}eterogeneous \textbf{I}nformation \textbf{N}etworks via \textbf{G}raph \textbf{C}onvolution \textbf{N}ets, named HINGCN. Apart from hierarchical aggregation of node features, our model takes into account neglected edge information in TSSN methods as well.  by fine-tuning on pre-trained edge features
+
 
 Our main contributions are:
 
 \noindent$\bullet$
-We proposed a heterogeneous graph convolution algorithm that is capable of capturing edge information.
+To compensate loss of information in shrinking homogeneous graph, we proposed a novel pre-process of edge feature. We also propose a novel fine-tuning mechanism for edge features, with limited computation power.
 
 \noindent$\bullet$
-\dan{don't know}
+We propose an 
 
 \noindent$\bullet$
 We conduct extensive experiments %using synthetic and real datasets 
@@ -41,60 +63,6 @@ Section~\ref{sec:exp} describes the experiments and presents experimental result
 Finally, Section~\ref{sec:conclusion} concludes the paper.
 
 
-
-%\noindent{\small$\bullet$}
-%We propose a transitive $K$ nearest neighbor (TKNN) graph.
-%In the graph,
-%objects in the same cluster but far away in the feature space can be connected
-%while objects in different clusters but close to each other can be disconnected.
-%
-%\noindent{\small$\bullet$}
-%We put forward a robust spectral clustering method ROSC on multi-scale data.
-%Based on power iteration, ROSC fuses more cluster-separation information in more eigenvectors
-%and reduces the redundancy and noise contained.
-%%and it integrates the noise reduction with matrix rectification.
-%It further applies the TKNN graph to rectify the raw similarity matrix 
-%and derives a more effective one,
-%leading to a more robust spectral clustering.
-%
-%\noindent{\small$\bullet$}
-%We conduct extensive experiments to
-%prove the robustness of ROSC.
-%We compare ROSC with state-of-the-art methods on both synthetic and real datasets
-%with respect to three clustering measures.
-%All the experimental results show that ROSC is indeed a robust spectral clustering method.
-
-\comment{
-Recently, in machine learning and computer vision areas, 
-%data can be viewed as points drawn from multiple low-dimensional subspaces, with each subspace corresponding to one category or class.
-subspace segmentation has been well studied,
-which aims to segment (cluster) high-dimensional objects into the low-dimensional subspaces where they are drawn from.
-A number of methods have been proposed, such as LRR~\cite{liu2010robust}, LSR~\cite{lu2012robust}, etc.
-In these methods, given a set of data vectors $\mathcal{X} = [\bm{x}_1, \bm{x}_2,...,\bm{x}_n]$ (each column is an object) in $\mathbb{R}^d$, 
-each object is represented by 
-a linear combination of the basis in a dictionary $A = [\bm{a}_1,\bm{a}_2,...\bm{a}_m]$:
-\begin{equation}
-\nonumber
-X = AZ,
-\end{equation}
-where $Z$ is a coefficient matrix.
-Considering the case that data vectors are corrupted by noise, 
-a more robust model is thus modified as 
-\begin{equation}
-\nonumber
-X = AZ + E,
-\end{equation}
-where $E$ is utilized to capture noise.
-Subject to the constraint, different optimization objectives on $Z$ (and $E$) are adopted by different methods,
-and they desire to derive a low-dimensional mapping $Z$ which can reflect the true subspace structure in the original data.
-
-In this paper, we aim to improve spectral clustering from both effectiveness and efficiency.
-Similar to FUSE, we first use power iteration to derive a set of pseudo-eigenvectors 
-which inherit all the cluster-separation information in all the eigenvectors.
-Then we resort to the subspace segmentation model to purify the pseudo-eigenvectors.
-
-To be continued.
-}
 
 
 

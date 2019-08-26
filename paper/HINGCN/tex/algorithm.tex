@@ -86,7 +86,7 @@ r^{(t+1)}_{i,j} = \text{ReLU}(W_{r1}\cdot (h^{(t)}_i \oplus h^{(t)}_j \oplus r^{
 
 Term $W_{r2}\cdot r^{(t)}_{i,j}$ at the end of the equation serve as a shortcut residual, in order to guarantee a feasible convergence.
 
-In multi-layer HINGCN, we propose an alternative update scheme of node embedding and edge embedding. 
+In multi-layer HINGCN, we propose an alternate update scheme of node embedding and edge embedding. 
 \subsection{Dealing with over-smoothing via adaptive depth}
 Plain GCNs often degrades rapidly as number of layers increases \cite{LiHW18,abs-1904-03751}. Stacking four or more layers into GCNs cause over-smoothing problem and features of vertices tends to converge to the same value. In heterogeneous graphs, this problem is even more severe. Let's consider again meta-path $APCPA$ in Fig.~\ref{figure:example}. A two layer $a_1 a_2 a_3$ propagation on the shrinking $A-A$ homo-graph actually passes across \textbf{8} edges on the underlying heterogeneous graph, which is a terrible number of layers for plain graph convolution networks.
 In previous sections, our model already address this problem by including edge features in node update and updating edge feature. To further alleviate the over-smoothing problem, in equation \ref{eq:upd_node} and \ref{eq:upd_edge}, we have already included residual connections \cite{HeZRS16} in updating rule. And we propose to further improve the problem by creating jumping connections \cite{XuLTSKJ18}.

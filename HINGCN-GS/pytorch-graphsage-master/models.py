@@ -71,7 +71,7 @@ class HINGCN_GS(nn.Module):
         self.val_sample_fns = [partial(self.val_sampler, n_samples=s['n_val_samples']) for s in layer_specs]
 
         # Prep
-        self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes,output_dim=prep_len, embedding_dim = prep_len)
+        self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes, embedding_dim = prep_len)#output_dim=prep_len
         self.input_dim = self.prep.output_dim
 
         # Network
@@ -81,6 +81,13 @@ class HINGCN_GS(nn.Module):
             input_dim = self.input_dim
             out_dim=0
             for i, spec in enumerate(layer_specs):
+                edge = edgeupt_class(
+                    input_dim=input_dim,
+                    edge_dim=self.edge_dim,
+                    activation=spec['activation'],
+                    dropout=self.dropout,
+                    batchnorm=self.batchnorm,
+                )
                 agg = nn.ModuleList( [ aggregator_class(
                     input_dim=input_dim,
                     edge_dim=problem.edge_dim,
@@ -94,15 +101,8 @@ class HINGCN_GS(nn.Module):
                 # agg_layers.append(agg)
                 input_dim = agg[0].output_dim * n_head  # May not be the same as spec['output_dim']
                 out_dim+=input_dim
-                edge = edgeupt_class(
-                    input_dim=input_dim,
-                    edge_dim=self.edge_dim,
-                    activation=spec['activation'],
-                    dropout=self.dropout,
-                    batchnorm=self.batchnorm,
-                )
+                
                 # edge_layers.append(edge)
-
                 self.add_module('agg_{}_{}'.format(mp, i), agg)
                 self.add_module('edge_{}_{}'.format(mp, i), edge)
         input_dim = out_dim
@@ -163,14 +163,16 @@ class HINGCN_GS(nn.Module):
             # Each iteration reduces length of array by one
             tmp_out=[]
             for i in range(self.depth):
+                all_edges = [getattr(self,'edge_{}_{}'.format(mp, i))(all_feats[k], all_feats[k + 1],
+                                                    all_edges[k], mask=all_masks[k]
+                                                    ) for k in range(len(all_edges))]
+                all_edges = [F.dropout(i, self.dropout, training=self.training) for i in all_edges]
+                
                 all_feats = [ torch.cat([getattr(self,'agg_{}_{}'.format(mp, i))[h] (all_feats[k], all_feats[k + 1],
                                                      all_edges[k], mask=all_masks[k]) for h in range(self.n_head)], dim=1)
                               for k in range(len(all_feats) - 1)]
                 all_feats = [F.dropout(i, self.dropout, training=self.training) for i in all_feats]
-                all_edges = [getattr(self,'edge_{}_{}'.format(mp, i))(all_feats[k], all_feats[k + 1],
-                                                    all_edges[k], mask=all_masks[k]
-                                                    ) for k in range(len(all_edges) - 1)]
-                all_edges = [F.dropout(i, self.dropout, training=self.training) for i in all_edges]
+                
                 tmp_out.append(all_feats[0])
             assert len(all_feats) == 1, "len(all_feats) != 1"
             output.append( torch.cat(tmp_out,dim=-1).unsqueeze(0) )

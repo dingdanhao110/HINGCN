@@ -545,8 +545,8 @@ class AttentionAggregator2(nn.Module):
         ws = F.softmax(ws, dim=1)
 
         #dropout for attention coefficient
-        ws = F.dropout(ws,p=0.2,training=self.training)
-        ws = F.normalize(ws,p=1,dim=1)
+        #ws = F.dropout(ws,p=0.2,training=self.training)
+        #ws = F.normalize(ws,p=1,dim=1)
 
         # Weighted average of neighbors
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))

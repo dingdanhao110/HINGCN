@@ -13,10 +13,10 @@ def read_embed(path="./data/dblp/",
     for i in range(n_nodes):
         emb_index[embedding[i, 0]] = i
 
-    features = np.asarray([embedding[emb_index[i], 1:] for i in range(n_nodes)])
+    features = np.asarray([embedding[emb_index[i], 1:] if i in emb_index else embedding[0, 1:] for i in range(43854)])
 
-    assert features.shape[1] == n_feature
-    assert features.shape[0] == n_nodes
+    #assert features.shape[1] == n_feature
+    #assert features.shape[0] == n_nodes
 
     return features, n_nodes, n_feature
 
@@ -114,10 +114,12 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
         for line in f:
             writers.append(line.split()[0])
 
-    n_movie = len(movies)  # 1465
-    n_actor = len(actors)  # 4019
-    n_director = len(directors)  # 1093
-    n_writer = len(writers)  # 1458
+    n_movie = len(movies)  # 3492
+    n_actor = len(actors)  # 33401
+    n_director = len(directors)  # 2502
+    n_writer = len(writers)  # 4459
+
+    print(n_movie,n_actor,n_director,n_writer)
 
     movie_dict = {a: i for (i, a) in enumerate(movies)}
     actor_dict = {a: i + n_movie for (i, a) in enumerate(actors)}
@@ -251,8 +253,10 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
                 MWMi[v][m].add(w)
 
 
-    node_emb, n_nodes, emb_len = read_embed(path=path,emb_file="MADW_16")
-    print(n_nodes, emb_len)
+    MAM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MAM_16")
+    MDM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MDM_16")
+    MWM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MWM_16")
+    #print(n_nodes, emb_len)
 
     MAM_ps=sp.load_npz("{}{}".format(path, 'MAM_ps.npz')).todense()
     MDM_ps=sp.load_npz("{}{}".format(path, 'MDM_ps.npz')).todense()
@@ -264,10 +268,10 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
         result = {}
         for m in MAMi[v]:
             np1 = len(MAMi[v][m])
-            edge1 = [node_emb[p] for p in MAMi[v][m]]
+            edge1 = [MAM_e[p] for p in MAMi[v][m]]
             edge1 = np.sum(np.vstack(edge1), axis=0)  # edge1: the emd between v and a1
             edge1 /= np1
-            edge1 += node_emb[v] + node_emb[m]
+            edge1 += MAM_e[v] + MAM_e[m]
             if m not in result:
                 result[m] = edge1
             else:
@@ -286,10 +290,10 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
         result = {}
         for m in MDMi[v]:
             np1 = len(MDMi[v][m])
-            edge1 = [node_emb[p] for p in MDMi[v][m]]
+            edge1 = [MDM_e[p] for p in MDMi[v][m]]
             edge1 = np.sum(np.vstack(edge1), axis=0)  # edge1: the emd between v and a1
             edge1 /= np1
-            edge1 += node_emb[v] + node_emb[m]
+            edge1 += MDM_e[v] + MDM_e[m]
             if m not in result:
                 result[m] = edge1
             else:
@@ -308,10 +312,10 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
         result = {}
         for m in MWMi[v]:
             np1 = len(MWMi[v][m])
-            edge1 = [node_emb[p] for p in MWMi[v][m]]
+            edge1 = [MWM_e[p] for p in MWMi[v][m]]
             edge1 = np.sum(np.vstack(edge1), axis=0)  # edge1: the emd between v and a1
             edge1 /= np1
-            edge1 += node_emb[v] + node_emb[m]
+            edge1 += MWM_e[v] + MWM_e[m]
             if m not in result:
                 result[m] = edge1
             else:
@@ -571,9 +575,9 @@ def gen_homoadj(path):
 
 # gen_homograph(path='../../../data/freebase/')
 
-#dump_yago_edge_emb(path='data/freebase/')
+dump_yago_edge_emb(path='data/freebase/')
 
-gen_yago_randomwalk(path='data/freebase/',
-                     walk_length=100,n_walks=1000)
+#gen_yago_randomwalk(path='data/freebase/',
+                     #walk_length=100,n_walks=1000)
 
 #gen_homoadj(path='data/freebase/')

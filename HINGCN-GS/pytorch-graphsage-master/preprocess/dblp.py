@@ -80,17 +80,17 @@ def read_embed(path="../../../data/dblp2/",
     with open("{}{}_{}.emb".format(path, emb_file,emb_len)) as f:
         n_nodes, n_feature = map(int, f.readline().strip().split())
     print("number of nodes:{}, embedding size:{}".format(n_nodes, n_feature))
-
+    
     embedding = np.loadtxt("{}{}_{}.emb".format(path, emb_file,emb_len),
                            dtype=np.float32, skiprows=1)
     emb_index = {}
     for i in range(n_nodes):
         emb_index[embedding[i, 0]] = i
 
-    features = np.asarray([embedding[emb_index[i], 1:] for i in range(n_nodes)])
+    features = np.asarray([embedding[emb_index[i], 1:] if i in emb_index else embedding[0, 1:] for i in range(18405)])
 
-    assert features.shape[1] == n_feature
-    assert features.shape[0] == n_nodes
+    #assert features.shape[1] == n_feature
+    #assert features.shape[0] == n_nodes
 
     return features, n_nodes, n_feature
 
@@ -100,7 +100,8 @@ def dump_edge_emb(path='data/dblp2/'):
     APAPA_file = "APAPA"
     APCPA_file = "APCPA"
 
-    node_emb,n_nodes,n_emb =read_embed(path=path)
+    APA_e,n_nodes,n_emb =read_embed(path=path,emb_file='APA')
+    APCPA_e,n_nodes,n_emb =read_embed(path=path,emb_file='APCPA')
 
     PA_file = "PA"
     PC_file = "PC"
@@ -227,9 +228,9 @@ def dump_edge_emb(path='data/dblp2/'):
     APA_emb = []
     for a1 in APA.keys():
         for a2 in APA[a1]:
-            tmp = [node_emb[p] for p in APA[a1][a2]]
+            tmp = [APA_e[p] for p in APA[a1][a2]]
             tmp = np.sum(tmp, axis=0)/len(APA[a1][a2])
-            tmp += node_emb[a1]+node_emb[a2]
+            tmp += APA_e[a1]+APA_e[a2]
             tmp /= 3
             if a1 <= a2:
                 APA_emb.append(np.concatenate(([a1, a2], tmp,[APA_ps[a1,a2]], [len(APA[a1][a2])])))
@@ -246,17 +247,17 @@ def dump_edge_emb(path='data/dblp2/'):
         count = {}
         for a1 in ind1[v].keys():
             np1 = len(ind1[v][a1])
-            edge1 = [node_emb[p] for p in ind1[v][a1]]
+            edge1 = [APA_e[p] for p in ind1[v][a1]]
             edge1 = np.sum(np.vstack(edge1), axis=0)  # edge1: the emd between v and a1
 
             for a2 in ind2[a1].keys():
                 np2 = len(ind2[a1][a2])
-                edge2 = [node_emb[p] for p in ind2[a1][a2]]
+                edge2 = [APA_e[p] for p in ind2[a1][a2]]
                 edge2 = np.sum(np.vstack(edge2), axis=0)  # edge2: the emd between a1 and a2
                 if a2 not in result:
-                    result[a2] = node_emb[a1] * (np2 * np1)
+                    result[a2] = APA_e[a1] * (np2 * np1)
                 else:
-                    result[a2] += node_emb[a1] * (np2 * np1)
+                    result[a2] += APA_e[a1] * (np2 * np1)
                 result[a2] += edge1 * np2
                 result[a2] += edge2 * np1
                 if a2 not in count:
@@ -265,7 +266,7 @@ def dump_edge_emb(path='data/dblp2/'):
 
         for a in result:
             if v <= a:
-                APAPA_emb.append(np.concatenate(([v, a], (result[a]/count[a]+node_emb[a]+node_emb[v])/5
+                APAPA_emb.append(np.concatenate(([v, a], (result[a]/count[a]+APA_e[a]+APA_e[v])/5
                                                  ,[APAPA_ps[v,a]],[count[a]])))
             # f.write('{} {} '.format(v, a))
             # f.write(" ".join(map(str, result[a].numpy())))
@@ -286,17 +287,17 @@ def dump_edge_emb(path='data/dblp2/'):
             continue
         for a1 in ind1[v].keys():
             np1 = len(ind1[v][a1])
-            edge1 = [node_emb[p] for p in ind1[v][a1]]
+            edge1 = [APCPA_e[p] for p in ind1[v][a1]]
             edge1 = np.sum(np.vstack(edge1), axis=0)  # edge1: the emd between v and a1
 
             for a2 in ind2[a1].keys():
                 np2 = len(ind2[a1][a2])
-                edge2 = [node_emb[p] for p in ind2[a1][a2]]
+                edge2 = [APCPA_e[p] for p in ind2[a1][a2]]
                 edge2 = np.sum(np.vstack(edge2), axis=0)  # edge2: the emd between a1 and a2
                 if a2 not in result:
-                    result[a2] = node_emb[a1] * (np2 * np1)
+                    result[a2] = APCPA_e[a1] * (np2 * np1)
                 else:
-                    result[a2] += node_emb[a1] * (np2 * np1)
+                    result[a2] += APCPA_e[a1] * (np2 * np1)
                 if a2 not in count:
                     count[a2]=0
                 result[a2] += edge1 * np2
@@ -307,7 +308,7 @@ def dump_edge_emb(path='data/dblp2/'):
         for a in result:
             if v <= a:
                 if APCPA_ps[v,a]==0: print(v,a)
-                APCPA_emb.append(np.concatenate(([v, a], (result[a]/count[a]+node_emb[a]+node_emb[v])/5,
+                APCPA_emb.append(np.concatenate(([v, a], (result[a]/count[a]+APCPA_e[a]+APCPA_e[v])/5,
                                                  [APCPA_ps[v,a]],
                                                  [count[a]])))
             # f.write('{} {} '.format(v,a))
@@ -532,6 +533,6 @@ def gen_walk(path='data/dblp2/'):
 
 #clean_dblp()
 #gen_homograph()
-#dump_edge_emb()
+dump_edge_emb()
 #gen_homoadj()
-gen_walk()
+#gen_walk()

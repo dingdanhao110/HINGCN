@@ -13,10 +13,10 @@ def read_embed(path="./data/dblp/",
     for i in range(n_nodes):
         emb_index[embedding[i, 0]] = i
 
-    features = np.asarray([embedding[emb_index[i], 1:] for i in range(n_nodes)])
+    features = np.asarray([embedding[emb_index[i], 1:] if i in emb_index else embedding[0, 1:] for i in range(37342)])
 
-    assert features.shape[1] == n_feature
-    assert features.shape[0] == n_nodes
+    #assert features.shape[1] == n_feature
+    #assert features.shape[0] == n_nodes
 
     return features, n_nodes, n_feature
 
@@ -185,7 +185,8 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
     user_max = max(RU[:, 1]) + 1  # 1286
 
     n_busi = busi_max
-    node_emb, n_nodes, emb_len = read_embed(path=path,emb_file="RBUK_16")
+    BRURB_e, n_nodes, emb_len = read_embed(path=path,emb_file="BRURB_16")
+    BRKRB_e, n_nodes, emb_len = read_embed(path=path,emb_file="BRKRB_16")
 
     BRURB_ps=sp.load_npz("{}{}".format(path, 'BRURB_ps.npz')).todense()
     BRKRB_ps=sp.load_npz("{}{}".format(path, 'BRKRB_ps.npz')).todense()
@@ -200,17 +201,17 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
             continue
         for u in BRUi[v]:
             np1 = len(BRUi[v][u])
-            edge1 = [node_emb[p] for p in BRUi[v][u]]
+            edge1 = [BRURB_e[p] for p in BRUi[v][u]]
             edge1 = np.sum(np.vstack(edge1), axis=0)  # edge1: the emd between v and a1
 
             for b in URBi[u].keys():
                 np2 = len(URBi[u][b])
-                edge2 = [node_emb[p] for p in URBi[u][b]]
+                edge2 = [BRURB_e[p] for p in URBi[u][b]]
                 edge2 = np.sum(np.vstack(edge2), axis=0)  # edge2: the emd between a1 and a2
                 if b not in result:
-                    result[b] = node_emb[u] * (np2 * np1)
+                    result[b] = BRURB_e[u] * (np2 * np1)
                 else:
-                    result[b] += node_emb[u] * (np2 * np1)
+                    result[b] += BRURB_e[u] * (np2 * np1)
                 result[b] += edge1 * np2
                 result[b] += edge2 * np1
                 if b not in count:
@@ -219,7 +220,7 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
 
         for b in result:
             if v <= b:
-                BRURB_emb.append(np.concatenate(([v, b], (result[b]/count[b]+node_emb[v]+node_emb[b])/5,[BRURB_ps[v,b]], [count[b]])))
+                BRURB_emb.append(np.concatenate(([v, b], (result[b]/count[b]+BRURB_e[v]+BRURB_e[b])/5,[BRURB_ps[v,b]], [count[b]])))
     BRURB_emb = np.asarray(BRURB_emb)
     m = np.max(BRURB_emb[:, -1])
     BRURB_emb[:, -1] /= m
@@ -236,17 +237,17 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
             continue
         for k in BRKi[v].keys():
             np1 = len(BRKi[v][k])
-            edge1 = [node_emb[p] for p in BRKi[v][k]]
+            edge1 = [BRKRB_e[p] for p in BRKi[v][k]]
             edge1 = np.sum(np.vstack(edge1), axis=0)  # edge1: the emd between v and a1
 
             for b in KRBi[k].keys():
                 np2 = len(KRBi[k][b])
-                edge2 = [node_emb[p] for p in KRBi[k][b]]
+                edge2 = [BRKRB_e[p] for p in KRBi[k][b]]
                 edge2 = np.sum(np.vstack(edge2), axis=0)  # edge2: the emd between a1 and a2
                 if b not in result:
-                    result[b] = node_emb[k] * (np2 * np1)
+                    result[b] = BRKRB_e[k] * (np2 * np1)
                 else:
-                    result[b] += node_emb[k] * (np2 * np1)
+                    result[b] += BRKRB_e[k] * (np2 * np1)
                 if b not in count:
                     count[b]=0
                 result[b] += edge1 * np2
@@ -254,7 +255,7 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
                 count[b] += np1*np2
         for b in result:
             if v <= b:
-                BRKRB_emb.append(np.concatenate(([v, b], (result[b]/count[b]+node_emb[v]+node_emb[b])/5,[BRKRB_ps[v,b]], [count[b]] )))
+                BRKRB_emb.append(np.concatenate(([v, b], (result[b]/count[b]+BRKRB_e[v]+BRKRB_e[b])/5,[BRKRB_ps[v,b]], [count[b]] )))
     BRKRB_emb = np.asarray(BRKRB_emb)
     m = np.max(BRKRB_emb[:, -1])
     BRKRB_emb[:, -1] /= m
@@ -450,7 +451,7 @@ def gen_walk(path='../../../data/yelp/',
         pass
 
 # gen_homograph()
-#dump_yelp_edge_emb(path='data/yelp/')
+dump_yelp_edge_emb(path='data/yelp/')
 #gen_homoadj()
-gen_walk(path='data/yelp/',
-                        walk_length=100,n_walks=1000)
+#gen_walk(path='data/yelp/',
+#                        walk_length=100,n_walks=1000)

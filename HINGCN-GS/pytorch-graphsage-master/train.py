@@ -245,13 +245,13 @@ if __name__ == "__main__":
             )
             train_loss += loss.item()
             train_metric = problem.metric_fn(to_numpy(targets), to_numpy(preds))
-            print(json.dumps({
-                "epoch": epoch,
-                "epoch_progress": epoch_progress,
-                "train_metric": train_metric,
-                "time": time() - start_time,
-            }, double_precision=5))
-            sys.stdout.flush()
+            #print(json.dumps({
+            #    "epoch": epoch,
+            #    "epoch_progress": epoch_progress,
+            #    "train_metric": train_metric,
+            #    "time": time() - start_time,
+            #}, double_precision=5))
+            #sys.stdout.flush()
 
         print(json.dumps({
             "epoch": epoch,

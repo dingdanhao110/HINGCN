@@ -8,6 +8,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 from torch.autograd import Variable
+import gc
 
 import numpy as np
 from scipy import sparse
@@ -656,38 +657,41 @@ class DenseAttentionAggregator(nn.Module):
         return result
 
 class DenseEdgeAggregator(nn.Module):
-    def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=32,
+    def __init__(self, input_dim, output_dim, edge_dim, activation,
+                 adj, edge_emb, hidden_dim=32,
                  dropout=0.5,
                  concat_node=True, concat_edge=True, batchnorm=False):
         super(DenseEdgeAggregator, self).__init__()
+
+        self.adj=adj
+        self.edge_emb=edge_emb
 
         self.att_x = nn.Sequential(*[
             nn.Linear(input_dim, hidden_dim, bias=True),
             nn.Tanh(),
             nn.Linear(hidden_dim, hidden_dim, bias=True),
-            nn.ReLU(),
-            nn.Linear(hidden_dim,1)
+            #nn.Tanh(),
         ])
 
         self.att_neigh = nn.Sequential(*[
             nn.Linear(input_dim, hidden_dim, bias=True),
             nn.Tanh(),
             nn.Linear(hidden_dim, hidden_dim, bias=True),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, 1)
+            #nn.Tanh(),
         ])
 
         self.att_edge = nn.Sequential(*[
             nn.Linear(edge_dim, hidden_dim, bias=True),
             nn.Tanh(),
             nn.Linear(hidden_dim, hidden_dim, bias=True),
-            nn.ReLU(),
-            nn.Linear(hidden_dim,1)
+            #nn.Tanh(),
         ])
 
-        self.fc_x = nn.Linear(2 * input_dim, output_dim)
-        self.fc_neib = nn.Linear(input_dim, output_dim)
+        self.fc_value = nn.Linear(input_dim, output_dim)
         self.fc_edge = nn.Linear(edge_dim, output_dim)
+
+        self.fc_x = nn.Linear(input_dim, output_dim)
+        #self.fc_neib = nn.Linear(input_dim, output_dim)
         self.concat_node = concat_node
 
         self.dropout = nn.Dropout(p=dropout)
@@ -702,50 +706,54 @@ class DenseEdgeAggregator(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.output_dim)
 
-    def forward(self, x, neibs, edge_emb, mask):
+    def forward(self, x, neigh, batch=512):
         '''
-        :param x: (N,input_dim)
+        :param x: (n_nodes,input_dim)
         :param neibs: (n_nodes,input_dim)
         :param edge_emb: (N*n_nodes,edge_dim)
         :param mask: (N, n_nodes)
         :return:
         '''
-        N = x.shape[0]
+        neib_att = self.att_neigh(neigh)
+        value = self.fc_value(neigh)
+        result = []
+        adjs = torch.split(self.adj, batch,dim=0)
+        for chunk_id, chunk in enumerate(torch.split(x, batch,dim=0)):
+            edges = self.edge_emb[adjs[chunk_id].view(-1)]
 
-        neib_att = self.att_neigh(neibs)
-        x_att = self.att_x(x)
-        # edge_att = self.att_edge(edge_emb)
+            N = chunk.shape[0]
+            k = edges.shape[0]//N
 
-        ws = x_att.mm(neib_att.t())  # +edge_att.view(N,-1)
-        # ws = x_att+neib_att.t()
-        # ws = F.leaky_relu(ws)
-        ws = ws * mask
-        ws = F.softmax(ws, dim=1)
+            edge_att=self.att_edge(edges).view(N,k,-1)
+            x_att = self.att_x(chunk)
+            # edge_att = self.att_edge(edge_emb)
 
-        # Weighted average of neighbors
-        agg_neib = torch.mm(ws, neibs)
-        agg_neib = F.sigmoid(agg_neib)
-        # agg_edge = edge_emb.view(N, -1, edge_emb.size(-1))
-        # agg_edge = torch.sum(agg_edge * ws.unsqueeze(-1), dim=1)
+            ws = x_att.mm(neib_att.t()) + torch.bmm(edge_att,x_att.view(N,-1,1)).squeeze()
+            # ws = x_att+neib_att.t()
+            ws = F.leaky_relu(ws)
+            zero_vec = -9e15*torch.ones_like(ws)
+            ws = torch.where(adjs[chunk_id] > 0, ws, zero_vec)
+            ws = F.softmax(ws, dim=1)
+            #attention = F.dropout(attention, self.dropout, training=self.training)
+            
+            # Weighted average of neighbors
+            agg_neib = torch.mm(ws, value)+ torch.bmm(ws.view(N,1,k),self.fc_edge(edges.view(N,k,-1))).squeeze()
+            #agg_neib = F.sigmoid(agg_neib)
+            # agg_edge = edge_emb.view(N, -1, edge_emb.size(-1))
+            # agg_edge = torch.sum(agg_edge * ws.unsqueeze(-1), dim=1)
 
-        if self.concat_node:
-            out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)],dim=1)
-        else:
-            # out = self.fc_x(x) + self.fc_neib(agg_neib)
-
-            out = torch.cat([x, agg_neib], dim=1)
-            out = self.fc_x(out)
-            out = F.sigmoid(out)
-
-        if self.batchnorm:
-            out = self.bn(out)
-
-        out = self.dropout(out)
-
-        # if self.activation:
-        #     out = self.activation(out)
-
-        return out
+            if self.concat_node:
+                out = torch.cat([self.fc_x(chunk), agg_neib], dim=1)
+            else:
+                out = self.fc_x(chunk) + agg_neib
+                out = F.elu(out)
+            if self.batchnorm:
+                out = self.bn(out)
+            result.append(out)
+            gc.collect()
+        result = torch.cat(result,dim=0)
+        result = self.dropout(result)
+        return result
 
 class MRAggregator(nn.Module):
     def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=256,

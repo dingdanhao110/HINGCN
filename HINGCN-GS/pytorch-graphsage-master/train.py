@@ -145,7 +145,7 @@ if __name__ == "__main__":
     n_train_samples = list(map(int, args.n_train_samples.split(',')))
     n_val_samples = list(map(int, args.n_val_samples.split(',')))
     output_dims = list(map(int, args.output_dims.split(',')))
-    model = HINGCN_GS(**{
+    model = HINGCN_Dense(**{
         "problem": problem,
         "n_mp": len(schemes),
         "sampler_class": sampler_lookup[args.sampler_class],

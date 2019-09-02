@@ -139,21 +139,21 @@ def load_edge_emb(path, schemes, n_dim=17, n_author=20000):
                              (data[scheme][:, 0], data[scheme][:, 1])),
                             shape=(n_author, n_author),
                             dtype=np.long)
-        # diag = ind.diagonal()
-        # ind = ind - diag
-        # ind = ind + ind.transpose() + diag
-        #
-        # ind = sp.coo_matrix(ind)
-
-        ind = ind + ind.transpose()
-        ind = sparse_mx_to_torch_sparse_tensor(ind)#.to_dense()
-
-        nonz = ind._indices()
-        values = ind._values()
+        diag = ind.diagonal()
+        ind = ind - diag
+        ind = ind + ind.transpose() + diag
         
-        for i in range(nonz.shape[1]):
-            if nonz[0,i] == nonz[1,i]:
-                values[i] = int(values[i] /2)
+        ind = torch.LongTensor(ind)
+
+        #ind = ind + ind.transpose()
+        #ind = sparse_mx_to_torch_sparse_tensor(ind)#.to_dense()
+
+        #nonz = ind._indices()
+        #values = ind._values()
+        
+        #for i in range(nonz.shape[1]):
+        #    if nonz[0,i] == nonz[1,i]:
+        #        values[i] = int(values[i] /2)
 
         embedding = np.zeros(n_dim, dtype=np.float32)
         embedding = np.vstack((embedding, data[scheme][:, 2:]))

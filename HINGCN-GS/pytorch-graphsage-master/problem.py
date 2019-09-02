@@ -114,7 +114,7 @@ class NodeProblem(object):
         self.edge_dim = edge_emb[schemes[0]].shape[1]
         self.n_nodes   = features.shape[0]
 
-        self.homo_adj, self.homo_feat = read_homograph(path=problem_path,problem=problem)
+        #self.homo_adj, self.homo_feat = read_homograph(path=problem_path,problem=problem)
 
         #self.feats = self.homo_feat[:self.n_nodes+1,:]
 
@@ -141,10 +141,11 @@ class NodeProblem(object):
                 for i in self.adj:
                     self.adj[i]=self.adj[i].to(self.device)
                     # print(torch.cuda.memory_allocated())
-                self.homo_adj = self.homo_adj.to(self.device)
-                self.homo_feat = self.homo_feat.to(self.device)
+                #self.homo_adj = self.homo_adj.to(self.device)
+                #self.homo_feat = self.homo_feat.to(self.device)
                 for i in self.edge_emb:
                     if torch.is_tensor(self.edge_emb[i]):
+                        pass
                         self.edge_emb[i] = self.edge_emb[i].to(self.device)
                     # print(torch.cuda.memory_allocated())
 

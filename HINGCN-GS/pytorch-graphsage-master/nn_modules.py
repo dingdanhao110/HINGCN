@@ -3,7 +3,9 @@
 """
     nn_modules.py
 """
-
+import os
+import psutil
+import sys
 import torch
 from torch import nn
 from torch.nn import functional as F
@@ -728,21 +730,22 @@ class DenseEdgeAggregator(nn.Module):
         :param mask: (N, n_nodes)
         :return:
         '''
-        cpuStats()
-        memReport()
+        #cpuStats()
+        #memReport()
         neib_att = self.att_neigh(neigh)
         value = self.fc_value(neigh)
         result = []
-        ids = torch.arange(x.shape[0]).to(self.adj.device)
+        ids = torch.arange(x.shape[0])
         
         for i, chunk_ids in enumerate(torch.split(ids, batch,dim=0)):
             chunk = x[chunk_ids]
-            edges = self.edge_emb[self.adj[chunk_ids].view(-1)]
+            edges = self.edge_emb[self.adj[chunk_ids].view(-1)].to(x.device)
 
             N = chunk.shape[0]
             k = edges.shape[0]//N
+            #print(edges.shape) 
 
-            edge_att=self.att_edge(edges).view(N,k,-1)
+            edge_att=self.att_edge(edges.view(N,k,-1))
             x_att = self.att_x(chunk)
             # edge_att = self.att_edge(edge_emb)
 
@@ -768,7 +771,10 @@ class DenseEdgeAggregator(nn.Module):
             if self.batchnorm:
                 out = self.bn(out)
             result.append(out)
+            del edges
+            del edge_att
             gc.collect()
+            torch.cuda.empty_cache()
         result = torch.cat(result,dim=0)
         result = self.dropout(result)
         return result

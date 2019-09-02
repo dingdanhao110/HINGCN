@@ -706,7 +706,7 @@ class DenseEdgeAggregator(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.output_dim)
 
-    def forward(self, x, neigh, batch=512):
+    def forward(self, x, neigh, batch=64):
         '''
         :param x: (n_nodes,input_dim)
         :param neibs: (n_nodes,input_dim)
@@ -717,9 +717,11 @@ class DenseEdgeAggregator(nn.Module):
         neib_att = self.att_neigh(neigh)
         value = self.fc_value(neigh)
         result = []
-        adjs = torch.split(self.adj, batch,dim=0)
-        for chunk_id, chunk in enumerate(torch.split(x, batch,dim=0)):
-            edges = self.edge_emb[adjs[chunk_id].view(-1)]
+        ids = torch.arange(x.shape[0]).to(self.adj.device)
+        
+        for i, chunk_ids in enumerate(torch.split(ids, batch,dim=0)):
+            chunk = x[chunk_ids]
+            edges = self.edge_emb[self.adj[chunk_ids].view(-1)]
 
             N = chunk.shape[0]
             k = edges.shape[0]//N
@@ -732,7 +734,7 @@ class DenseEdgeAggregator(nn.Module):
             # ws = x_att+neib_att.t()
             ws = F.leaky_relu(ws)
             zero_vec = -9e15*torch.ones_like(ws)
-            ws = torch.where(adjs[chunk_id] > 0, ws, zero_vec)
+            ws = torch.where(self.adj[chunk_ids] > 0, ws, zero_vec)
             ws = F.softmax(ws, dim=1)
             #attention = F.dropout(attention, self.dropout, training=self.training)
             

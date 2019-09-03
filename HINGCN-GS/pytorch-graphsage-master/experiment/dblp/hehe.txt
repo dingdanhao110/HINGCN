@@ -1,0 +1,303 @@
+NodeProblem: loading started
+loading edge embedding for APA complete, num of embeddings: 7586
+loading edge embedding for APAPA complete, num of embeddings: 22381
+loading edge embedding for APCPA complete, num of embeddings: 2502277
+NodeProblem: loading finished
+Let's use 1 GPUs!
+DataParallel(
+  (module): HINGCN_Dense(
+    (prep): LinearPrep(
+      (fc): Linear(in_features=8920, out_features=32, bias=False)
+    )
+    (agg_0_0): ModuleList(
+      (0): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (agg_1_0): ModuleList(
+      (0): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (agg_2_0): ModuleList(
+      (0): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): DenseEdgeAggregator(
+        (att_x): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_neigh): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (att_edge): Sequential(
+          (0): Linear(in_features=18, out_features=32, bias=True)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=True)
+        )
+        (fc_value): Linear(in_features=32, out_features=64, bias=True)
+        (fc_edge): Linear(in_features=18, out_features=64, bias=True)
+        (fc_x): Linear(in_features=32, out_features=64, bias=True)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (mp_agg): MetapathGateLayer (256 -> 256)
+    (fc): Linear(in_features=256, out_features=4, bias=True)
+  )
+)
+Traceback (most recent call last):
+  File "train.py", line 244, in <module>
+    loss_fn=problem.loss_fn,
+  File "train.py", line 39, in train_step
+    preds,weights = model(ids, train=True)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 493, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/parallel/data_parallel.py", line 150, in forward
+    return self.module(*inputs[0], **kwargs[0])
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 493, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/models.py", line 308, in forward
+    (first_feats,other_feats) for h in range(self.n_head)], dim=1)
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/models.py", line 308, in <listcomp>
+    (first_feats,other_feats) for h in range(self.n_head)], dim=1)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 493, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/nn_modules.py", line 727, in forward
+    edge_att=self.att_edge(edges).view(N,k,-1)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 493, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/modules/container.py", line 92, in forward
+    input = module(input)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 493, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/modules/linear.py", line 92, in forward
+    return F.linear(input, self.weight, self.bias)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/functional.py", line 1406, in linear
+    ret = torch.addmm(bias, input, weight.t())
+RuntimeError: CUDA out of memory. Tried to allocate 32.00 MiB (GPU 0; 10.92 GiB total capacity; 10.37 GiB already allocated; 3.50 MiB free; 16.87 MiB cached)

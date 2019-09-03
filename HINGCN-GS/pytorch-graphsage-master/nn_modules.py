@@ -16,6 +16,10 @@ import numpy as np
 from scipy import sparse
 from helpers import to_numpy
 
+import inspect
+
+from gpu_mem_track import  MemTracker
+
 def memReport():
     for obj in gc.get_objects():
         if torch.is_tensor(obj):
@@ -730,25 +734,31 @@ class DenseEdgeAggregator(nn.Module):
         :param mask: (N, n_nodes)
         :return:
         '''
+        from gpu_mem_track import MemTracker
+
+        frame = inspect.currentframe()
+        gpu_tracker = MemTracker(frame)
         #cpuStats()
         #memReport()
         neib_att = self.att_neigh(neigh)
         value = self.fc_value(neigh)
         result = []
         ids = torch.arange(x.shape[0])
-        
+        gpu_tracker.track()
         for i, chunk_ids in enumerate(torch.split(ids, batch,dim=0)):
+            gpu_tracker.track()
             chunk = x[chunk_ids]
             edges = self.edge_emb[self.adj[chunk_ids].view(-1)].to(x.device)
-
+            gpu_tracker.track()
             N = chunk.shape[0]
             k = edges.shape[0]//N
+            edges=edges.reshape(N,k,-1)
             #print(edges.shape) 
-
-            edge_att=self.att_edge(edges.view(N,k,-1))
+            gpu_tracker.track()
+            edge_att=self.att_edge(edges)
             x_att = self.att_x(chunk)
             # edge_att = self.att_edge(edge_emb)
-
+            gpu_tracker.track()
             ws = x_att.mm(neib_att.t()) + torch.bmm(edge_att,x_att.view(N,-1,1)).squeeze()
             # ws = x_att+neib_att.t()
             ws = F.leaky_relu(ws)
@@ -758,11 +768,11 @@ class DenseEdgeAggregator(nn.Module):
             #attention = F.dropout(attention, self.dropout, training=self.training)
             
             # Weighted average of neighbors
-            agg_neib = torch.mm(ws, value)+ torch.bmm(ws.view(N,1,k),self.fc_edge(edges.view(N,k,-1))).squeeze()
+            agg_neib = torch.mm(ws, value)+ torch.bmm(ws.view(N,1,k),self.fc_edge(edges)).squeeze()
             #agg_neib = F.sigmoid(agg_neib)
             # agg_edge = edge_emb.view(N, -1, edge_emb.size(-1))
             # agg_edge = torch.sum(agg_edge * ws.unsqueeze(-1), dim=1)
-
+            gpu_tracker.track()
             if self.concat_node:
                 out = torch.cat([self.fc_x(chunk), agg_neib], dim=1)
             else:
@@ -773,10 +783,20 @@ class DenseEdgeAggregator(nn.Module):
             result.append(out)
             del edges
             del edge_att
+            del x_att
+            del ws
+            del zero_vec
+            del agg_neib
+            del chunk
             gc.collect()
             torch.cuda.empty_cache()
+            gpu_tracker.track()
         result = torch.cat(result,dim=0)
         result = self.dropout(result)
+        del value
+        gc.collect()
+        torch.cuda.empty_cache()
+        gpu_tracker.track()
         return result
 
 class MRAggregator(nn.Module):

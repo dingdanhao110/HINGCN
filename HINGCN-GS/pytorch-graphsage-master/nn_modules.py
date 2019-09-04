@@ -76,8 +76,10 @@ class UniformNeighborSampler(object):
                 # for edge embedding... PADDING with all-zero embedding at edge_emb[0]
                 if cuda:
                     neigh.append(torch.cuda.LongTensor([v]).repeat(n_samples))
+                    #mask.append(torch.cuda.LongTensor([1]).repeat(n_samples))
                 else:
                     neigh.append(torch.LongTensor([v]).repeat(n_samples))
+                    #mask.append(torch.LongTensor([1]).repeat(n_samples))
             else:
                 idx = np.random.choice(nonz.shape[0], n_samples)
                 neigh.append(nonz[idx])
@@ -85,6 +87,7 @@ class UniformNeighborSampler(object):
         edges = adj[
             ids.view(-1, 1).repeat(1, n_samples).view(-1),
             neigh]
+        mask = torch.zeros_like(neigh)
         return neigh, edges, mask
 
 
@@ -656,7 +659,7 @@ class DenseAttentionAggregator(nn.Module):
             zero_vec = -9e15*torch.ones_like(ws)
             ws = torch.where(adjs[chunk_id] > 0, ws, zero_vec)
             ws = F.softmax(ws, dim=1)
-            #attention = F.dropout(attention, self.dropout, training=self.training)
+            ws = F.dropout(ws, 0.6, training=self.training)
             
             # Weighted average of neighbors
             agg_neib = torch.mm(ws, value)

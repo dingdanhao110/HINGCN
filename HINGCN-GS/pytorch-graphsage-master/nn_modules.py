@@ -18,7 +18,7 @@ from helpers import to_numpy
 
 import inspect
 
-from gpu_mem_track import  MemTracker
+#from gpu_mem_track import  MemTracker
 
 def memReport():
     for obj in gc.get_objects():
@@ -126,20 +126,20 @@ class SpUniformNeighborSampler(object):
         edges = []
         for v in ids:
             n = torch.nonzero(nonz[0, :] == v).view(-1)
-            if (len(n) == 0):
-                # no neighbor, only sample from itself
-                # for edge embedding... PADDING with all-zero embedding at edge_emb[0]
-                if cuda:
-                    neigh.append(torch.cuda.LongTensor([v]).repeat(n_samples))
-                    edges.append(torch.cuda.LongTensor([0]).repeat(n_samples))
-                    mask.append(torch.cuda.LongTensor([1]).repeat(n_samples))
-                else:
-                    neigh.append(torch.LongTensor([v]).repeat(n_samples))
-                    edges.append(torch.LongTensor([0]).repeat(n_samples))
-                    mask.append(torch.LongTensor([1]).repeat(n_samples))
-            else:
+            #if (len(n) == 0):
+            #    # no neighbor, only sample from itself
+            #    # for edge embedding... PADDING with all-zero embedding at edge_emb[0]
+            #    if cuda:
+            #        neigh.append(torch.cuda.LongTensor([v]).repeat(n_samples))
+            #        edges.append(torch.cuda.LongTensor([0]).repeat(n_samples))
+            #        mask.append(torch.cuda.LongTensor([1]).repeat(n_samples))
+            #    else:
+            #        neigh.append(torch.LongTensor([v]).repeat(n_samples))
+            #        edges.append(torch.LongTensor([0]).repeat(n_samples))
+            #        mask.append(torch.LongTensor([1]).repeat(n_samples))
+            #else:
                 # np.random.choice(nonz.shape[0], n_samples)
-                if n.shape[0] >= n_samples:
+            if n.shape[0] >= n_samples:
                     idx = torch.randint(0, n.shape[0], (n_samples,))
 
                     neigh.append(nonz[1, n[idx]])
@@ -149,7 +149,7 @@ class SpUniformNeighborSampler(object):
                     else:
                         mask.append(torch.LongTensor([0]).repeat(n_samples))
 
-                else:
+            else:
 
                     if cuda:
                         neigh.append(torch.cat([nonz[1, n], torch.cuda.LongTensor([v]).repeat(n_samples - n.shape[0])]))
@@ -706,7 +706,7 @@ class DenseEdgeAggregator(nn.Module):
         self.att_edge = nn.Sequential(*[
             nn.Linear(edge_dim, hidden_dim, bias=True),
             nn.Tanh(),
-            nn.Linear(hidden_dim, hidden_dim, bias=True),
+            #nn.Linear(hidden_dim, hidden_dim, bias=True),
             #nn.Tanh(),
         ])
 
@@ -729,7 +729,7 @@ class DenseEdgeAggregator(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.output_dim)
 
-    def forward(self, x, neigh, batch=64):
+    def forward(self, x, neigh, batch=4):
         '''
         :param x: (n_nodes,input_dim)
         :param neibs: (n_nodes,input_dim)
@@ -737,35 +737,34 @@ class DenseEdgeAggregator(nn.Module):
         :param mask: (N, n_nodes)
         :return:
         '''
-        from gpu_mem_track import MemTracker
+        #from gpu_mem_track import MemTracker
 
-        frame = inspect.currentframe()
-        gpu_tracker = MemTracker(frame)
+        #frame = inspect.currentframe()
+        #gpu_tracker = MemTracker(frame)
         #cpuStats()
         #memReport()
         neib_att = self.att_neigh(neigh)
         value = self.fc_value(neigh)
         result = []
         ids = torch.arange(x.shape[0])
-        gpu_tracker.track()
+        #gpu_tracker.track()
         for i, chunk_ids in enumerate(torch.split(ids, batch,dim=0)):
-            gpu_tracker.track()
+            #gpu_tracker.track()
             chunk = x[chunk_ids]
             edges = self.edge_emb[self.adj[chunk_ids].view(-1)].to(x.device)
-            gpu_tracker.track()
+            #gpu_tracker.track()
             N = chunk.shape[0]
             k = edges.shape[0]//N
             edges=edges.reshape(N,k,-1)
             #print(edges.shape) 
-            gpu_tracker.track()
-            edge_att=self.att_edge(edges)
+            #gpu_tracker.track()
             x_att = self.att_x(chunk)
             # edge_att = self.att_edge(edge_emb)
-            gpu_tracker.track()
-            ws = x_att.mm(neib_att.t()) + torch.bmm(edge_att,x_att.view(N,-1,1)).squeeze()
+            #gpu_tracker.track()
+            ws = x_att.mm(neib_att.t()) + torch.bmm(self.att_edge(edges),x_att.view(N,-1,1)).squeeze()
             # ws = x_att+neib_att.t()
             ws = F.leaky_relu(ws)
-            zero_vec = -9e15*torch.ones_like(ws)
+            zero_vec = -9e15*torch.ones_like(ws,requires_grad=False)
             ws = torch.where(self.adj[chunk_ids] > 0, ws, zero_vec)
             ws = F.softmax(ws, dim=1)
             #attention = F.dropout(attention, self.dropout, training=self.training)
@@ -775,7 +774,7 @@ class DenseEdgeAggregator(nn.Module):
             #agg_neib = F.sigmoid(agg_neib)
             # agg_edge = edge_emb.view(N, -1, edge_emb.size(-1))
             # agg_edge = torch.sum(agg_edge * ws.unsqueeze(-1), dim=1)
-            gpu_tracker.track()
+            #gpu_tracker.track()
             if self.concat_node:
                 out = torch.cat([self.fc_x(chunk), agg_neib], dim=1)
             else:
@@ -784,22 +783,22 @@ class DenseEdgeAggregator(nn.Module):
             if self.batchnorm:
                 out = self.bn(out)
             result.append(out)
-            del edges
-            del edge_att
-            del x_att
-            del ws
-            del zero_vec
-            del agg_neib
-            del chunk
-            gc.collect()
-            torch.cuda.empty_cache()
-            gpu_tracker.track()
+            #del edges
+            #del x_att
+            #del ws
+            #del zero_vec
+            #del agg_neib
+            #del chunk
+            #del out
+            #gc.collect()
+            #torch.cuda.empty_cache()
+            #gpu_tracker.track()
         result = torch.cat(result,dim=0)
         result = self.dropout(result)
         del value
-        gc.collect()
-        torch.cuda.empty_cache()
-        gpu_tracker.track()
+        #gc.collect()
+        #torch.cuda.empty_cache()
+        #gpu_tracker.track()
         return result
 
 class MRAggregator(nn.Module):

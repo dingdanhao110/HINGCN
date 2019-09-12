@@ -71,7 +71,10 @@ class HINGCN_GS(nn.Module):
         self.val_sample_fns = [partial(self.val_sampler, n_samples=s['n_val_samples']) for s in layer_specs]
 
         # Prep
-        self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes, embedding_dim = prep_len)#output_dim=prep_len
+        self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes, 
+         #embedding_dim = prep_len
+         output_dim=prep_len
+         )
         self.input_dim = self.prep.output_dim
 
         # Network
@@ -125,7 +128,11 @@ class HINGCN_GS(nn.Module):
         
         self.mp_agg = mpaggr_class(input_dim,n_head=self.n_mp+int(self.bias),dropout=self.dropout,batchnorm=self.batchnorm,)
 
-        self.fc = nn.Linear(self.mp_agg.output_dim, problem.n_classes, bias=True)
+        self.fc = nn.Sequential(*[
+                 nn.Linear(self.mp_agg.output_dim, 32, bias=True),
+                 nn.ReLU(), nn.Dropout(self.dropout),
+                 nn.Linear(32,problem.n_classes,bias=True),
+           ])
 
 
     # We only want to forward IDs to facilitate nn.DataParallelism

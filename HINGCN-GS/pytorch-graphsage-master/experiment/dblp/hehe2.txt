@@ -1,0 +1,405 @@
+NodeProblem: loading started
+loading edge embedding for APA complete, num of embeddings: 7586
+loading edge embedding for APAPA complete, num of embeddings: 22381
+loading edge embedding for APCPA complete, num of embeddings: 2502277
+0.44872806400000004
+NodeProblem: loading finished
+Let's use 2 GPUs!
+DataParallel(
+  (module): HINGCN_GS(
+    (prep): LinearPrep(
+      (fc): Linear(in_features=8920, out_features=32, bias=False)
+    )
+    (agg_0_0): ModuleList(
+      (0): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (4): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (5): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (6): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (7): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_0_0): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (agg_1_0): ModuleList(
+      (0): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (4): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (5): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (6): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (7): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_1_0): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (agg_2_0): ModuleList(
+      (0): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (4): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (5): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (6): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (7): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=32, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=32, out_features=32, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_2_0): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (mp_agg): MetapathGateLayer (512 -> 512)
+    (fc): Linear(in_features=512, out_features=4, bias=True)
+  )
+)
+{"epoch":0,"time":41.36296,"train_loss":277.28662}
+{"epoch":0,"val_loss":275.34445,"val_metric":{"accuracy":0.26186,"micro":0.26186,"macro":0.11064},"test_metric":{"accuracy":0.29187,"micro":0.29187,"macro":0.11664},"tolerance:":0}
+{"epoch":1,"time":113.82059,"train_loss":273.70661}
+{"epoch":1,"val_loss":269.88089,"val_metric":{"accuracy":0.39248,"micro":0.39248,"macro":0.26056},"test_metric":{"accuracy":0.42241,"micro":0.42241,"macro":0.27133},"tolerance:":0}
+{"epoch":2,"time":186.7458,"train_loss":266.62975}
+{"epoch":2,"val_loss":257.41566,"val_metric":{"accuracy":0.46334,"micro":0.46334,"macro":0.30641},"test_metric":{"accuracy":0.47537,"micro":0.47537,"macro":0.30424},"tolerance:":0}
+{"epoch":3,"time":259.75479,"train_loss":244.64316}
+{"epoch":3,"val_loss":211.63,"val_metric":{"accuracy":0.61922,"micro":0.61922,"macro":0.48537},"test_metric":{"accuracy":0.64409,"micro":0.64409,"macro":0.50224},"tolerance:":0}
+{"epoch":4,"time":332.09939,"train_loss":187.53868}
+{"epoch":4,"val_loss":148.52241,"val_metric":{"accuracy":0.73506,"micro":0.73506,"macro":0.61472},"test_metric":{"accuracy":0.75123,"micro":0.75123,"macro":0.62144},"tolerance:":0}
+{"epoch":5,"time":405.31779,"train_loss":130.63195}
+{"epoch":5,"val_loss":108.65985,"val_metric":{"accuracy":0.80961,"micro":0.80961,"macro":0.76128},"test_metric":{"accuracy":0.8165,"micro":0.8165,"macro":0.7654},"tolerance:":0}
+{"epoch":6,"time":478.58439,"train_loss":97.32136}
+{"epoch":6,"val_loss":84.78927,"val_metric":{"accuracy":0.85459,"micro":0.85459,"macro":0.83338},"test_metric":{"accuracy":0.86946,"micro":0.86946,"macro":0.84487},"tolerance:":0}

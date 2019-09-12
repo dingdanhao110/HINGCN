@@ -71,23 +71,23 @@ class UniformNeighborSampler(object):
         mask = []
         for v in ids:
             nonz = torch.nonzero(adj[v]).view(-1)
-            if (len(nonz) == 0):
+            #if (len(nonz) == 0):
                 # no neighbor, only sample from itself
                 # for edge embedding... PADDING with all-zero embedding at edge_emb[0]
-                if cuda:
-                    neigh.append(torch.cuda.LongTensor([v]).repeat(n_samples))
+                #if cuda:
+                    #neigh.append(torch.cuda.LongTensor([v]).repeat(n_samples))
                     #mask.append(torch.cuda.LongTensor([1]).repeat(n_samples))
-                else:
-                    neigh.append(torch.LongTensor([v]).repeat(n_samples))
+                #else:
+                    #neigh.append(torch.LongTensor([v]).repeat(n_samples))
                     #mask.append(torch.LongTensor([1]).repeat(n_samples))
-            else:
-                idx = np.random.choice(nonz.shape[0], n_samples)
-                neigh.append(nonz[idx])
+            #else:
+            idx = np.random.choice(nonz.shape[0], n_samples)
+            neigh.append(nonz[idx])
+        mask = torch.zeros((ids.shape[0],n_samples)).to(ids.device)
         neigh = torch.stack(neigh).long().view(-1)
         edges = adj[
             ids.view(-1, 1).repeat(1, n_samples).view(-1),
             neigh]
-        mask = torch.zeros_like(neigh)
         return neigh, edges, mask
 
 
@@ -139,7 +139,8 @@ class SpUniformNeighborSampler(object):
             #        mask.append(torch.LongTensor([1]).repeat(n_samples))
             #else:
                 # np.random.choice(nonz.shape[0], n_samples)
-            if n.shape[0] >= n_samples:
+            if True:
+#n.shape[0] >= n_samples:
                     idx = torch.randint(0, n.shape[0], (n_samples,))
 
                     neigh.append(nonz[1, n[idx]])
@@ -519,7 +520,7 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
 
 class AttentionAggregator2(nn.Module):
-    def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=32,
+    def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=512,
                  dropout=0.5,
                  concat_node=True, concat_edge=True, batchnorm=False):
         super(AttentionAggregator2, self).__init__()
@@ -565,16 +566,16 @@ class AttentionAggregator2(nn.Module):
         x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
 
         ws = torch.bmm(neib_att, x_att).squeeze()
-        ws += -9999999 * mask
+        #ws += -9999999 * mask
         ws = F.softmax(ws, dim=1)
 
         #dropout for attention coefficient
-        #ws = F.dropout(ws,p=0.2,training=self.training)
+        #ws = F.dropout(ws,p=0.4,training=self.training)
         #ws = F.normalize(ws,p=1,dim=1)
 
         # Weighted average of neighbors
         agg_neib = neibs.view(x.size(0), -1, neibs.size(1))
-        agg_neib = torch.sum(agg_neib * ws.unsqueeze(-1), dim=1)
+        agg_neib = torch.bmm(ws.view(x.size(0),1,-1),agg_neib).squeeze()
 
         if self.concat_node:
             out = torch.cat([self.fc_x(x), self.fc_neib(agg_neib)], dim=1)

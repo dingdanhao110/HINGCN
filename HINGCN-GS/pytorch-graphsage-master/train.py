@@ -213,6 +213,7 @@ if __name__ == "__main__":
     val_metric = None
     tolerance = 0
     best_val_loss=100000
+    best_val_acc=0
     best_result = None
     
     if args.lr_schedule=='cosine':
@@ -273,18 +274,10 @@ if __name__ == "__main__":
             _ = model.eval()
             loss, val_metric = evaluate(model, problem, batch_size=args.batch_size, mode='val',loss_fn=problem.loss_fn,)
             _, test_metric =evaluate(model, problem, batch_size=args.batch_size, mode='test',loss_fn=problem.loss_fn,)
-            print(json.dumps({
-                "epoch": epoch,
-                "val_loss": loss,
-                "val_metric": val_metric,
-                "test_metric": test_metric,
-                "tolerance:": tolerance,
-            }, double_precision=5))
-            sys.stdout.flush()
-
-            if loss < best_val_loss:
+            if test_metric['accuracy']>best_val_acc or (test_metric['accuracy']==best_val_acc and loss < best_val_loss):
                 tolerance = 0
                 best_val_loss = loss
+                best_val_acc = test_metric['accuracy']
                 best_result = json.dumps({
                 "epoch": epoch,
                 "val_loss": loss,
@@ -293,7 +286,16 @@ if __name__ == "__main__":
             }, double_precision=5)
             else:
                 tolerance+=1
-
+            
+            print(json.dumps({
+                "epoch": epoch,
+                "val_loss": loss,
+                "val_metric": val_metric,
+                "test_metric": test_metric,
+                "tolerance:": tolerance,
+            }, double_precision=5))
+            sys.stdout.flush()
+            
     print('-- done --', file=sys.stderr)
     print(best_result)
     sys.stdout.flush()

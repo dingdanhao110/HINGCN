@@ -152,7 +152,7 @@ class NodeProblem(object):
         if self.feats is not None:
             if self.device!="cpu":
                 self.feats = self.feats.to(self.device)
-                # print(torch.cuda.memory_allocated())
+                print(torch.cuda.memory_allocated()/1000/1000/1000)
 
     def __batch_to_torch(self, mids, targets):
         """ convert batch to torch """

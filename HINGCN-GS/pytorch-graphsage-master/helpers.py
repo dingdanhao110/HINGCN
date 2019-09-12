@@ -13,7 +13,7 @@ from torch.autograd import Variable
 import scipy.sparse as sp
 from sklearn.feature_extraction.text import TfidfTransformer
 
-train_per=0.4
+train_per=0.3
 
 def set_seeds(seed=0):
     np.random.seed(seed)
@@ -139,21 +139,21 @@ def load_edge_emb(path, schemes, n_dim=17, n_author=20000):
                              (data[scheme][:, 0], data[scheme][:, 1])),
                             shape=(n_author, n_author),
                             dtype=np.long)
-        diag = ind.diagonal()
-        ind = ind - diag
-        ind = ind + ind.transpose() + diag
+        #diag = ind.diagonal()
+        #ind = ind - diag
+        #ind = ind + ind.transpose() + diag
         
-        ind = torch.LongTensor(ind)
+        #ind = torch.LongTensor(ind)
 
-        #ind = ind + ind.transpose()
-        #ind = sparse_mx_to_torch_sparse_tensor(ind)#.to_dense()
+        ind = ind + ind.transpose()
+        ind = sparse_mx_to_torch_sparse_tensor(ind)#.to_dense()
 
-        #nonz = ind._indices()
-        #values = ind._values()
+        nonz = ind._indices()
+        values = ind._values()
         
-        #for i in range(nonz.shape[1]):
-        #    if nonz[0,i] == nonz[1,i]:
-        #        values[i] = int(values[i] /2)
+        for i in range(nonz.shape[1]):
+            if nonz[0,i] == nonz[1,i]:
+                values[i] = int(values[i] /2)
 
         embedding = np.zeros(n_dim, dtype=np.float32)
         embedding = np.vstack((embedding, data[scheme][:, 2:]))
@@ -184,7 +184,7 @@ def read_mpindex_yelp(path="../../data/yelp/"):
     feat = np.genfromtxt("{}{}.txt".format(path, feat_file),
                        dtype=np.float)
 
-    features = feat[:,:2]
+    features = feat[:,:5]
     #features = np.zeros((feat.shape[0],1))
     #features = np.eye(feat.shape[0])
 

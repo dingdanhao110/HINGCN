@@ -5,18 +5,84 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "args": [
+                "--seed",
+                "42",
+                "--problem-path",
+                "data/dblp2/",
+                "--problem",
+                "dblp",
+                "--lr-schedule",
+                "constant",
+                "--lr-init",
+                "0.001",
+                "--dropout",
+                "0.5",
+                "--aggregator-class",
+                "dense_edge",
+                "--mpaggr-class",
+                "gate",
+                "--edgeupt-class",
+                "identity",
+                "--prep-class",
+                "node_embedding",
+                "--prep-len",
+                "128",
+                "--batch-size",
+                "999999",
+            ],
+            "env": {},
+            "program": "${workspaceFolder}/HINGCN-GS/pytorch-graphsage-master/train.py",
+            "name": "train.py"
+        },
+        {
+            "type": "python",
+            "request": "launch",
+            "args": [
+                "--problem-path",
+                "data/freebase/",
+                "--problem",
+                "yago",
+                "--feat",
+                "MADW_16",
+                "--seed",
+                "0",
+            ],
+            "env": {},
+            "program": "${workspaceFolder}/HINGCN-GS/pytorch-graphsage-master/logistics.py",
+            "name": "logistics.py"
+        },
+        {
+            "type": "python",
+            "request": "launch",
+            "args": [
+                "--input",
+                "data/yelp/BRKRB.txt",
+                "--output",
+                "data/yelp/BRKRB_16.emb",
+                "--dimensions",
+                "16",
+                "--walk-length",
+                "80",
+                "--num-walks",
+                "10",
+                "--window-size",
+                "10",
+                "--iter",
+                "10"
+            ],
+            "program": "${workspaceFolder}/node2vec/main.py",
+            "name": "main.py"
+        },
+        {
+            "name": "Python: Current File (Integrated Terminal)",
             "type": "python",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal"
         },
-        {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
-        }
     ]
 }

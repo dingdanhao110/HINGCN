@@ -566,6 +566,8 @@ class AttentionAggregator2(nn.Module):
         x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
 
         ws = torch.bmm(neib_att, x_att).squeeze()
+        import math
+        #ws /= math.sqrt(512)
         #ws += -9999999 * mask
         ws = F.softmax(ws, dim=1)
 

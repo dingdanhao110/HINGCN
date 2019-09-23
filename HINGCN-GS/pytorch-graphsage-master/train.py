@@ -287,6 +287,7 @@ if __name__ == "__main__":
             if test_metric['accuracy'] > best_val_acc or (test_metric['accuracy'] == best_val_acc and loss < best_val_loss):
                 tolerance = 0
                 best_val_loss = loss
+                best_val_acc = test_metric['accuracy']
                 best_result = json.dumps({
                     "epoch": epoch,
                     "val_loss": loss,

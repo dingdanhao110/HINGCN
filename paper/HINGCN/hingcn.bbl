@@ -2,7 +2,7 @@
 %%% Do NOT edit. File created by BibTeX with style
 %%% ACM-Reference-Format-Journals [18-Jan-2012].
 
-\begin{thebibliography}{26}
+\begin{thebibliography}{27}
 
 %%% ====================================================================
 %%% NOTE TO THE USER: you can override these defaults by providing
@@ -283,6 +283,18 @@
 \newblock \showarticletitle{Graph Attention Networks}. In
   \bibinfo{booktitle}{{\em {ICLR} (Poster)}}.
   \bibinfo{publisher}{OpenReview.net}.
+\newblock
+
+
+\bibitem[\protect\citeauthoryear{Wan, Ouyang, Kaplan, and Han}{Wan
+  et~al\mbox{.}}{2015}]%
+        {WanOKH15}
+\bibfield{author}{\bibinfo{person}{Mengting Wan}, \bibinfo{person}{Yunbo
+  Ouyang}, \bibinfo{person}{Lance~M. Kaplan}, {and} \bibinfo{person}{Jiawei
+  Han}.} \bibinfo{year}{2015}\natexlab{}.
+\newblock \showarticletitle{Graph Regularized Meta-path Based Transductive
+  Regression in Heterogeneous Information Network}. In \bibinfo{booktitle}{{\em
+  {SDM}}}. \bibinfo{publisher}{{SIAM}}, \bibinfo{pages}{918--926}.
 \newblock
 
 

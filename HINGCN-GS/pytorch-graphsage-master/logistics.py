@@ -143,7 +143,7 @@ if __name__ == "__main__":
     lr = lr_scheduler(0.0)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=args.weight_decay)
 
-    print(model, file=sys.stdout)
+    # print(model, file=sys.stdout)
 
     # --
     # Train
@@ -173,20 +173,20 @@ if __name__ == "__main__":
             )
             train_loss += loss.item()
             train_metric = problem.metric_fn(to_numpy(targets), to_numpy(preds))
-            print(json.dumps({
-                "epoch": epoch,
-                "epoch_progress": epoch_progress,
-                "train_metric": train_metric,
-                "time": time() - start_time,
-            }, double_precision=5))
-            sys.stdout.flush()
+            # print(json.dumps({
+            #     "epoch": epoch,
+            #     "epoch_progress": epoch_progress,
+            #     "train_metric": train_metric,
+            #     "time": time() - start_time,
+            # }, double_precision=5))
+            # sys.stdout.flush()
 
-        print(json.dumps({
-            "epoch": epoch,
-            "time": time() - start_time,
-            "train_loss": train_loss,
-        }, double_precision=5))
-        sys.stdout.flush()
+        # print(json.dumps({
+        #     "epoch": epoch,
+        #     "time": time() - start_time,
+        #     "train_loss": train_loss,
+        # }, double_precision=5))
+        # sys.stdout.flush()
 
         # Evaluate
         if epoch % args.log_interval == 0:
@@ -214,8 +214,8 @@ if __name__ == "__main__":
             else:
                 tolerance+=1
 
-    print('-- done --', file=sys.stderr)
-    print(best_result)
+    # print('-- done --', file=sys.stderr)
+    # print(best_result)
     sys.stdout.flush()
 
     print('-- sklearn --', file=sys.stderr)

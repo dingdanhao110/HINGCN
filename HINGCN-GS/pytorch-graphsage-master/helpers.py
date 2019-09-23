@@ -13,7 +13,7 @@ from torch.autograd import Variable
 import scipy.sparse as sp
 from sklearn.feature_extraction.text import TfidfTransformer
 
-train_per=0.3
+train_per=0.1
 
 def set_seeds(seed=0):
     np.random.seed(seed)

@@ -13,7 +13,8 @@ from torch.autograd import Variable
 import scipy.sparse as sp
 from sklearn.feature_extraction.text import TfidfTransformer
 
-train_per=0.4
+train_per = 0.4
+
 
 def set_seeds(seed=0):
     np.random.seed(seed)
@@ -25,7 +26,7 @@ def set_seeds(seed=0):
 def to_numpy(x):
     if isinstance(x, Variable):
         return x.cpu().data.numpy() if x.is_cuda else x.data.numpy()
-    
+
     return x.cpu().numpy() if x.is_cuda else x.numpy()
 
 
@@ -41,12 +42,14 @@ def read_embed(path="./data/dblp/",
     for i in range(n_nodes):
         emb_index[embedding[i, 0]] = i
 
-    features = np.asarray([embedding[emb_index[i], 1:] for i in range(n_nodes)])
+    features = np.asarray([embedding[emb_index[i], 1:]
+                           for i in range(n_nodes)])
 
     assert features.shape[1] == n_feature
     assert features.shape[0] == n_nodes
 
     return features, n_nodes, n_feature
+
 
 def normalize(mx):
     """Row-normalize sparse matrix"""
@@ -56,6 +59,7 @@ def normalize(mx):
     r_mat_inv = sp.diags(r_inv)
     mx = r_mat_inv.dot(mx)
     return mx
+
 
 def load_2hop_index(path="./data/dblp/", file="APA"):
     index = {}
@@ -121,10 +125,11 @@ def read_mpindex_dblp(path="./data/dblp2/"):
     total_labeled = labels_raw.shape[0]
 
     idx_train = reordered[range(int(total_labeled * train_per))]
-    idx_val = reordered[range(int(total_labeled * train_per), int(total_labeled * 0.8))]
+    idx_val = reordered[range(
+        int(total_labeled * train_per), int(total_labeled * 0.8))]
     idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
 
-    folds = {'train':idx_train,'val':idx_val,'test':idx_test}
+    folds = {'train': idx_train, 'val': idx_val, 'test': idx_test}
 
     return features, labels, folds
 
@@ -135,32 +140,33 @@ def load_edge_emb(path, schemes, n_dim=17, n_author=20000):
     emb = {}
     for scheme in schemes:
         # print('number of authors: {}'.format(n_author))
-        ind = sp.coo_matrix((np.arange(1,data[scheme].shape[0]+1),
+        ind = sp.coo_matrix((np.arange(1, data[scheme].shape[0]+1),
                              (data[scheme][:, 0], data[scheme][:, 1])),
                             shape=(n_author, n_author),
                             dtype=np.long)
-        # diag = ind.diagonal()
-        # ind = ind - diag
-        # ind = ind + ind.transpose() + diag
-        #
-        # ind = sp.coo_matrix(ind)
+        diag = ind.diagonal()
+        ind = ind - diag
+        ind = ind + ind.transpose() + diag
 
-        ind = ind + ind.transpose()
-        ind = sparse_mx_to_torch_sparse_tensor(ind)#.to_dense()
+        ind = torch.LongTensor(ind)
 
-        nonz = ind._indices()
-        values = ind._values()
-        
-        for i in range(nonz.shape[1]):
-            if nonz[0,i] == nonz[1,i]:
-                values[i] = int(values[i] /2)
+        # ind = ind + ind.transpose()
+        # ind = sparse_mx_to_torch_sparse_tensor(ind)  # .to_dense()
+
+        # nonz = ind._indices()
+        # values = ind._values()
+
+        # for i in range(nonz.shape[1]):
+        #     if nonz[0, i] == nonz[1, i]:
+        #         values[i] = int(values[i] / 2)
 
         embedding = np.zeros(n_dim, dtype=np.float32)
         embedding = np.vstack((embedding, data[scheme][:, 2:]))
         emb[scheme] = torch.from_numpy(embedding).float()
 
         index[scheme] = ind.long()
-        print('loading edge embedding for {} complete, num of embeddings: {}'.format(scheme,embedding.shape[0]))
+        print('loading edge embedding for {} complete, num of embeddings: {}'.format(
+            scheme, embedding.shape[0]))
 
     return index, emb
 
@@ -175,35 +181,35 @@ def sparse_mx_to_torch_sparse_tensor(sparse_mx):
     return torch.sparse.FloatTensor(indices, values, shape)
 
 
-
 def read_mpindex_yelp(path="../../data/yelp/"):
     label_file = "true_cluster"
     feat_file = "attributes"
 
     # print("{}{}.txt".format(path, PA_file))
     feat = np.genfromtxt("{}{}.txt".format(path, feat_file),
-                       dtype=np.float)
+                         dtype=np.float)
 
-    features = feat[:,:2]
+    features = feat[:, :5]
     #features = np.zeros((feat.shape[0],1))
     #features = np.eye(feat.shape[0])
 
     labels = np.genfromtxt("{}{}.txt".format(path, label_file),
-                               dtype=np.int32)
+                           dtype=np.int32)
 
     reordered = np.random.permutation(np.arange(labels.shape[0]))
     total_labeled = labels.shape[0]
 
     idx_train = reordered[range(int(total_labeled * train_per))]
-    idx_val = reordered[range(int(total_labeled * train_per), int(total_labeled * 0.8))]
+    idx_val = reordered[range(
+        int(total_labeled * train_per), int(total_labeled * 0.8))]
     idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
 
-    folds = {'train':idx_train,'val':idx_val,'test':idx_test}
+    folds = {'train': idx_train, 'val': idx_val, 'test': idx_test}
 
     return features, labels, folds
 
 
-def read_mpindex_yago(path="../../data/yago/", label_file = "labels"):
+def read_mpindex_yago(path="../../data/yago/", label_file="labels"):
 
     movies = []
     with open('{}{}.txt'.format(path, "movies"), mode='r', encoding='UTF-8') as f:
@@ -213,7 +219,7 @@ def read_mpindex_yago(path="../../data/yago/", label_file = "labels"):
     n_movie = len(movies)
     movie_dict = {a: i for (i, a) in enumerate(movies)}
 
-    features = np.zeros(n_movie).reshape(-1,1)
+    features = np.zeros(n_movie).reshape(-1, 1)
 
     labels_raw = []
     with open('{}{}.txt'.format(path, label_file), 'r', encoding='UTF-8') as f:
@@ -229,16 +235,18 @@ def read_mpindex_yago(path="../../data/yago/", label_file = "labels"):
     total_labeled = labels_raw.shape[0]
 
     idx_train = reordered[range(int(total_labeled * train_per))]
-    idx_val = reordered[range(int(total_labeled * train_per), int(total_labeled * 0.8))]
+    idx_val = reordered[range(
+        int(total_labeled * train_per), int(total_labeled * 0.8))]
     idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
 
     folds = {'train': idx_train, 'val': idx_val, 'test': idx_test}
 
     return features, labels, folds
 
+
 def read_homograph(path="../../data/yago/", problem='yago',):
     dataset = "homograph"
-    emb_file = {'yago':'MADW_16','dblp':'APC_16','yelp':'RBUK_16'}
+    emb_file = {'yago': 'MADW_16', 'dblp': 'APC_16', 'yelp': 'RBUK_16'}
     with open("{}{}.emb".format(path, emb_file[problem])) as f:
         n_nodes, n_feature = map(int, f.readline().strip().split())
     embedding = np.loadtxt("{}{}.emb".format(path, emb_file[problem]),
@@ -249,7 +257,8 @@ def read_homograph(path="../../data/yago/", problem='yago',):
         #     continue
         emb_index[embedding[i, 0]] = i
 
-    features = np.asarray([embedding[emb_index[i], 1:] for i in range(embedding.shape[0])])
+    features = np.asarray([embedding[emb_index[i], 1:]
+                           for i in range(embedding.shape[0])])
     features = torch.FloatTensor(features)
 
     edges = np.genfromtxt("{}{}.txt".format(path, dataset),

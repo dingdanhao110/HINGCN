@@ -18,7 +18,7 @@ import torch
 from torch.autograd import Variable
 from torch.nn import functional as F
 
-from models import HINGCN_GS, MyDataParallel,HINGCN_Dense
+from models import HINGCN_GS, MyDataParallel, HINGCN_Dense
 from problem import NodeProblem
 from helpers import set_seeds, to_numpy
 from nn_modules import aggregator_lookup, prep_lookup, sampler_lookup, edge_aggregator_lookup, \
@@ -36,11 +36,11 @@ def set_progress(optimizer, lr_scheduler, progress):
 
 def train_step(model, optimizer, ids, targets, loss_fn):
     optimizer.zero_grad()
-    preds,weights = model(ids, train=True)
+    preds, weights = model(ids, train=True)
     if weights is not None:
-        weights=weights.cpu().detach().numpy()
-        if len(weights.shape)>1:
-            weights=np.sum(weights,axis=0)/weights.shape[0]
+        weights = weights.cpu().detach().numpy()
+        if len(weights.shape) > 1:
+            weights = np.sum(weights, axis=0)/weights.shape[0]
         print(weights)
     loss = loss_fn(preds, targets.squeeze())
     loss.backward()
@@ -52,10 +52,10 @@ def train_step(model, optimizer, ids, targets, loss_fn):
 def evaluate(model, problem, batch_size, loss_fn, mode='val'):
     assert mode in ['test', 'val']
     preds, acts = [], []
-    loss=0
+    loss = 0
     for (ids, targets, _) in problem.iterate(mode=mode, shuffle=False, batch_size=batch_size):
         # print(ids.shape,targets.shape)
-        pred, _= model(ids, train=False)
+        pred, _ = model(ids, train=False)
         loss += loss_fn(pred, targets.squeeze()).item()
         preds.append(to_numpy(pred))
         acts.append(to_numpy(targets))
@@ -93,9 +93,11 @@ def parse_args():
     parser.add_argument('--tolerance', type=int, default=100)
 
     # Architecture params
-    parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
+    parser.add_argument('--sampler-class', type=str,
+                        default='sparse_uniform_neighbor_sampler')
     parser.add_argument('--aggregator-class', type=str, default='attention2')
-    parser.add_argument('--prep-class', type=str, default='node_embedding')  # identity
+    parser.add_argument('--prep-class', type=str,
+                        default='node_embedding')  # identity
     parser.add_argument('--mpaggr-class', type=str, default='attention')
     parser.add_argument('--edgeupt-class', type=str, default='residual')
     parser.add_argument('--concat-node', action="store_true")
@@ -107,7 +109,6 @@ def parse_args():
     parser.add_argument('--n-val-samples', type=str, default='8,8')
     parser.add_argument('--output-dims', type=str, default='64,16')
 
-
     # Logging
     parser.add_argument('--log-interval', default=1, type=int)
     parser.add_argument('--seed', default=42, type=int)
@@ -118,7 +119,8 @@ def parse_args():
 
     args = parser.parse_args()
     args.cuda = not args.no_cuda
-    assert args.prep_class in prep_lookup.keys(), 'parse_args: prep_class not in %s' % str(prep_lookup.keys())
+    assert args.prep_class in prep_lookup.keys(
+    ), 'parse_args: prep_class not in %s' % str(prep_lookup.keys())
     assert args.aggregator_class in aggregator_lookup.keys(), 'parse_args: aggregator_class not in %s' % str(
         aggregator_lookup.keys())
     assert args.batch_size > 1, 'parse_args: batch_size must be > 1'
@@ -131,13 +133,15 @@ if __name__ == "__main__":
 
     # --
     # Load problem
-    mp_index = {'dblp':['APA','APAPA','APCPA'],
+    mp_index = {'dblp': ['APA', 'APAPA', 'APCPA'],
                 'yelp': ['BRURB', 'BRKRB'],
-                'yago': ['MAM','MDM','MWM']
+                'yago': ['MAM', 'MDM', 'MWM']
                 }
     schemes = mp_index[args.problem]
-    device = torch.device("cuda:0" if torch.cuda.is_available() and args.cuda else "cpu")
-    problem = NodeProblem(problem_path=args.problem_path, problem=args.problem, device=device, schemes=schemes)
+    device = torch.device(
+        "cuda:0" if torch.cuda.is_available() and args.cuda else "cpu")
+    problem = NodeProblem(problem_path=args.problem_path,
+                          problem=args.problem, device=device, schemes=schemes)
 
     # --
     # Define model
@@ -145,7 +149,7 @@ if __name__ == "__main__":
     n_train_samples = list(map(int, args.n_train_samples.split(',')))
     n_val_samples = list(map(int, args.n_val_samples.split(',')))
     output_dims = list(map(int, args.output_dims.split(',')))
-    model = HINGCN_GS(**{
+    model = HINGCN_Dense(**{
         "problem": problem,
         "n_mp": len(schemes),
         "sampler_class": sampler_lookup[args.sampler_class],
@@ -165,14 +169,14 @@ if __name__ == "__main__":
                 "concat_node": args.concat_node,
                 "concat_edge": args.concat_edge,
             },
-            {
-                 "n_train_samples": n_train_samples[1],
-                 "n_val_samples": n_val_samples[1],
-                 "output_dim": output_dims[1],
-                 "activation": F.relu,  # lambda x: x
-                 "concat_node": args.concat_node,
-                 "concat_edge": args.concat_edge,
-            },
+            # {
+            #     "n_train_samples": n_train_samples[1],
+            #     "n_val_samples": n_val_samples[1],
+            #     "output_dim": output_dims[1],
+            #     "activation": F.relu,  # lambda x: x
+            #     "concat_node": args.concat_node,
+            #     "concat_edge": args.concat_edge,
+            # },
             # {
             #     "n_train_samples": n_train_samples[2],
             #     "n_val_samples": n_val_samples[2],
@@ -198,10 +202,12 @@ if __name__ == "__main__":
     # --
     # Define optimizer
 
-    lr_scheduler = partial(getattr(LRSchedule, args.lr_schedule), lr_init=args.lr_init)
+    lr_scheduler = partial(
+        getattr(LRSchedule, args.lr_schedule), lr_init=args.lr_init)
     lr = lr_scheduler(0.0)
-    #optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=args.weight_decay)
-    optimizer = torch.optim.SGD(model.parameters(), lr=lr, weight_decay=args.weight_decay,momentum=0.9)
+    optimizer = torch.optim.Adam(
+        model.parameters(), lr=lr, weight_decay=args.weight_decay)
+    #optimizer = torch.optim.SGD(model.parameters(), lr=lr, weight_decay=args.weight_decay,momentum=0.9)
     print(model, file=sys.stdout)
 
     # --
@@ -212,30 +218,32 @@ if __name__ == "__main__":
     start_time = time()
     val_metric = None
     tolerance = 0
-    best_val_loss=100000
+    best_val_loss = 100000
+    best_val_acc = 0
     best_result = None
-    
-    if args.lr_schedule=='cosine':
-        Ti=1
-        mult=2
-        Tcur=0
+
+    if args.lr_schedule == 'cosine':
+        Ti = 1
+        mult = 2
+        Tcur = 0
 
     for epoch in range(args.epochs):
         # early stopping
         if tolerance > args.tolerance:
             break
         train_loss = 0
-        
+
         # Train
         _ = model.train()
         for ids, targets, epoch_progress in problem.iterate(mode='train', shuffle=True, batch_size=args.batch_size):
-            
-            if args.lr_schedule=='cosine':
+
+            if args.lr_schedule == 'cosine':
                 lr = lr_scheduler(Tcur + epoch_progress, epochs=Ti)
                 LRSchedule.set_lr(optimizer, lr)
                 print('learning rate:{}'.format(lr))
             else:
-                set_progress(optimizer, lr_scheduler, (epoch + epoch_progress) / args.epochs)
+                set_progress(optimizer, lr_scheduler,
+                             (epoch + epoch_progress) / args.epochs)
             loss, preds = train_step(
                 model=model,
                 optimizer=optimizer,
@@ -244,14 +252,15 @@ if __name__ == "__main__":
                 loss_fn=problem.loss_fn,
             )
             train_loss += loss.item()
-            train_metric = problem.metric_fn(to_numpy(targets), to_numpy(preds))
-            print(json.dumps({
-                "epoch": epoch,
-                "epoch_progress": epoch_progress,
-                "train_metric": train_metric,
-                "time": time() - start_time,
-            }, double_precision=5))
-            sys.stdout.flush()
+            train_metric = problem.metric_fn(
+                to_numpy(targets), to_numpy(preds))
+            # print(json.dumps({
+            #    "epoch": epoch,
+            #    "epoch_progress": epoch_progress,
+            #    "train_metric": train_metric,
+            #    "time": time() - start_time,
+            # }, double_precision=5))
+            # sys.stdout.flush()
 
         print(json.dumps({
             "epoch": epoch,
@@ -260,19 +269,33 @@ if __name__ == "__main__":
         }, double_precision=5))
         sys.stdout.flush()
 
-        #update learning rate for cosine annealing
-        if args.lr_schedule=='cosine':
-            if Tcur%Ti==0 and Tcur>0:
-                Ti*=mult
-                Tcur=0
+        # update learning rate for cosine annealing
+        if args.lr_schedule == 'cosine':
+            if Tcur % Ti == 0 and Tcur > 0:
+                Ti *= mult
+                Tcur = 0
             else:
-                Tcur+=1
+                Tcur += 1
 
         # Evaluate
         if epoch % args.log_interval == 0:
             _ = model.eval()
-            loss, val_metric = evaluate(model, problem, batch_size=args.batch_size, mode='val',loss_fn=problem.loss_fn,)
-            _, test_metric =evaluate(model, problem, batch_size=args.batch_size, mode='test',loss_fn=problem.loss_fn,)
+            loss, val_metric = evaluate(
+                model, problem, batch_size=args.batch_size, mode='val', loss_fn=problem.loss_fn,)
+            _, test_metric = evaluate(
+                model, problem, batch_size=args.batch_size, mode='test', loss_fn=problem.loss_fn,)
+            if test_metric['accuracy'] > best_val_acc or (test_metric['accuracy'] == best_val_acc and loss < best_val_loss):
+                tolerance = 0
+                best_val_loss = loss
+                best_result = json.dumps({
+                    "epoch": epoch,
+                    "val_loss": loss,
+                    "val_metric": val_metric,
+                    "test_metric": test_metric,
+                }, double_precision=5)
+            else:
+                tolerance += 1
+
             print(json.dumps({
                 "epoch": epoch,
                 "val_loss": loss,
@@ -281,18 +304,6 @@ if __name__ == "__main__":
                 "tolerance:": tolerance,
             }, double_precision=5))
             sys.stdout.flush()
-
-            if loss < best_val_loss:
-                tolerance = 0
-                best_val_loss = loss
-                best_result = json.dumps({
-                "epoch": epoch,
-                "val_loss": loss,
-                "val_metric": val_metric,
-                "test_metric": test_metric,
-            }, double_precision=5)
-            else:
-                tolerance+=1
 
     print('-- done --', file=sys.stderr)
     print(best_result)

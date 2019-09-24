@@ -1,3 +1,4 @@
+from sklearn import metrics
 import numpy as np
 import scipy.sparse as sp
 import torch
@@ -32,16 +33,16 @@ def read_metapath(path="../data/cora/", dataset="cora", num_mps=1):
     adjs = []
     for path_idx in range(num_mps):
         edges_unordered = np.genfromtxt("{}{}_{}.metapaths".format(path, dataset, path_idx),
-                                    dtype=np.int32)
+                                        dtype=np.int32)
         edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
-                     dtype=np.int32).reshape(edges_unordered.shape)
+                         dtype=np.int32).reshape(edges_unordered.shape)
 
         adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
-                        shape=(features.shape[0], features.shape[0]),
-                        dtype=np.float32)
+                            shape=(features.shape[0], features.shape[0]),
+                            dtype=np.float32)
 
         # build symmetric adjacency matrix
-        adj= adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+        adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
         adj = normalize(adj + sp.eye(adj.shape[0]))
         adj = sparse_mx_to_torch_sparse_tensor(adj)
 
@@ -86,6 +87,11 @@ def accuracy(output, labels):
     return correct / len(labels)
 
 
+def f1(output, labels):
+    preds = output.max(1)[1].type_as(labels).detach()
+    return metrics.f1_score(labels.detach(), preds, average="macro")
+
+
 def read_metapath_raw(path="../data/cora/", dataset="cora", num_mps=1):
     """read metapath file, A1,A2,pathsim triples, return adj are not normalized"""
     print('Loading {} dataset...'.format(dataset))
@@ -106,23 +112,22 @@ def read_metapath_raw(path="../data/cora/", dataset="cora", num_mps=1):
     adjs = []
     for path_idx in range(num_mps):
         edges_unordered = np.genfromtxt("{}{}_{}.metapaths".format(path, dataset, path_idx),
-                                    dtype=np.int32)
+                                        dtype=np.int32)
         edges = np.array(list(map(idx_map.get, edges_unordered.flatten())),
-                     dtype=np.int32).reshape(edges_unordered.shape)
+                         dtype=np.int32).reshape(edges_unordered.shape)
 
         adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
-                        shape=(features.shape[0], features.shape[0]),
-                        dtype=np.bool)
+                            shape=(features.shape[0], features.shape[0]),
+                            dtype=np.bool)
 
         # build symmetric adjacency matrix
-        adj= adj + adj.T
+        adj = adj + adj.T
         # adj = (adj + sp.eye(adj.shape[0])) # no normalization
         adj = sparse_mx_to_torch_sparse_tensor(adj)
 
         adjs.append(adj)
         # adjs.append(adj.unsqueeze(0))
     # adjs = torch.cat(adjs)
-
 
     idx_train = range(140)
     idx_val = range(200, 500)
@@ -137,7 +142,7 @@ def read_metapath_raw(path="../data/cora/", dataset="cora", num_mps=1):
 
 def pathsim(A):
     value = []
-    x,y = A.nonzero()
-    for i,j in zip(x,y):
+    x, y = A.nonzero()
+    for i, j in zip(x, y):
         value.append(2 * A[i, j] / (A[i, i] + A[j, j]))
-    return sp.coo_matrix((value,(x,y)))
+    return sp.coo_matrix((value, (x, y)))

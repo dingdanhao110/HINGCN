@@ -42,14 +42,16 @@ parser.add_argument('--alpha', type=float, default=0.8,
                     help='alpha for leaky relu.')
 parser.add_argument('--dataset', type=str, default='homograph',
                     help='Dataset')
-parser.add_argument('--dataset_path', type=str, default='./data/dblp/',
+parser.add_argument('--dataset-path', type=str, default='./data/dblp/',
                     help='Dataset')
 parser.add_argument('--embedding_file', type=str, default='APA',
                     help='Dataset')
-parser.add_argument('--label_file', type=str, default='author_label',
+parser.add_argument('--label-file', type=str, default='author_label',
                     help='Dataset')
 parser.add_argument('--prep-dim', type=int, default=32,
                     help='Dataset')
+parser.add_argument('--train-percent', type=float, default=0.4,
+                    help='alpha for leaky relu.')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -148,7 +150,7 @@ def read_graph(path="./data/dblp/", dataset="homograph", label_file="author_labe
     reordered = np.random.permutation(labels_raw[:, 0])
     total_labeled = labels_raw.shape[0]
 
-    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_train = reordered[range(int(total_labeled * args.train_percent))]
     idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
     idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
 
@@ -161,7 +163,44 @@ def read_graph(path="./data/dblp/", dataset="homograph", label_file="author_labe
 def read_graph_dblp(path="data/dblp2/", dataset="homograph", label_file="author_label", emb_file="APC_16"):
     print('Loading {} dataset...'.format(dataset))
 
-    n_nodes, n_feature, features = read_embed(path,emb_file)
+    n_nodes, n_feature, emb_features = read_embed(path,emb_file)
+    emb_features = torch.FloatTensor(emb_features)
+
+    PA_file = "PA"
+    PC_file = "PC"
+    PT_file = "PT"
+
+    # print("{}{}.txt".format(path, PA_file))
+    PA = np.genfromtxt("{}{}.txt".format(path, PA_file),
+                       dtype=np.int32)
+    PC = np.genfromtxt("{}{}.txt".format(path, PC_file),
+                       dtype=np.int32)
+    PT = np.genfromtxt("{}{}.txt".format(path, PT_file),
+                       dtype=np.int32)
+    PA[:, 0] -= 1
+    PA[:, 1] -= 1
+    PC[:, 0] -= 1
+    PC[:, 1] -= 1
+    PT[:, 0] -= 1
+    PT[:, 1] -= 1
+
+    paper_max = max(PA[:, 0]) + 1
+    author_max = max(PA[:, 1]) + 1
+    term_max = max(PT[:, 1]) + 1
+
+    PA_s = sp.coo_matrix((np.ones(PA.shape[0]), (PA[:, 0], PA[:, 1])),
+                         shape=(paper_max, author_max),
+                         dtype=np.float32)
+    PT_s = sp.coo_matrix((np.ones(PT.shape[0]), (PT[:, 0], PT[:, 1])),
+                         shape=(paper_max, term_max),
+                         dtype=np.float32)
+
+    transformer = TfidfTransformer()
+    features = PA_s.transpose() * PT_s  # AT
+    features = transformer.fit_transform(features)
+    features = np.array(features.todense())
+
+    features = np.pad(features, ((0, emb_features.shape[0] - features.shape[0]), (0, 0)), 'constant', constant_values=0)
     features = torch.FloatTensor(features)
 
     labels_raw = np.genfromtxt("{}{}.txt".format(path, label_file),dtype=np.int32)
@@ -190,7 +229,7 @@ def read_graph_dblp(path="data/dblp2/", dataset="homograph", label_file="author_
     reordered = np.random.permutation(labels_raw[:, 0])
     total_labeled = labels_raw.shape[0]
 
-    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_train = reordered[range(int(total_labeled * args.train_percent))]
     idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
     idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
 
@@ -225,8 +264,8 @@ def read_graph_yelp(path="./data/yelp/", dataset="homograph",
                                     dtype=np.float)
     features = np.pad(features, ((0, embedding.shape[0] - features.shape[0]), (0, 0)), 'constant', constant_values=0)
 
-    features = torch.FloatTensor(features[:,:2])
-    features = torch.cat([features,embedding], dim=1)
+    features = torch.FloatTensor(features[:,:5])
+    # features = torch.cat([features,embedding], dim=1)
 
     # features = torch.FloatTensor(embedding)
 
@@ -251,7 +290,7 @@ def read_graph_yelp(path="./data/yelp/", dataset="homograph",
     reordered = np.random.permutation(np.arange(labels.shape[0]))
     total_labeled = labels.shape[0]
 
-    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_train = reordered[range(int(total_labeled * args.train_percent))]
     idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
     idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
 
@@ -282,7 +321,7 @@ def read_graph_yago(path="./data/freebase/", dataset="homograph",
     features = np.asarray([embedding[emb_index[i], 1:] for i in range(embedding.shape[0])])
 
     features = torch.FloatTensor(features)
-    features = torch.zeros((embedding.shape[0],1))
+    features = torch.ones((embedding.shape[0],1))
 
 
     # build graph
@@ -324,7 +363,7 @@ def read_graph_yago(path="./data/freebase/", dataset="homograph",
     reordered = np.random.permutation(labels_raw[:, 0])
     total_labeled = labels_raw.shape[0]
 
-    idx_train = reordered[range(int(total_labeled * 0.4))]
+    idx_train = reordered[range(int(total_labeled * args.train_percent))]
     idx_val = reordered[range(int(total_labeled * 0.4), int(total_labeled * 0.8))]
     idx_test = reordered[range(int(total_labeled * 0.8), total_labeled)]
     idx_train = torch.LongTensor(idx_train)
@@ -336,10 +375,10 @@ def read_graph_yago(path="./data/freebase/", dataset="homograph",
 
 # Load data
 adj, features, labels, idx_train, idx_val, idx_test = \
-    read_graph_dblp()
+    read_graph_yelp()
 
 print('Read data finished!')
-
+adj = adj.to_dense()
 # Model and optimizer
 model = GCN(n_nodes=features.shape[0],
             nfeat=features.shape[1],
@@ -347,7 +386,7 @@ model = GCN(n_nodes=features.shape[0],
             nclass=labels.max().item() + 1,
             dropout=args.dropout,
             prep=True,
-            emb_dim=16, #args.prep_dim
+            emb_dim=args.prep_dim,
             )
 optimizer = optim.Adam(model.parameters(),
                        lr=args.lr, weight_decay=args.weight_decay)
@@ -396,9 +435,13 @@ def test():
     output = model(features,adj)
     loss_test = F.nll_loss(output[idx_test], labels[idx_test])
     acc_test = accuracy(output[idx_test], labels[idx_test])
+    macro = f1(output[idx_test], labels[idx_test])
     print("Test set results:",
           "loss= {:.4f}".format(loss_test.item()),
-          "accuracy= {:.4f}".format(acc_test.item()))
+          "accuracy= {:.4f}".format(acc_test.item()),
+          "micro= {:.4f}".format(acc_test.item()),
+          "macro= {:.4f}".format(macro),
+       )
 
 print(model)
 

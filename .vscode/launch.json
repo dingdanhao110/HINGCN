@@ -84,5 +84,27 @@
             "program": "${file}",
             "console": "integratedTerminal"
         },
+        {
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "args": [
+                "--seed",
+                "4",
+                "--dropout",
+                "0.5",
+                "--prep-dim",
+                "32",
+                "--hidden",
+                "32",
+                "--train-percent",
+                "0.3",
+                "--epochs",
+                "100",
+            ],
+            "env": {},
+            "program": "${workspaceFolder}/runEmbedGCN.py",
+            "name": "GCN.py"
+        },
     ]
 }

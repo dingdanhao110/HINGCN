@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 from torch.nn.modules.module import Module
 
+
 class GraphConvolution(Module):
     """
     Simple GCN layer, similar to https://arxiv.org/abs/1609.02907
@@ -38,8 +39,8 @@ class GraphConvolution(Module):
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' \
-               + str(self.in_features) + ' -> ' \
-               + str(self.out_features) + ')'
+            + str(self.in_features) + ' -> ' \
+            + str(self.out_features) + ')'
 
 
 class GraphAttentionLayer(nn.Module):
@@ -47,38 +48,48 @@ class GraphAttentionLayer(nn.Module):
     Simple GAT layer, similar to https://arxiv.org/abs/1710.10903
     """
 
-    def __init__(self, in_features, out_features, dropout, alpha, concat=True):
+    def __init__(self, in_features, out_features, dropout=0.5, alpha=0.8, concat=True):
         super(GraphAttentionLayer, self).__init__()
-        self.dropout = dropout
+        self.dropout = nn.Dropout(dropout)
         self.in_features = in_features
         self.out_features = out_features
         self.alpha = alpha
         self.concat = concat
 
-        self.W = nn.Parameter(torch.zeros(size=(in_features, out_features)))
-        nn.init.xavier_uniform_(self.W.data, gain=1.414)
-        self.a = nn.Parameter(torch.zeros(size=(2 * out_features, 1)))
-        nn.init.xavier_uniform_(self.a.data, gain=1.414)
+        self.att_x = nn.Linear(out_features, 1)
+        self.att_nei = nn.Linear(out_features, 1)
+        self.fc = nn.Linear(in_features, out_features)
 
         self.leakyrelu = nn.LeakyReLU(self.alpha)
 
-    def forward(self, input, adj):
-        h = torch.mm(input, self.W)
-        N = h.size()[0]
+    def forward(self, input, adj, batch=64):
+        x = self.fc(input)
+        neib_att = self.att_nei(x).t()
+        result = []
+        adjs = torch.split(adj, batch, dim=0)
+        for chunk_id, chunk in enumerate(torch.split(x, batch, dim=0)):
+            N = chunk.shape[0]
+            x_att = self.att_x(chunk)
 
-        a_input = torch.cat([h.repeat(1, N).view(N * N, -1), h.repeat(N, 1)], dim=1).view(N, -1, 2 * self.out_features)
-        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))
+            ws = x_att+neib_att
 
-        zero_vec = -9e15 * torch.ones_like(e)  # mask; only neighbors contribute to weight
-        attention = torch.where(adj > 0, e, zero_vec)  # mask; only neighbors contribute to weight
-        attention = F.softmax(attention, dim=1)
-        attention = F.dropout(attention, self.dropout, training=self.training)
-        h_prime = torch.matmul(attention, h)
+            zero_vec = -9e15*torch.ones_like(ws)
+            ws = torch.where(adjs[chunk_id] > 0, ws, zero_vec)
+            ws = F.softmax(ws, dim=1)
+            # ws = F.dropout(ws, 0.6, training=self.training)
 
-        if self.concat:
-            return F.elu(h_prime)
-        else:
-            return h_prime
+            # Weighted average of neighbors
+            agg_neib = torch.mm(ws, x)
+            #agg_neib = F.sigmoid(agg_neib)
+            # agg_edge = edge_emb.view(N, -1, edge_emb.size(-1))
+            # agg_edge = torch.sum(agg_edge * ws.unsqueeze(-1), dim=1)
+
+            out = chunk + agg_neib
+            out = F.elu(out)
+            result.append(out)
+        result = torch.cat(result, dim=0)
+        result = self.dropout(result)
+        return result
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
@@ -104,11 +115,11 @@ class GraphInductiveLayer(Module):
             self.register_parameter('bias', None)
         self.reset_parameters()
 
-        self.sampler = sampler_class(adj = adj)
+        self.sampler = sampler_class(adj=adj)
         self.train_sampler = sampler_class(adj=train_adj)
 
         self.aggregator = aggr_class(input_dim=in_features,
-                output_dim=out_features,nsamples=nsamples)
+                                     output_dim=out_features, nsamples=nsamples)
 
     def reset_parameters(self):
         stdv = 1. / math.sqrt(self.weight.size(1))
@@ -117,13 +128,13 @@ class GraphInductiveLayer(Module):
             self.bias.data.uniform_(-stdv, stdv)
 
     def forward(self, input, train=True):
-        ids = input[:,0]
+        ids = input[:, 0]
         # Sample neighbors
         sample_fns = self.train_sampler if train else self.sampler
 
         neighbor_adj = sample_fns(ids)
 
-        input = self.aggregator(input,neighbor_adj)
+        input = self.aggregator(input, neighbor_adj)
 
         output = torch.mm(input, self.weight)
         if self.bias is not None:
@@ -133,9 +144,8 @@ class GraphInductiveLayer(Module):
 
     def __repr__(self):
         return self.__class__.__name__ + ' (' \
-               + str(self.in_features) + ' -> ' \
-               + str(self.out_features) + ')'
-
+            + str(self.in_features) + ' -> ' \
+            + str(self.out_features) + ')'
 
 
 # class MetapathAttentionLayer(nn.Module):
@@ -176,4 +186,3 @@ class GraphInductiveLayer(Module):
 #
 #     def __repr__(self):
 #         return self.__class__.__name__ + ' (' + str(self.in_features) + ' -> ' + str(self.out_features) + ')'
-

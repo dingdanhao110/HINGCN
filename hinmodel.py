@@ -9,31 +9,32 @@ class GCN(nn.Module):
     def __init__(self, n_nodes, nfeat, nhid, nclass, dropout, prep=True, emb_dim=64):
         super(GCN, self).__init__()
 
-        self.n_nodes=n_nodes
+        self.n_nodes = n_nodes
         self.dropout = dropout
 
         if prep:
-            self.prep = NodeEmbeddingPrep(nfeat, n_nodes, embedding_dim=emb_dim)
+            self.prep = NodeEmbeddingPrep(
+                nfeat, n_nodes, embedding_dim=emb_dim)
             nfeat += emb_dim
         else:
             self.prep = None
 
-        self.gc1 = GraphConvolution(nfeat, nhid)
-        self.gc2 = GraphConvolution(nhid, nhid)
+        self.gc1 = GraphAttentionLayer(nfeat, nhid)
+        # self.gc2 = GraphAttentionLayer(nhid, nhid)
         # self.gc3 = GraphConvolution(nhid, nhid)
         # self.gc4 = GraphConvolution(nhid, nhid)
         # self.gc5 = GraphConvolution(nhid, nhid)
         # self.gc6 = GraphConvolution(nhid, nhid)
         # self.gc7 = GraphConvolution(nhid, nhid)
-        self.gc8 = GraphConvolution(nhid, nclass)
+        self.gc8 = GraphAttentionLayer(nhid, nclass)
 
     def forward(self, x, adj):
         if self.prep:
-            x = self.prep(torch.arange(self.n_nodes),x)
+            x = self.prep(torch.arange(self.n_nodes), x)
         x = F.relu(self.gc1(x, adj))
         x = F.dropout(x, self.dropout, training=self.training)
-        x = F.relu(self.gc2(x, adj))
-        x = F.dropout(x, self.dropout, training=self.training)
+        # x = F.relu(self.gc2(x, adj))
+        # x = F.dropout(x, self.dropout, training=self.training)
         # x = F.relu(self.gc3(x, adj))
         # x = F.dropout(x, self.dropout, training=self.training)
         # x = F.relu(self.gc4(x, adj))
@@ -55,14 +56,15 @@ class HINGCN(nn.Module):
         for i, gcn in enumerate(self.gcn_layer1):
             self.add_module('gcn_1_{}'.format(i), gcn)
 
-        self.gcn_layer2 = [GraphConvolution(nhid, dim_mp) for _ in range(nmeta)]
+        self.gcn_layer2 = [GraphConvolution(
+            nhid, dim_mp) for _ in range(nmeta)]
         for i, gcn in enumerate(self.gcn_layer2):
             self.add_module('gcn_2_{}'.format(i), gcn)
 
         self.dropout = dropout
-        self.attention = MetapathAggrLayer(dim_mp, nmeta, dropout=dropout, alpha=alpha, concat=bias)
-        self.linear = nn.Linear(dim_mp,nclass,bias=bias)
-
+        self.attention = MetapathAggrLayer(
+            dim_mp, nmeta, dropout=dropout, alpha=alpha, concat=bias)
+        self.linear = nn.Linear(dim_mp, nclass, bias=bias)
 
     def forward(self, input, adjs):
         """@:param input: feature matrix of queried vertices in HIN;
@@ -73,10 +75,12 @@ class HINGCN(nn.Module):
         for mp_idx in range(len(adjs)):
             x_i = F.relu(self.gcn_layer1[mp_idx](input, adjs[mp_idx]))
             # x_i = F.dropout(x_i, self.dropout, training=self.training)
-            x_i = F.relu(self.gcn_layer2[mp_idx](x_i, adjs[mp_idx]))  #x_i: tensor(v_id,embedding)
+            # x_i: tensor(v_id,embedding)
+            x_i = F.relu(self.gcn_layer2[mp_idx](x_i, adjs[mp_idx]))
             # x_i = F.dropout(x_i, self.dropout, training=self.training)
             embeddings.append(x_i.unsqueeze(0))
-        embeddings = torch.cat(embeddings)  #should be a tensor of (mp_idx,v_id,embedding)
+        # should be a tensor of (mp_idx,v_id,embedding)
+        embeddings = torch.cat(embeddings)
 
         output = self.attention(embeddings)
         # output = F.dropout(output, self.dropout, training=self.training)
@@ -84,11 +88,10 @@ class HINGCN(nn.Module):
         return F.log_softmax(output, dim=1)
 
 
-
 class HINGCN_IA(nn.Module):
     """replaced GCN layers by inductive attention layers"""
-    def __init__(self, nfeat, nhid, nmeta, dim_mp, nclass, alpha, dropout, bias
-                 , sampler, adjs, concat, samples=128
+
+    def __init__(self, nfeat, nhid, nmeta, dim_mp, nclass, alpha, dropout, bias, sampler, adjs, concat, samples=128
                  ):
         super(HINGCN_IA, self).__init__()
         self.adjs = adjs
@@ -97,19 +100,21 @@ class HINGCN_IA(nn.Module):
         self.concat = concat
         self.dropout = dropout
 
-        self.aggr_layer1 = [AttentionAggregator(nfeat, nhid, dropout=dropout, alpha=alpha, concat=concat) for _ in range(nmeta)]
+        self.aggr_layer1 = [AttentionAggregator(
+            nfeat, nhid, dropout=dropout, alpha=alpha, concat=concat) for _ in range(nmeta)]
         for i, gcn in enumerate(self.aggr_layer1):
             self.add_module('gcn_1_{}'.format(i), gcn)
 
         if concat:
-            nhid*=2
+            nhid *= 2
 
-        self.aggr_layer2 = [AttentionAggregator(nhid, dim_mp, dropout=dropout, alpha=alpha, concat=concat) for _ in range(nmeta)]
+        self.aggr_layer2 = [AttentionAggregator(
+            nhid, dim_mp, dropout=dropout, alpha=alpha, concat=concat) for _ in range(nmeta)]
         for i, gcn in enumerate(self.aggr_layer2):
             self.add_module('gcn_2_{}'.format(i), gcn)
 
         if concat:
-            dim_mp*=2
+            dim_mp *= 2
 
         self.sampler_layer1 = [sampler(adjs[i]) for i in range(nmeta)]
         # for i, sam in enumerate(self.sampler_layer1):
@@ -119,9 +124,9 @@ class HINGCN_IA(nn.Module):
         # for i, sam in enumerate(self.sampler_layer2):
         #     self.add_module('sampler_2_{}'.format(i), sam)
 
-        self.attention = MetapathAggrLayer(dim_mp, nmeta, dropout=dropout, alpha=alpha)
-        self.linear = nn.Linear(dim_mp,nclass,bias=bias)
-
+        self.attention = MetapathAggrLayer(
+            dim_mp, nmeta, dropout=dropout, alpha=alpha)
+        self.linear = nn.Linear(dim_mp, nclass, bias=bias)
 
     def forward(self, input):
         """
@@ -140,10 +145,12 @@ class HINGCN_IA(nn.Module):
             x_i = F.dropout(x_i, self.dropout, training=self.training)
             neibor_i_2 = self.sampler_layer2[mp_idx](ids, self.nsamples)
 
-            x_i = F.relu(self.aggr_layer2[mp_idx](x_i, neibor_i_2))  #x_i: tensor(v_id,embedding)
+            # x_i: tensor(v_id,embedding)
+            x_i = F.relu(self.aggr_layer2[mp_idx](x_i, neibor_i_2))
             x_i = F.dropout(x_i, self.dropout, training=self.training)
             embeddings.append(x_i.unsqueeze(0))
-        embeddings = torch.cat(embeddings)  #should be a tensor of (mp_idx,v_id,embedding)
+        # should be a tensor of (mp_idx,v_id,embedding)
+        embeddings = torch.cat(embeddings)
 
         output = self.attention(embeddings)
         output = F.dropout(output, self.dropout, training=self.training)
@@ -151,9 +158,9 @@ class HINGCN_IA(nn.Module):
         return F.log_softmax(output, dim=1)
 
 
-
 class HINGCN_edge(nn.Module):
     """replaced GCN layers by inductive attention layers"""
+
     def __init__(self, nfeat, nhid, nmeta, dim_mp,
                  edge_dim, schemes, nclass, alpha, dropout, bias,
                  adjs, concat, samples=128
@@ -164,10 +171,10 @@ class HINGCN_edge(nn.Module):
         self.nsamples = samples
         self.concat = concat
         self.dropout = dropout
-        self.edge_dim=edge_dim
-        self.schemes=schemes
+        self.edge_dim = edge_dim
+        self.schemes = schemes
 
-        assert len(schemes)==nmeta
+        assert len(schemes) == nmeta
 
         self.aggr_layer1 = [EdgeAttentionAggregator(nfeat, nhid, edge_dim, schemes[i],
                                                     dropout=dropout, alpha=alpha, concat=concat) for i in range(nmeta)]
@@ -183,15 +190,14 @@ class HINGCN_edge(nn.Module):
         for i, gcn in enumerate(self.aggr_layer2):
             self.add_module('gcn_2_{}'.format(i), gcn)
 
-
         if concat:
             res_len = dim_mp*2+edge_dim
         else:
             res_len = dim_mp*2
 
-        self.attention = MetapathAggrLayer(res_len, nmeta, dropout=dropout, alpha=alpha)
-        self.linear = nn.Linear(res_len,nclass,bias=bias)
-
+        self.attention = MetapathAggrLayer(
+            res_len, nmeta, dropout=dropout, alpha=alpha)
+        self.linear = nn.Linear(res_len, nclass, bias=bias)
 
     def forward(self, input, index, node_emb, n_sample=128):
         """
@@ -203,12 +209,16 @@ class HINGCN_edge(nn.Module):
         # ids = np.arange(input.shape[0])
         embeddings = []
         for mp_idx in range(self.nmeta):
-            x_i = F.relu(self.aggr_layer1[mp_idx](input, index, node_emb, n_sample))
+            x_i = F.relu(self.aggr_layer1[mp_idx](
+                input, index, node_emb, n_sample))
             x_i = F.dropout(x_i, self.dropout, training=self.training)
-            x_i = F.relu(self.aggr_layer2[mp_idx](x_i, index, node_emb, n_sample))  #x_i: tensor(v_id,embedding)
+            # x_i: tensor(v_id,embedding)
+            x_i = F.relu(self.aggr_layer2[mp_idx](
+                x_i, index, node_emb, n_sample))
             x_i = F.dropout(x_i, self.dropout, training=self.training)
             embeddings.append(x_i.unsqueeze(0))
-        embeddings = torch.cat(embeddings)  #should be a tensor of (mp_idx,v_id,embedding)
+        # should be a tensor of (mp_idx,v_id,embedding)
+        embeddings = torch.cat(embeddings)
 
         output = self.attention(embeddings)
         output = F.dropout(output, self.dropout, training=self.training)
@@ -216,9 +226,9 @@ class HINGCN_edge(nn.Module):
         return F.log_softmax(output, dim=1)
 
 
-
 class HINGCN_edge_emb(nn.Module):
     """replaced query_neighbor with edge embeddings"""
+
     def __init__(self, nfeat, nhid, nmeta, dim_mp, edge_index,
                  edge_emb, schemes, nclass, alpha, dropout, bias,
                  adjs, concat=False, addedge=False, update_edge=False,
@@ -229,27 +239,26 @@ class HINGCN_edge_emb(nn.Module):
         self.nmeta = nmeta
         self.nsamples = samples
         self.concat = concat
-        self.addedge= addedge
-        self.update_edge=update_edge
+        self.addedge = addedge
+        self.update_edge = update_edge
         self.dropout = dropout
         self.edge_index = edge_index
-        self.edge_dim=edge_emb['APA'].shape[1]
-        self.edge_emb={}
-        for s,e in edge_emb.items():
+        self.edge_dim = edge_emb['APA'].shape[1]
+        self.edge_emb = {}
+        for s, e in edge_emb.items():
             # print(s)
             # self.edge_emb[s]=nn.Embedding.from_pretrained(e,freeze=True)
             self.edge_emb[s] = e
-        self.schemes=schemes
+        self.schemes = schemes
 
-        assert len(schemes)==nmeta
+        assert len(schemes) == nmeta
 
         self.aggr_layer1 = [EdgeEmbAttentionAggregator(nfeat, nhid, self.edge_dim,
-                                                    dropout=dropout, alpha=alpha,
-                                                       concat=concat,addedge=addedge,
+                                                       dropout=dropout, alpha=alpha,
+                                                       concat=concat, addedge=addedge,
                                                        update_edge=self.update_edge) for i in range(nmeta)]
         for i, gcn in enumerate(self.aggr_layer1):
             self.add_module('gcn_1_{}'.format(i), gcn)
-
 
         if concat:
             inter_len = nhid*2
@@ -259,12 +268,11 @@ class HINGCN_edge_emb(nn.Module):
             inter_len += self.edge_dim
 
         self.aggr_layer2 = [EdgeEmbAttentionAggregator(inter_len, dim_mp, self.edge_dim,
-                                                    dropout=dropout, alpha=alpha,
-                                                       concat=concat,addedge=addedge,
+                                                       dropout=dropout, alpha=alpha,
+                                                       concat=concat, addedge=addedge,
                                                        update_edge=self.update_edge) for i in range(nmeta)]
         for i, gcn in enumerate(self.aggr_layer2):
             self.add_module('gcn_2_{}'.format(i), gcn)
-
 
         if concat:
             res_len = dim_mp*2
@@ -273,9 +281,9 @@ class HINGCN_edge_emb(nn.Module):
         if addedge:
             res_len += self.edge_dim
 
-        self.attention = MetapathAggrLayer(res_len, nmeta, dropout=dropout, alpha=alpha)
-        self.linear = nn.Linear(res_len,nclass,bias=bias)
-
+        self.attention = MetapathAggrLayer(
+            res_len, nmeta, dropout=dropout, alpha=alpha)
+        self.linear = nn.Linear(res_len, nclass, bias=bias)
 
     def forward(self, input, index, node_emb, n_sample=128):
         """
@@ -287,15 +295,16 @@ class HINGCN_edge_emb(nn.Module):
         # ids = np.arange(input.shape[0])
         embeddings = []
         for mp_idx in range(self.nmeta):
-            x_i,emb = self.aggr_layer1[mp_idx](
+            x_i, emb = self.aggr_layer1[mp_idx](
                 input, index, node_emb, self.edge_index[self.schemes[mp_idx]],
-                                self.edge_emb[self.schemes[mp_idx]], n_sample)
+                self.edge_emb[self.schemes[mp_idx]], n_sample)
             # x_i = F.dropout(x_i, self.dropout, training=self.training)
-            x_i,emb = self.aggr_layer2[mp_idx](
-                x_i, index, node_emb, self.edge_index[self.schemes[mp_idx]], emb, n_sample)  #x_i: tensor(v_id,embedding)
+            x_i, emb = self.aggr_layer2[mp_idx](
+                x_i, index, node_emb, self.edge_index[self.schemes[mp_idx]], emb, n_sample)  # x_i: tensor(v_id,embedding)
             # x_i = F.dropout(x_i, self.dropout, training=self.training)
             embeddings.append(x_i.unsqueeze(0))
-        embeddings = torch.cat(embeddings)  #should be a tensor of (mp_idx,v_id,embedding)
+        # should be a tensor of (mp_idx,v_id,embedding)
+        embeddings = torch.cat(embeddings)
 
         output = self.attention(embeddings)
         # output = F.dropout(output, self.dropout, training=self.training)

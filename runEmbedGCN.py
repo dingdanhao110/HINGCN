@@ -17,6 +17,8 @@ from metapath import *
 
 # Training settings
 parser = argparse.ArgumentParser()
+parser.add_argument('--prep', action='store_true', default=False,
+                    help='enable preparation.')
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='Disables CUDA training.')
 parser.add_argument('--fastmode', action='store_true', default=True,
@@ -61,6 +63,32 @@ torch.manual_seed(args.seed)
 if args.cuda:
     torch.cuda.manual_seed(args.seed)
 
+def load_edge_emb(path, schemes, n_dim=17, n_author=20000):
+    data = np.load("{}edge{}.npz".format(path, n_dim))
+    index = {}
+    emb = {}
+    for scheme in schemes:
+        # print('number of authors: {}'.format(n_author))
+        ind = sp.coo_matrix((np.arange(1, data[scheme].shape[0]+1),
+                             (data[scheme][:, 0], data[scheme][:, 1])),
+                            shape=(n_author, n_author),
+                            dtype=np.long)
+        
+        ind = ind + ind.T.multiply(ind.T > ind)- ind.multiply(ind.T > ind)
+        
+        ind = ((ind+sp.eye(ind.shape[0]))>0).astype('float')
+
+        
+
+        embedding = np.zeros(n_dim, dtype=np.float32)
+        embedding = np.vstack((embedding, data[scheme][:, 2:]))
+        emb[scheme] = torch.from_numpy(embedding).float()
+
+        index[scheme] = ind
+        print('loading edge embedding for {} complete, num of embeddings: {}'.format(
+            scheme, embedding.shape[0]))
+
+    return index, emb
 
 def read_embed(path="./data/dblp/",
                emd_file="APA"):
@@ -211,19 +239,21 @@ def read_graph_dblp(path="data/dblp2/", dataset="homograph", label_file="author_
     labels = torch.LongTensor(labels)
 
     # build graph
+    index, emb=load_edge_emb(path, ["APCPA"],n_author=features.shape[0])
     # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
     # idx_map = {j: i for i, j in enumerate(idx)}
-    edges = np.genfromtxt("{}{}.txt".format(path, dataset),
-                                    dtype=np.int32)
-    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
-                       shape=(n_nodes, n_nodes),
-                       dtype=np.float32)
+    # edges = np.genfromtxt("{}{}.txt".format(path, dataset),
+    #                                 dtype=np.int32)
+    # adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
+    #                    shape=(n_nodes, n_nodes),
+    #                    dtype=np.float32)
+
 
     # build symmetric adjacency matrix
-    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
-
+    # adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
+    adj = index["APCPA"]
     # features = normalize(features)
-    adj = normalize(adj + sp.eye(adj.shape[0]))
+    adj = normalize(adj ) #+ sp.eye(adj.shape[0])
     adj = sparse_mx_to_torch_sparse_tensor(adj)
 
     reordered = np.random.permutation(labels_raw[:, 0])
@@ -265,24 +295,12 @@ def read_graph_yelp(path="./data/yelp/", dataset="homograph",
     features = np.pad(features, ((0, embedding.shape[0] - features.shape[0]), (0, 0)), 'constant', constant_values=0)
 
     features = torch.FloatTensor(features[:,:5])
-    # features = torch.cat([features,embedding], dim=1)
-
-    # features = torch.FloatTensor(embedding)
-
-    # build graph
-    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
-    # idx_map = {j: i for i, j in enumerate(idx)}
-    edges = np.genfromtxt("{}{}.txt".format(path, dataset),
-                                    dtype=np.int32)
-    adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
-                       shape=(n_nodes, n_nodes),
-                       dtype=np.float32)
-
-    # build symmetric adjacency matrix
-    adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
-
+    
+    index, emb=load_edge_emb(path, ["BRKRB"],n_author=features.shape[0])
+   
+    adj = index["BRKRB"]
     # features = normalize(features)
-    adj = normalize(adj + sp.eye(adj.shape[0]))
+    adj = normalize(adj) #
     adj = sparse_mx_to_torch_sparse_tensor(adj)
 
     labels = np.genfromtxt("{}{}.txt".format(path, label_file),
@@ -324,20 +342,21 @@ def read_graph_yago(path="./data/freebase/", dataset="homograph",
     features = torch.ones((embedding.shape[0],1))
 
 
-    # build graph
-    # idx = np.array(idx_features_labels[:, 0], dtype=np.int32)
-    # idx_map = {j: i for i, j in enumerate(idx)}
+    # index, emb=load_edge_emb(path, ["MAM"],n_author=features.shape[0])
+   
+    # adj = index["MAM"]
+    # # features = normalize(features)
+    
     edges = np.genfromtxt("{}{}.txt".format(path, dataset),
                                     dtype=np.int32)
     adj = sp.coo_matrix((np.ones(edges.shape[0]), (edges[:, 0], edges[:, 1])),
                        shape=(n_nodes, n_nodes),
                        dtype=np.float32)
 
+
     # build symmetric adjacency matrix
     adj = adj + adj.T.multiply(adj.T > adj) - adj.multiply(adj.T > adj)
-
-    # features = normalize(features)
-    adj = normalize(adj + sp.eye(adj.shape[0]))
+    adj = normalize(adj+sp.eye(adj.shape[0]))
     adj = sparse_mx_to_torch_sparse_tensor(adj)
 
     movies = []
@@ -373,19 +392,20 @@ def read_graph_yago(path="./data/freebase/", dataset="homograph",
 
     return adj, features, labels, idx_train, idx_val, idx_test
 
+dataset_ind={"dblp":read_graph_dblp,"yelp":read_graph_yelp,"yago":read_graph_yago}
 # Load data
 adj, features, labels, idx_train, idx_val, idx_test = \
-    read_graph_yelp()
+    dataset_ind[args.dataset]()
 
 print('Read data finished!')
-adj = adj.to_dense()
+# adj = adj.to_dense()
 # Model and optimizer
 model = GCN(n_nodes=features.shape[0],
             nfeat=features.shape[1],
             nhid=args.hidden,
             nclass=labels.max().item() + 1,
             dropout=args.dropout,
-            prep=True,
+            prep=args.prep,
             emb_dim=args.prep_dim,
             )
 optimizer = optim.Adam(model.parameters(),

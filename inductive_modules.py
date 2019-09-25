@@ -39,14 +39,16 @@ def UniformNeighborSampler(adj, n_samples=128):
 
     adj_np = adj.numpy().to_csr()
     degrees = np.count_nonzero(adj_np, axis=1)
-    degrees[degrees == 0] = adj_np.shape[1]  # if no degree at all, sample from all vertices
+    # if no degree at all, sample from all vertices
+    degrees[degrees == 0] = adj_np.shape[1]
 
     sel = np.random.choice(adj_np.shape[1], (adj_np.shape[0], n_samples))
     sel = sel % degrees.reshape(-1, 1)
 
-    nonzeros = np.split(adj_np.indices, adj_np.indptr)[1:-1]  ##nonzeros for each row
+    nonzeros = np.split(adj_np.indices, adj_np.indptr)[
+        1:-1]  # nonzeros for each row
     nonzeros[degrees == adj_np.shape[1]] = np.arange(0,
-                                                     adj_np.shape[0])  ##if no degree at all, sample from all vertices
+                                                     adj_np.shape[0])  # if no degree at all, sample from all vertices
 
     tmp = nonzeros[np.arange(adj_np.shape[0]).repeat(n_samples).reshape(-1),
                    np.array(sel).reshape(-1)]
@@ -118,7 +120,8 @@ class AttentionAggregator(nn.Module):
         a_input = torch.cat([x.repeat(1, n_sample).view(N * n_sample, -1),
                              x[neibs].view(N * n_sample, -1)], dim=1) \
             .view(N, -1, 2 * self.output_dim)
-        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))  # e[ver,sample] attention coeff
+        # e[ver,sample] attention coeff
+        e = self.leakyrelu(torch.matmul(a_input, self.a).squeeze(2))
 
         # Weighted average of neighbors
         attention = F.softmax(e, dim=1)
@@ -128,7 +131,8 @@ class AttentionAggregator(nn.Module):
         # h_prime = [ h_prime[id,id].unsqueeze(0) for id in range(N)]
         # h_prime = torch.cat(h_prime)
 
-        h_prime = [torch.matmul(attention[i], x[neibs[i]]).unsqueeze(0) for i in range(N)]
+        h_prime = [torch.matmul(attention[i], x[neibs[i]]).unsqueeze(0)
+                   for i in range(N)]
         h_prime = torch.cat(h_prime)
 
         if self.concat:
@@ -204,7 +208,8 @@ class EdgeAttentionAggregator(nn.Module):
         output = []
         for v in range(N):
             # generate neighbors of v
-            neigh, emb = query_path_indexed(v, self.scheme, index, node_emb, n_sample)
+            neigh, emb = query_path_indexed(
+                v, self.scheme, index, node_emb, n_sample)
             # assert neigh.shape[0] == n_sample
             n_neigh = neigh.shape[0]
             a_input = torch.cat([x[v].repeat(1, n_neigh).view(n_neigh, -1),
@@ -212,10 +217,12 @@ class EdgeAttentionAggregator(nn.Module):
                 .view(n_neigh, -1)
             e = self.leakyrelu(torch.matmul(a_input, self.a).view(1, -1))
             attention = F.softmax(e, dim=1)
-            attention = F.dropout(attention, self.dropout, training=self.training)
+            attention = F.dropout(attention, self.dropout,
+                                  training=self.training)
 
             if self.concat:
-                h_prime = torch.matmul(attention, torch.cat([x[neigh], emb], dim=1))
+                h_prime = torch.matmul(
+                    attention, torch.cat([x[neigh], emb], dim=1))
             else:
                 h_prime = torch.matmul(attention, x[neigh])
 
@@ -281,9 +288,10 @@ class EdgeEmbAttentionAggregator(nn.Module):
         a_input = torch.cat([x.repeat(1, n_sample).view(N, n_sample, -1),
                              x[neigh],
                              emb[e_index[
-                                 torch.arange(N).view(-1, 1).repeat(1, n_sample).view(-1),
+                                 torch.arange(
+                                     N).view(-1, 1).repeat(1, n_sample).view(-1),
                                  neigh.view(-1)]
-                             ].view(N, n_sample, -1)], dim=2) \
+                                 ].view(N, n_sample, -1)], dim=2) \
             .view(N, n_sample, -1)
 
         e = self.leakyrelu(torch.matmul(a_input, self.a))
@@ -301,17 +309,18 @@ class EdgeEmbAttentionAggregator(nn.Module):
             output = torch.cat([output, torch.stack([
                 torch.matmul(attention[i],
                              emb[e_index[i, neigh[i]]]) for i in range(N)])
-                                ], dim=1)
+            ], dim=1)
         output = F.elu(output)
 
         # update edge
         if self.update_edge:
             to_update = e_index.nonzero()
-            to_update = to_update[(to_update[:, 0] < to_update[:, 1]).nonzero().squeeze()]
+            to_update = to_update[(
+                to_update[:, 0] < to_update[:, 1]).nonzero().squeeze()]
 
             n = to_update.shape[0]
 
-            #memory error.. consider minibatch update
+            # memory error.. consider minibatch update
 
             edges = e_index[to_update[:, 0], to_update[:, 1]]
 
@@ -320,7 +329,8 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
             e_input = torch.mm(emb[edges], self.W3)
 
-            a_input = torch.cat([self.B, e_input+v_input+self.B.repeat(n,1)],dim=0)
+            a_input = torch.cat(
+                [self.B, e_input+v_input+self.B.repeat(n, 1)], dim=0)
 
             emb = F.relu(a_input * emb)
 
@@ -341,7 +351,6 @@ aggregator_lookup = {
 }
 
 
-
 class NodeEmbeddingPrep(nn.Module):
     def __init__(self, input_dim, n_nodes, embedding_dim=64):
         """ adds node embedding """
@@ -350,8 +359,10 @@ class NodeEmbeddingPrep(nn.Module):
         self.n_nodes = n_nodes
         self.input_dim = input_dim
         self.embedding_dim = embedding_dim
-        self.embedding = nn.Embedding(num_embeddings=n_nodes + 1, embedding_dim=embedding_dim)
-        self.fc = nn.Linear(embedding_dim, embedding_dim)  # Affine transform, for changing scale + location
+        self.embedding = nn.Embedding(
+            num_embeddings=n_nodes + 1, embedding_dim=embedding_dim)
+        # Affine transform, for changing scale + location
+        self.fc = nn.Linear(embedding_dim, embedding_dim)
 
     @property
     def output_dim(self):
@@ -365,7 +376,8 @@ class NodeEmbeddingPrep(nn.Module):
             embs = self.embedding(ids)
         else:
             # Don't look at node's own embedding for prediction, or you'll probably overfit a lot
-            embs = self.embedding(Variable(ids.clone().data.zero_() + self.n_nodes).cuda())
+            embs = self.embedding(
+                Variable(ids.clone().data.zero_() + self.n_nodes))
 
         embs = self.fc(embs)
         if self.input_dim:

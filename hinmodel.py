@@ -20,7 +20,7 @@ class GCN(nn.Module):
             self.prep = None
 
         self.gc1 = GraphConvolution(nfeat, nhid)
-        # self.gc2 = GraphAttentionLayer(nhid, nhid)
+        self.gc2 = GraphConvolution(nhid, nhid)
         # self.gc3 = GraphConvolution(nhid, nhid)
         # self.gc4 = GraphConvolution(nhid, nhid)
         # self.gc5 = GraphConvolution(nhid, nhid)
@@ -32,9 +32,9 @@ class GCN(nn.Module):
         if self.prep:
             x = self.prep(torch.arange(self.n_nodes), x)
         x = F.relu(self.gc1(x, adj))
-        x = F.dropout(x, self.dropout, training=self.training)
-        # x = F.relu(self.gc2(x, adj))
         # x = F.dropout(x, self.dropout, training=self.training)
+        # x = F.relu(self.gc2(x, adj))
+        x = F.dropout(x, self.dropout, training=self.training)
         # x = F.relu(self.gc3(x, adj))
         # x = F.dropout(x, self.dropout, training=self.training)
         # x = F.relu(self.gc4(x, adj))

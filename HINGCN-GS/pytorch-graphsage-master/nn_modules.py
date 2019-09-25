@@ -662,7 +662,7 @@ class DenseAttentionAggregator(nn.Module):
             zero_vec = -9e15*torch.ones_like(ws)
             ws = torch.where(adjs[chunk_id] > 0, ws, zero_vec)
             ws = F.softmax(ws, dim=1)
-            ws = F.dropout(ws, 0.6, training=self.training)
+            ws = F.dropout(ws, 0, training=self.training)
             
             # Weighted average of neighbors
             agg_neib = torch.mm(ws, value)

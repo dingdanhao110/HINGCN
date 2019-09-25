@@ -28,7 +28,7 @@
                 "--edgeupt-class",
                 "identity",
                 "--prep-class",
-                "node_embedding",
+                "identity",
                 "--prep-len",
                 "128",
                 "--batch-size",

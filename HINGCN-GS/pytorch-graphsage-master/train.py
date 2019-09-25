@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
     # --
     # Load problem
-    mp_index = {'dblp': ['APA', ],  # 'APAPA', 'APCPA'
+    mp_index = {'dblp': ['APCPA', ],  # 'APAPA', 'APCPA'
                 'yelp': ['BRKRB'],  # 'BRURB',
                 'yago': ['MAM']  # , 'MDM', 'MWM'
                 }

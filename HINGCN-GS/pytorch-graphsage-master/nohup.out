@@ -91,3 +91,27 @@ Traceback (most recent call last):
   File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/_iotools.py", line 693, in <lambda>
     self.func = lambda x: int(float(x))
 KeyboardInterrupt
+NodeProblem: loading started
+loading edge embedding for BRURB complete, num of embeddings: 265474
+Traceback (most recent call last):
+  File "train.py", line 144, in <module>
+    problem=args.problem, device=device, schemes=schemes)
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/problem.py", line 92, in __init__
+    n_author=features.shape[0])
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/helpers.py", line 164, in load_edge_emb
+    embedding = np.vstack((embedding, data[scheme][:, 2:]))
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/npyio.py", line 258, in __getitem__
+    pickle_kwargs=self.pickle_kwargs)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/format.py", line 726, in read_array
+    data = _read_bytes(fp, read_size, "array data")
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/format.py", line 865, in _read_bytes
+    r = fp.read(size - len(data))
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/zipfile.py", line 899, in read
+    data = self._read1(n)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/zipfile.py", line 969, in _read1
+    data = self._read2(n)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/zipfile.py", line 999, in _read2
+    data = self._fileobj.read(n)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/zipfile.py", line 742, in read
+    data = self._file.read(n)
+KeyboardInterrupt

@@ -99,6 +99,7 @@ class NodeProblem(object):
         if features.shape[1] > 1:
             self.feats = np.pad(features, ((0, 1), (0, 0)), 'constant')
         else:
+            print("empty feature")
             self.feats = None
         self.adj = edge_index
         self.edge_emb = edge_emb

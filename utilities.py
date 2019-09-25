@@ -88,8 +88,8 @@ def accuracy(output, labels):
 
 
 def f1(output, labels):
-    preds = output.max(1)[1].type_as(labels).detach()
-    return metrics.f1_score(labels.detach(), preds, average="macro")
+    preds = output.max(1)[1].type_as(labels).cpu().detach()
+    return metrics.f1_score(labels.cpu().detach(), preds, average="macro")
 
 
 def read_metapath_raw(path="../data/cora/", dataset="cora", num_mps=1):

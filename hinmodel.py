@@ -19,14 +19,14 @@ class GCN(nn.Module):
         else:
             self.prep = None
 
-        self.gc1 = GraphAttentionLayer(nfeat, nhid)
+        self.gc1 = GraphConvolution(nfeat, nhid)
         # self.gc2 = GraphAttentionLayer(nhid, nhid)
         # self.gc3 = GraphConvolution(nhid, nhid)
         # self.gc4 = GraphConvolution(nhid, nhid)
         # self.gc5 = GraphConvolution(nhid, nhid)
         # self.gc6 = GraphConvolution(nhid, nhid)
         # self.gc7 = GraphConvolution(nhid, nhid)
-        self.gc8 = GraphAttentionLayer(nhid, nclass)
+        self.gc8 = GraphConvolution(nhid, nclass)
 
     def forward(self, x, adj):
         if self.prep:

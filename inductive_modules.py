@@ -365,7 +365,7 @@ class NodeEmbeddingPrep(nn.Module):
             embs = self.embedding(ids)
         else:
             # Don't look at node's own embedding for prediction, or you'll probably overfit a lot
-            embs = self.embedding(Variable(ids.clone().data.zero_() + self.n_nodes))
+            embs = self.embedding(Variable(ids.clone().data.zero_() + self.n_nodes).cuda())
 
         embs = self.fc(embs)
         if self.input_dim:

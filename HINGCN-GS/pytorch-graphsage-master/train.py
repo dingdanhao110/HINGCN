@@ -197,7 +197,6 @@ if __name__ == "__main__":
 
     # --
     # Define optimizer
-
     lr_scheduler = partial(getattr(LRSchedule, args.lr_schedule), lr_init=args.lr_init)
     lr = lr_scheduler(0.0)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=args.weight_decay)

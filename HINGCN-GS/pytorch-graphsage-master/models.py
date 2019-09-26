@@ -72,8 +72,8 @@ class HINGCN_GS(nn.Module):
 
         # Prep
         self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes, 
-         #embedding_dim = prep_len
-         output_dim=prep_len
+         embedding_dim = prep_len
+         #output_dim=prep_len
          )
         self.input_dim = self.prep.output_dim
 

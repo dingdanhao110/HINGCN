@@ -13,7 +13,7 @@ from torch.autograd import Variable
 import scipy.sparse as sp
 from sklearn.feature_extraction.text import TfidfTransformer
 
-train_per=0.1
+train_per=0.4
 
 def set_seeds(seed=0):
     np.random.seed(seed)
@@ -145,7 +145,7 @@ def load_edge_emb(path, schemes, n_dim=17, n_author=20000):
         
         #ind = torch.LongTensor(ind)
 
-        ind = ind + ind.transpose()
+        ind = ind + ind.T.multiply(ind.T>ind)
         ind = sparse_mx_to_torch_sparse_tensor(ind)#.to_dense()
 
         nonz = ind._indices()

@@ -976,6 +976,54 @@ class ResEdge(nn.Module):
         return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim) \
                + ' -> ' + str(self.edge_dim) + ')'
 
+class GRUEdge(nn.Module):
+    def __init__(self, input_dim, edge_dim, activation, dropout=0.5, batchnorm=False):
+        super(GRUEdge, self).__init__()
+
+        self.input_dim = input_dim
+        self.edge_dim = edge_dim
+        self.activation = activation
+        self.dropout = nn.Dropout(p=dropout)
+        self.batchnorm = batchnorm
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.edge_dim)
+
+        self.gate1 = nn.Linear(2*input_dim,edge_dim)
+        self.gate2 = nn.Linear(edge_dim,edge_dim)
+        self.gate3 = nn.Linear(2*input_dim,edge_dim)
+        self.gate4 = nn.Linear(edge_dim,edge_dim)
+        self.fc_x = nn.Linear(2*input_dim,edge_dim)
+        self.fc_edge = nn.Linear(edge_dim,edge_dim)
+
+    def forward(self, x, neibs, edge_emb, mask):
+        # update edge embedding:
+        # e = sigma(W1*x+W1*neibs+W2*e) + e
+
+        n_sample = int(edge_emb.shape[0] / x.shape[0])
+        x_input = torch.cat([x.repeat(n_sample, 1),neibs],dim=1)
+
+        x_prime = self.gate1(x_input)
+
+        e_input = self.gate2(edge_emb)
+
+        update_gate = torch.sigmoid(x_prime+e_input)
+
+        x_prime2 = self.gate3(x_input)
+
+        e_input2 = self.gate4(edge_emb)
+
+        reset_gate = torch.sigmoid(x_prime2+e_input2)
+
+        h_prime = torch.tanh(fc_x(x_input) + reset_gate * fc_edge(edge_emb))
+
+        emb = update_gate*edge_emb + (1-update_gate)*h_prime
+
+        return emb
+
+    def __repr__(self):
+        return self.__class__.__name__ + ' (' + str(self.input_dim) + ' + ' + str(self.edge_dim) \
+               + ' -> ' + str(self.edge_dim) + ')'
 
 class MetapathConcatLayer(nn.Module):
     """

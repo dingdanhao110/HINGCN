@@ -26,7 +26,7 @@
                 "--mpaggr-class",
                 "gate",
                 "--edgeupt-class",
-                "identity",
+                "GRU",
                 "--prep-class",
                 "node_embedding",
                 "--prep-len",

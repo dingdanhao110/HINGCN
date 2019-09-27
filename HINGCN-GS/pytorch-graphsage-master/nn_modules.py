@@ -1015,7 +1015,7 @@ class GRUEdge(nn.Module):
 
         reset_gate = torch.sigmoid(x_prime2+e_input2)
 
-        h_prime = torch.tanh(fc_x(x_input) + reset_gate * fc_edge(edge_emb))
+        h_prime = torch.tanh(self.fc_x(x_input) + reset_gate * self.fc_edge(edge_emb))
 
         emb = update_gate*edge_emb + (1-update_gate)*h_prime
 

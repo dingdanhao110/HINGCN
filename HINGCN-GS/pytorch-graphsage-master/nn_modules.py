@@ -1490,6 +1490,7 @@ edge_aggregator_lookup = {
     "identity": IdEdgeAggregator,
     "attention": EdgeAggregator,
     "residual": ResEdge,
+    "GRU":GRUEdge,
 }
 
 import math

@@ -597,7 +597,7 @@ class AttentionAggregator2(nn.Module):
 
 class DenseAttentionAggregator(nn.Module):
     def __init__(self, input_dim, output_dim, edge_dim, activation,
-                 adj, edge_emb, hidden_dim=32,
+                 adj, edge_emb, hidden_dim=256,
                  dropout=0.5,
                  concat_node=True, concat_edge=True, batchnorm=False):
         super(DenseAttentionAggregator, self).__init__()
@@ -637,7 +637,7 @@ class DenseAttentionAggregator(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.output_dim)
 
-    def forward(self, x, neigh, batch=512):
+    def forward(self, x, neigh, batch=9999999):
         '''
         :param x: (n_nodes,input_dim)
         :param neibs: (n_nodes,input_dim)
@@ -655,15 +655,16 @@ class DenseAttentionAggregator(nn.Module):
 
             x_att = self.att_x(chunk)
             # edge_att = self.att_edge(edge_emb)
-
-            ws = x_att.mm(neib_att.t())  # +edge_att.view(N,-1)
+            import math
+            ws = x_att.mm(neib_att.t())/math.sqrt(256)  # +edge_att.view(N,-1)
             # ws = x_att+neib_att.t()
-            # ws = F.leaky_relu(ws)
+            ws = F.leaky_relu(ws,negative_slope=0.2)
             zero_vec = -9e15*torch.ones_like(ws)
             ws = torch.where(adjs[chunk_id] > 0, ws, zero_vec)
+             
             ws = F.softmax(ws, dim=1)
-            ws = F.dropout(ws, 0, training=self.training)
-            
+            ws = F.dropout(ws, 0.3, training=self.training)
+           
             # Weighted average of neighbors
             agg_neib = torch.mm(ws, value)
             #agg_neib = F.sigmoid(agg_neib)

@@ -1,0 +1,672 @@
+NodeProblem: loading started
+loading edge embedding for BRURB complete, num of embeddings: 265474
+loading edge embedding for BRKRB complete, num of embeddings: 2815462
+0.370444288
+NodeProblem: loading finished
+Let's use 2 GPUs!
+DataParallel(
+  (module): HINGCN_GS(
+    (prep): LinearPrep(
+      (fc): Linear(in_features=2, out_features=32, bias=False)
+    )
+    (agg_0_0): ModuleList(
+      (0): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_0_0): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (agg_1_0): ModuleList(
+      (0): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_1_0): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (mp_agg): MetapathGateLayer (256 -> 256)
+    (fc): Sequential(
+      (0): Linear(in_features=256, out_features=32, bias=True)
+      (1): ReLU()
+      (2): Dropout(p=0.5)
+      (3): Linear(in_features=32, out_features=3, bias=True)
+    )
+  )
+)
+{"epoch":0,"time":16.97492,"train_loss":121.44326}
+{"epoch":0,"val_loss":81.84484,"val_metric":{"accuracy":0.75335,"micro":0.75335,"macro":0.55201},"test_metric":{"accuracy":0.71128,"micro":0.71128,"macro":0.53094},"tolerance:":0}
+{"epoch":1,"time":45.98887,"train_loss":91.01473}
+{"epoch":1,"val_loss":80.7813,"val_metric":{"accuracy":0.75335,"micro":0.75335,"macro":0.55201},"test_metric":{"accuracy":0.71128,"micro":0.71128,"macro":0.53094},"tolerance:":0}
+{"epoch":2,"time":74.75521,"train_loss":90.86111}
+{"epoch":2,"val_loss":81.77051,"val_metric":{"accuracy":0.75335,"micro":0.75335,"macro":0.55201},"test_metric":{"accuracy":0.71128,"micro":0.71128,"macro":0.53094},"tolerance:":1}
+{"epoch":3,"time":103.26835,"train_loss":89.61971}
+{"epoch":3,"val_loss":79.33328,"val_metric":{"accuracy":0.75335,"micro":0.75335,"macro":0.55201},"test_metric":{"accuracy":0.71128,"micro":0.71128,"macro":0.53094},"tolerance:":0}
+{"epoch":4,"time":132.54842,"train_loss":90.77639}
+{"epoch":4,"val_loss":78.9402,"val_metric":{"accuracy":0.7543,"micro":0.7543,"macro":0.55269},"test_metric":{"accuracy":0.71128,"micro":0.71128,"macro":0.53094},"tolerance:":0}
+{"epoch":5,"time":161.08429,"train_loss":85.12713}
+{"epoch":5,"val_loss":78.2939,"val_metric":{"accuracy":0.75526,"micro":0.75526,"macro":0.55337},"test_metric":{"accuracy":0.71319,"micro":0.71319,"macro":0.53226},"tolerance:":0}
+{"epoch":6,"time":189.4502,"train_loss":83.56784}
+{"epoch":6,"val_loss":78.14256,"val_metric":{"accuracy":0.75621,"micro":0.75621,"macro":0.55399},"test_metric":{"accuracy":0.71128,"micro":0.71128,"macro":0.53053},"tolerance:":0}
+{"epoch":7,"time":215.78919,"train_loss":84.99507}
+{"epoch":7,"val_loss":77.16205,"val_metric":{"accuracy":0.75717,"micro":0.75717,"macro":0.55467},"test_metric":{"accuracy":0.71702,"micro":0.71702,"macro":0.53447},"tolerance:":0}
+{"epoch":8,"time":241.64482,"train_loss":84.25406}
+{"epoch":8,"val_loss":77.14666,"val_metric":{"accuracy":0.75717,"micro":0.75717,"macro":0.55467},"test_metric":{"accuracy":0.71319,"micro":0.71319,"macro":0.53184},"tolerance:":0}
+{"epoch":9,"time":266.99359,"train_loss":84.99159}
+{"epoch":9,"val_loss":81.9905,"val_metric":{"accuracy":0.75621,"micro":0.75621,"macro":0.55428},"test_metric":{"accuracy":0.71511,"micro":0.71511,"macro":0.534},"tolerance:":1}
+{"epoch":10,"time":292.2605,"train_loss":85.94822}
+{"epoch":10,"val_loss":76.14837,"val_metric":{"accuracy":0.75717,"micro":0.75717,"macro":0.55467},"test_metric":{"accuracy":0.71511,"micro":0.71511,"macro":0.53337},"tolerance:":0}
+{"epoch":11,"time":317.89608,"train_loss":82.05648}
+{"epoch":11,"val_loss":74.79167,"val_metric":{"accuracy":0.75717,"micro":0.75717,"macro":0.55467},"test_metric":{"accuracy":0.71893,"micro":0.71893,"macro":0.53598},"tolerance:":0}
+{"epoch":12,"time":343.28632,"train_loss":84.95663}
+{"epoch":12,"val_loss":77.49909,"val_metric":{"accuracy":0.76004,"micro":0.76004,"macro":0.55771},"test_metric":{"accuracy":0.72275,"micro":0.72275,"macro":0.54011},"tolerance:":0}
+{"epoch":13,"time":368.7964,"train_loss":81.79609}
+{"epoch":13,"val_loss":73.38237,"val_metric":{"accuracy":0.75717,"micro":0.75717,"macro":0.55449},"test_metric":{"accuracy":0.71702,"micro":0.71702,"macro":0.53467},"tolerance:":1}
+{"epoch":14,"time":394.99977,"train_loss":83.24038}
+{"epoch":14,"val_loss":75.62198,"val_metric":{"accuracy":0.75526,"micro":0.75526,"macro":0.55331},"test_metric":{"accuracy":0.71511,"micro":0.71511,"macro":0.53358},"tolerance:":2}
+{"epoch":15,"time":420.31758,"train_loss":79.80511}
+{"epoch":15,"val_loss":74.0962,"val_metric":{"accuracy":0.75335,"micro":0.75335,"macro":0.55185},"test_metric":{"accuracy":0.71893,"micro":0.71893,"macro":0.53642},"tolerance:":3}
+{"epoch":16,"time":445.56676,"train_loss":81.54019}
+{"epoch":16,"val_loss":74.1393,"val_metric":{"accuracy":0.7543,"micro":0.7543,"macro":0.55258},"test_metric":{"accuracy":0.71511,"micro":0.71511,"macro":0.53336},"tolerance:":4}
+{"epoch":17,"time":470.92686,"train_loss":82.35328}
+{"epoch":17,"val_loss":74.57796,"val_metric":{"accuracy":0.76099,"micro":0.76099,"macro":0.55718},"test_metric":{"accuracy":0.71511,"micro":0.71511,"macro":0.53336},"tolerance:":0}
+{"epoch":18,"time":496.06066,"train_loss":81.22743}
+{"epoch":18,"val_loss":74.02826,"val_metric":{"accuracy":0.75621,"micro":0.75621,"macro":0.55462},"test_metric":{"accuracy":0.72084,"micro":0.72084,"macro":0.53858},"tolerance:":1}
+{"epoch":19,"time":521.2361,"train_loss":80.71116}
+{"epoch":19,"val_loss":75.43492,"val_metric":{"accuracy":0.76004,"micro":0.76004,"macro":0.5557},"test_metric":{"accuracy":0.72084,"micro":0.72084,"macro":0.53657},"tolerance:":2}
+{"epoch":20,"time":546.38806,"train_loss":81.20574}
+{"epoch":20,"val_loss":71.26532,"val_metric":{"accuracy":0.75526,"micro":0.75526,"macro":0.55367},"test_metric":{"accuracy":0.72275,"micro":0.72275,"macro":0.53948},"tolerance:":3}
+{"epoch":21,"time":571.78067,"train_loss":81.16034}
+{"epoch":21,"val_loss":72.97504,"val_metric":{"accuracy":0.76004,"micro":0.76004,"macro":0.55699},"test_metric":{"accuracy":0.72467,"micro":0.72467,"macro":0.5408},"tolerance:":4}
+{"epoch":22,"time":596.89162,"train_loss":79.86931}
+{"epoch":22,"val_loss":71.47184,"val_metric":{"accuracy":0.75908,"micro":0.75908,"macro":0.55672},"test_metric":{"accuracy":0.72275,"micro":0.72275,"macro":0.5397},"tolerance:":5}
+{"epoch":23,"time":622.08434,"train_loss":81.36085}
+{"epoch":23,"val_loss":71.64718,"val_metric":{"accuracy":0.75908,"micro":0.75908,"macro":0.55571},"test_metric":{"accuracy":0.72275,"micro":0.72275,"macro":0.53882},"tolerance:":6}
+{"epoch":24,"time":647.24278,"train_loss":77.92902}
+{"epoch":24,"val_loss":70.64533,"val_metric":{"accuracy":0.75813,"micro":0.75813,"macro":0.55576},"test_metric":{"accuracy":0.72467,"micro":0.72467,"macro":0.5408},"tolerance:":7}
+{"epoch":25,"time":672.51292,"train_loss":78.94419}
+{"epoch":25,"val_loss":71.16032,"val_metric":{"accuracy":0.75621,"micro":0.75621,"macro":0.5544},"test_metric":{"accuracy":0.72467,"micro":0.72467,"macro":0.5408},"tolerance:":8}
+{"epoch":26,"time":697.71349,"train_loss":78.14891}
+{"epoch":26,"val_loss":72.63255,"val_metric":{"accuracy":0.76099,"micro":0.76099,"macro":0.55643},"test_metric":{"accuracy":0.72467,"micro":0.72467,"macro":0.53941},"tolerance:":0}
+{"epoch":27,"time":723.00185,"train_loss":77.83954}
+{"epoch":27,"val_loss":71.97148,"val_metric":{"accuracy":0.76195,"micro":0.76195,"macro":0.55707},"test_metric":{"accuracy":0.72275,"micro":0.72275,"macro":0.53811},"tolerance:":0}
+{"epoch":28,"time":748.06197,"train_loss":80.99009}
+{"epoch":28,"val_loss":69.62645,"val_metric":{"accuracy":0.76195,"micro":0.76195,"macro":0.55828},"test_metric":{"accuracy":0.72467,"micro":0.72467,"macro":0.54035},"tolerance:":0}
+{"epoch":29,"time":773.07671,"train_loss":76.70763}
+{"epoch":29,"val_loss":68.84351,"val_metric":{"accuracy":0.76386,"micro":0.76386,"macro":0.55994},"test_metric":{"accuracy":0.72849,"micro":0.72849,"macro":0.54364},"tolerance:":0}
+{"epoch":30,"time":798.67791,"train_loss":77.17544}
+{"epoch":30,"val_loss":67.00134,"val_metric":{"accuracy":0.76769,"micro":0.76769,"macro":0.56373},"test_metric":{"accuracy":0.7304,"micro":0.7304,"macro":0.54605},"tolerance:":0}
+{"epoch":31,"time":824.26834,"train_loss":78.67871}
+{"epoch":31,"val_loss":68.35413,"val_metric":{"accuracy":0.77055,"micro":0.77055,"macro":0.56471},"test_metric":{"accuracy":0.72275,"micro":0.72275,"macro":0.53927},"tolerance:":0}
+{"epoch":32,"time":850.06879,"train_loss":76.52296}
+{"epoch":32,"val_loss":67.94451,"val_metric":{"accuracy":0.76769,"micro":0.76769,"macro":0.56214},"test_metric":{"accuracy":0.7304,"micro":0.7304,"macro":0.54427},"tolerance:":1}
+{"epoch":33,"time":875.89219,"train_loss":76.51596}
+{"epoch":33,"val_loss":67.73433,"val_metric":{"accuracy":0.7696,"micro":0.7696,"macro":0.56515},"test_metric":{"accuracy":0.7304,"micro":0.7304,"macro":0.54605},"tolerance:":2}
+{"epoch":34,"time":901.72216,"train_loss":73.44999}
+{"epoch":34,"val_loss":69.1582,"val_metric":{"accuracy":0.76195,"micro":0.76195,"macro":0.559},"test_metric":{"accuracy":0.72849,"micro":0.72849,"macro":0.54386},"tolerance:":3}
+{"epoch":35,"time":929.21595,"train_loss":75.12729}
+{"epoch":35,"val_loss":58.85309,"val_metric":{"accuracy":0.77247,"micro":0.77247,"macro":0.57302},"test_metric":{"accuracy":0.73231,"micro":0.73231,"macro":0.5574},"tolerance:":0}
+{"epoch":36,"time":956.86594,"train_loss":72.44253}
+{"epoch":36,"val_loss":62.46723,"val_metric":{"accuracy":0.86138,"micro":0.86138,"macro":0.83705},"test_metric":{"accuracy":0.84895,"micro":0.84895,"macro":0.83467},"tolerance:":0}
+{"epoch":37,"time":985.95781,"train_loss":66.78783}
+{"epoch":37,"val_loss":46.29434,"val_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89523},"test_metric":{"accuracy":0.8738,"micro":0.8738,"macro":0.86927},"tolerance:":0}
+{"epoch":38,"time":1014.31492,"train_loss":66.57747}
+{"epoch":38,"val_loss":46.40754,"val_metric":{"accuracy":0.88528,"micro":0.88528,"macro":0.87981},"test_metric":{"accuracy":0.87954,"micro":0.87954,"macro":0.87736},"tolerance:":1}
+{"epoch":39,"time":1042.95974,"train_loss":62.49523}
+{"epoch":39,"val_loss":44.74334,"val_metric":{"accuracy":0.88145,"micro":0.88145,"macro":0.87618},"test_metric":{"accuracy":0.87572,"micro":0.87572,"macro":0.87262},"tolerance:":2}
+{"epoch":40,"time":1071.61568,"train_loss":60.35174}
+{"epoch":40,"val_loss":35.92309,"val_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89452},"test_metric":{"accuracy":0.88719,"micro":0.88719,"macro":0.88692},"tolerance:":3}
+{"epoch":41,"time":1100.42654,"train_loss":53.97751}
+{"epoch":41,"val_loss":40.12731,"val_metric":{"accuracy":0.89197,"micro":0.89197,"macro":0.89217},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89598},"tolerance:":4}
+{"epoch":42,"time":1128.91979,"train_loss":52.92023}
+{"epoch":42,"val_loss":34.95186,"val_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.9007},"test_metric":{"accuracy":0.89101,"micro":0.89101,"macro":0.89547},"tolerance:":0}
+{"epoch":43,"time":1157.98917,"train_loss":54.56894}
+{"epoch":43,"val_loss":36.07296,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90779},"test_metric":{"accuracy":0.88337,"micro":0.88337,"macro":0.88405},"tolerance:":0}
+{"epoch":44,"time":1186.49962,"train_loss":54.08761}
+{"epoch":44,"val_loss":34.39149,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90237},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89603},"tolerance:":1}
+{"epoch":45,"time":1215.1965,"train_loss":52.22773}
+{"epoch":45,"val_loss":33.98041,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90747},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.90089},"tolerance:":0}
+{"epoch":46,"time":1244.15884,"train_loss":54.84294}
+{"epoch":46,"val_loss":35.20919,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90707},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90733},"tolerance:":1}
+{"epoch":47,"time":1272.85199,"train_loss":54.44429}
+{"epoch":47,"val_loss":34.65891,"val_metric":{"accuracy":0.89579,"micro":0.89579,"macro":0.89408},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90545},"tolerance:":2}
+{"epoch":48,"time":1301.15695,"train_loss":46.46649}
+{"epoch":48,"val_loss":34.68701,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90709},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89442},"tolerance:":3}
+{"epoch":49,"time":1330.26451,"train_loss":50.57273}
+{"epoch":49,"val_loss":35.34776,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90292},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.91016},"tolerance:":4}
+{"epoch":50,"time":1359.1454,"train_loss":48.55194}
+{"epoch":50,"val_loss":33.49982,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90575},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90479},"tolerance:":0}
+{"epoch":51,"time":1387.90674,"train_loss":49.68596}
+{"epoch":51,"val_loss":34.70428,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90835},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90163},"tolerance:":0}
+{"epoch":52,"time":1417.08077,"train_loss":45.7493}
+{"epoch":52,"val_loss":36.05782,"val_metric":{"accuracy":0.90153,"micro":0.90153,"macro":0.89696},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89706},"tolerance:":1}
+{"epoch":53,"time":1445.63549,"train_loss":45.86535}
+{"epoch":53,"val_loss":33.26245,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90914},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.90005},"tolerance:":0}
+{"epoch":54,"time":1474.63759,"train_loss":47.6556}
+{"epoch":54,"val_loss":34.06041,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90786},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90377},"tolerance:":1}
+{"epoch":55,"time":1503.58896,"train_loss":45.20342}
+{"epoch":55,"val_loss":35.06028,"val_metric":{"accuracy":0.89962,"micro":0.89962,"macro":0.89761},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90497},"tolerance:":2}
+{"epoch":56,"time":1532.27394,"train_loss":44.12895}
+{"epoch":56,"val_loss":33.76752,"val_metric":{"accuracy":0.89962,"micro":0.89962,"macro":0.89712},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90412},"tolerance:":3}
+{"epoch":57,"time":1561.1067,"train_loss":46.51019}
+{"epoch":57,"val_loss":33.24817,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90798},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90696},"tolerance:":0}
+{"epoch":58,"time":1589.89651,"train_loss":43.89139}
+{"epoch":58,"val_loss":34.71134,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90307},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90259},"tolerance:":1}
+{"epoch":59,"time":1618.62003,"train_loss":42.25198}
+{"epoch":59,"val_loss":33.53294,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90559},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90478},"tolerance:":2}
+{"epoch":60,"time":1647.75603,"train_loss":44.5958}
+{"epoch":60,"val_loss":36.12957,"val_metric":{"accuracy":0.89962,"micro":0.89962,"macro":0.89749},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89443},"tolerance:":3}
+{"epoch":61,"time":1676.15232,"train_loss":43.12989}
+{"epoch":61,"val_loss":35.79564,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90227},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90532},"tolerance:":4}
+{"epoch":62,"time":1705.28042,"train_loss":46.133}
+{"epoch":62,"val_loss":34.01204,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90573},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90533},"tolerance:":5}
+{"epoch":63,"time":1734.05063,"train_loss":46.36678}
+{"epoch":63,"val_loss":33.62578,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90318},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89884},"tolerance:":6}
+{"epoch":64,"time":1763.1057,"train_loss":44.13508}
+{"epoch":64,"val_loss":34.32295,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.90077},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90741},"tolerance:":7}
+{"epoch":65,"time":1791.98091,"train_loss":39.55118}
+{"epoch":65,"val_loss":35.29272,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90432},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90469},"tolerance:":8}
+{"epoch":66,"time":1820.46554,"train_loss":47.7061}
+{"epoch":66,"val_loss":34.31358,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90745},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90773},"tolerance:":9}
+{"epoch":67,"time":1849.46609,"train_loss":39.6435}
+{"epoch":67,"val_loss":35.03633,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90773},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90295},"tolerance:":0}
+{"epoch":68,"time":1877.98351,"train_loss":40.57728}
+{"epoch":68,"val_loss":35.33709,"val_metric":{"accuracy":0.913,"micro":0.913,"macro":0.91088},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90249},"tolerance:":0}
+{"epoch":69,"time":1906.99615,"train_loss":42.90659}
+{"epoch":69,"val_loss":33.81731,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.90145},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90229},"tolerance:":1}
+{"epoch":70,"time":1935.92496,"train_loss":39.77014}
+{"epoch":70,"val_loss":34.81948,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90128},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89884},"tolerance:":2}
+{"epoch":71,"time":1965.02327,"train_loss":39.46014}
+{"epoch":71,"val_loss":34.27762,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90448},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89863},"tolerance:":3}
+{"epoch":72,"time":1993.89083,"train_loss":45.16154}
+{"epoch":72,"val_loss":33.69567,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90518},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90892},"tolerance:":4}
+{"epoch":73,"time":2022.82807,"train_loss":41.18649}
+{"epoch":73,"val_loss":32.87642,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90913},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90719},"tolerance:":5}
+{"epoch":74,"time":2051.7745,"train_loss":40.169}
+{"epoch":74,"val_loss":36.29916,"val_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89583},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89929},"tolerance:":6}
+{"epoch":75,"time":2080.60429,"train_loss":42.93853}
+{"epoch":75,"val_loss":35.25196,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90404},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89283},"tolerance:":7}
+{"epoch":76,"time":2109.5057,"train_loss":41.06436}
+{"epoch":76,"val_loss":34.0849,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90158},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90336},"tolerance:":8}
+{"epoch":77,"time":2138.19841,"train_loss":39.1601}
+{"epoch":77,"val_loss":33.93223,"val_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.90998},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89937},"tolerance:":9}
+{"epoch":78,"time":2167.32816,"train_loss":44.92074}
+{"epoch":78,"val_loss":33.52021,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90837},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90492},"tolerance:":10}
+{"epoch":79,"time":2196.15755,"train_loss":42.12239}
+{"epoch":79,"val_loss":34.30919,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90367},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90403},"tolerance:":11}
+{"epoch":80,"time":2224.87781,"train_loss":43.61913}
+{"epoch":80,"val_loss":33.44024,"val_metric":{"accuracy":0.91109,"micro":0.91109,"macro":0.90922},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90183},"tolerance:":12}
+{"epoch":81,"time":2253.69241,"train_loss":43.78647}
+{"epoch":81,"val_loss":33.87099,"val_metric":{"accuracy":0.89962,"micro":0.89962,"macro":0.89666},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90884},"tolerance:":13}
+{"epoch":82,"time":2282.3339,"train_loss":40.01395}
+{"epoch":82,"val_loss":33.90587,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90681},"test_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.91119},"tolerance:":14}
+{"epoch":83,"time":2311.41957,"train_loss":38.91135}
+{"epoch":83,"val_loss":33.22698,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90518},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90799},"tolerance:":15}
+{"epoch":84,"time":2340.19205,"train_loss":41.79848}
+{"epoch":84,"val_loss":37.39775,"val_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89589},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.91015},"tolerance:":16}
+{"epoch":85,"time":2369.17415,"train_loss":40.8749}
+{"epoch":85,"val_loss":34.34548,"val_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.90918},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90785},"tolerance:":17}
+{"epoch":86,"time":2397.72418,"train_loss":42.35928}
+{"epoch":86,"val_loss":33.78657,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90439},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89998},"tolerance:":18}
+{"epoch":87,"time":2426.10463,"train_loss":40.7318}
+{"epoch":87,"val_loss":33.97851,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90681},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90449},"tolerance:":19}
+{"epoch":88,"time":2455.08603,"train_loss":40.55119}
+{"epoch":88,"val_loss":33.98295,"val_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89794},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90584},"tolerance:":20}
+{"epoch":89,"time":2484.18481,"train_loss":36.89412}
+{"epoch":89,"val_loss":35.29724,"val_metric":{"accuracy":0.90153,"micro":0.90153,"macro":0.90038},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90279},"tolerance:":21}
+{"epoch":90,"time":2513.15084,"train_loss":40.04225}
+{"epoch":90,"val_loss":34.86441,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90322},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89551},"tolerance:":22}
+{"epoch":91,"time":2541.98988,"train_loss":39.3385}
+{"epoch":91,"val_loss":35.62898,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90137},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90898},"tolerance:":23}
+{"epoch":92,"time":2571.11587,"train_loss":38.21761}
+{"epoch":92,"val_loss":33.80957,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90096},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90818},"tolerance:":24}
+{"epoch":93,"time":2600.23792,"train_loss":41.16976}
+{"epoch":93,"val_loss":33.27376,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90484},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89866},"tolerance:":25}
+{"epoch":94,"time":2629.40127,"train_loss":40.39846}
+{"epoch":94,"val_loss":32.6523,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90927},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.90058},"tolerance:":26}
+{"epoch":95,"time":2658.35951,"train_loss":41.73412}
+{"epoch":95,"val_loss":35.4193,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90324},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.90031},"tolerance:":27}
+{"epoch":96,"time":2686.93557,"train_loss":40.69199}
+{"epoch":96,"val_loss":32.59304,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90641},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90626},"tolerance:":28}
+{"epoch":97,"time":2716.16572,"train_loss":37.72171}
+{"epoch":97,"val_loss":36.19325,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90239},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90631},"tolerance:":29}
+{"epoch":98,"time":2745.53314,"train_loss":37.80411}
+{"epoch":98,"val_loss":35.70246,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90248},"test_metric":{"accuracy":0.88528,"micro":0.88528,"macro":0.88522},"tolerance:":30}
+{"epoch":99,"time":2774.82239,"train_loss":45.06314}
+{"epoch":99,"val_loss":34.70926,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90717},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90122},"tolerance:":31}
+{"epoch":100,"time":2803.78237,"train_loss":36.87975}
+{"epoch":100,"val_loss":34.63553,"val_metric":{"accuracy":0.913,"micro":0.913,"macro":0.90982},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89444},"tolerance:":0}
+{"epoch":101,"time":2832.98067,"train_loss":39.43794}
+{"epoch":101,"val_loss":35.15292,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90255},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90521},"tolerance:":1}
+{"epoch":102,"time":2862.24416,"train_loss":43.11225}
+{"epoch":102,"val_loss":33.49167,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90397},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90309},"tolerance:":2}
+{"epoch":103,"time":2890.86114,"train_loss":36.40065}
+{"epoch":103,"val_loss":34.94267,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90629},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89816},"tolerance:":3}
+{"epoch":104,"time":2919.79972,"train_loss":32.94603}
+{"epoch":104,"val_loss":35.27737,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90602},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90387},"tolerance:":4}
+{"epoch":105,"time":2948.77925,"train_loss":40.63663}
+{"epoch":105,"val_loss":35.5941,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.89942},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89811},"tolerance:":5}
+{"epoch":106,"time":2977.24914,"train_loss":38.02579}
+{"epoch":106,"val_loss":36.46232,"val_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89657},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89872},"tolerance:":6}
+{"epoch":107,"time":3006.20167,"train_loss":41.88245}
+{"epoch":107,"val_loss":34.09936,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.9013},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89837},"tolerance:":7}
+{"epoch":108,"time":3035.17418,"train_loss":38.03303}
+{"epoch":108,"val_loss":34.76392,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90664},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90707},"tolerance:":8}
+{"epoch":109,"time":3063.95142,"train_loss":37.17677}
+{"epoch":109,"val_loss":35.87425,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90194},"test_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.91097},"tolerance:":9}
+{"epoch":110,"time":3092.57305,"train_loss":38.71767}
+{"epoch":110,"val_loss":38.43374,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90089},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90434},"tolerance:":10}
+{"epoch":111,"time":3121.68612,"train_loss":38.3998}
+{"epoch":111,"val_loss":33.82305,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90205},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.9008},"tolerance:":11}
+{"epoch":112,"time":3151.00801,"train_loss":40.97312}
+{"epoch":112,"val_loss":33.69054,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90653},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90302},"tolerance:":12}
+{"epoch":113,"time":3180.33737,"train_loss":36.25526}
+{"epoch":113,"val_loss":36.65918,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.90133},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90123},"tolerance:":13}
+{"epoch":114,"time":3209.36755,"train_loss":36.54965}
+{"epoch":114,"val_loss":35.49258,"val_metric":{"accuracy":0.91109,"micro":0.91109,"macro":0.90834},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89603},"tolerance:":14}
+{"epoch":115,"time":3238.334,"train_loss":37.33308}
+{"epoch":115,"val_loss":35.88007,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90448},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89639},"tolerance:":15}
+{"epoch":116,"time":3267.40122,"train_loss":38.73875}
+{"epoch":116,"val_loss":34.94325,"val_metric":{"accuracy":0.91109,"micro":0.91109,"macro":0.90595},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90045},"tolerance:":16}
+{"epoch":117,"time":3296.81319,"train_loss":36.21468}
+{"epoch":117,"val_loss":33.85835,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90358},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90483},"tolerance:":17}
+{"epoch":118,"time":3325.21651,"train_loss":37.06448}
+{"epoch":118,"val_loss":36.73543,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90483},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90916},"tolerance:":18}
+{"epoch":119,"time":3354.22171,"train_loss":32.96377}
+{"epoch":119,"val_loss":35.64144,"val_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.90741},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90568},"tolerance:":19}
+{"epoch":120,"time":3383.39123,"train_loss":37.94036}
+{"epoch":120,"val_loss":34.90446,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90562},"test_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.91071},"tolerance:":20}
+{"epoch":121,"time":3412.39069,"train_loss":38.94471}
+{"epoch":121,"val_loss":35.4293,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.89988},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90189},"tolerance:":21}
+{"epoch":122,"time":3441.51125,"train_loss":35.94928}
+{"epoch":122,"val_loss":36.40078,"val_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.8985},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89526},"tolerance:":22}
+{"epoch":123,"time":3470.20853,"train_loss":36.2441}
+{"epoch":123,"val_loss":36.15003,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90199},"test_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.91157},"tolerance:":23}
+{"epoch":124,"time":3498.96124,"train_loss":39.7557}
+{"epoch":124,"val_loss":34.40014,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90735},"test_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.912},"tolerance:":24}
+{"epoch":125,"time":3528.00863,"train_loss":36.57021}
+{"epoch":125,"val_loss":35.34698,"val_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.89947},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90491},"tolerance:":25}
+{"epoch":126,"time":3556.54147,"train_loss":37.63422}
+{"epoch":126,"val_loss":36.31987,"val_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.89595},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90347},"tolerance:":26}
+{"epoch":127,"time":3585.83117,"train_loss":37.94401}
+{"epoch":127,"val_loss":35.87268,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90418},"test_metric":{"accuracy":0.91396,"micro":0.91396,"macro":0.91599},"tolerance:":27}
+{"epoch":128,"time":3614.4636,"train_loss":36.61469}
+{"epoch":128,"val_loss":34.53692,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90326},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90236},"tolerance:":28}
+{"epoch":129,"time":3643.06948,"train_loss":37.93106}
+{"epoch":129,"val_loss":36.93716,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90393},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89909},"tolerance:":29}
+{"epoch":130,"time":3671.90617,"train_loss":37.13121}
+{"epoch":130,"val_loss":40.33171,"val_metric":{"accuracy":0.89197,"micro":0.89197,"macro":0.89181},"test_metric":{"accuracy":0.8891,"micro":0.8891,"macro":0.89184},"tolerance:":30}
+{"epoch":131,"time":3701.13968,"train_loss":35.8954}
+{"epoch":131,"val_loss":35.57372,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90754},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90565},"tolerance:":31}
+{"epoch":132,"time":3730.12295,"train_loss":40.30661}
+{"epoch":132,"val_loss":34.72666,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.9029},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89791},"tolerance:":32}
+{"epoch":133,"time":3758.85852,"train_loss":33.70663}
+{"epoch":133,"val_loss":37.28365,"val_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.90963},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90626},"tolerance:":33}
+{"epoch":134,"time":3787.93512,"train_loss":38.3177}
+{"epoch":134,"val_loss":35.04681,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90645},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.9088},"tolerance:":34}
+{"epoch":135,"time":3816.77159,"train_loss":37.97935}
+{"epoch":135,"val_loss":35.0839,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.9052},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90742},"tolerance:":35}
+{"epoch":136,"time":3845.8731,"train_loss":32.1439}
+{"epoch":136,"val_loss":36.34305,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.89844},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90241},"tolerance:":36}
+{"epoch":137,"time":3874.08666,"train_loss":36.22677}
+{"epoch":137,"val_loss":37.91734,"val_metric":{"accuracy":0.89579,"micro":0.89579,"macro":0.8943},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89774},"tolerance:":37}
+{"epoch":138,"time":3903.22886,"train_loss":35.55118}
+{"epoch":138,"val_loss":35.05042,"val_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.90918},"test_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.91524},"tolerance:":38}
+{"epoch":139,"time":3932.60397,"train_loss":34.75858}
+{"epoch":139,"val_loss":35.83076,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90812},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90741},"tolerance:":39}
+{"epoch":140,"time":3961.90285,"train_loss":33.19434}
+{"epoch":140,"val_loss":36.48757,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90349},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90386},"tolerance:":40}
+{"epoch":141,"time":3990.77274,"train_loss":35.02552}
+{"epoch":141,"val_loss":37.68418,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.9043},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90685},"tolerance:":41}
+{"epoch":142,"time":4019.20968,"train_loss":35.55805}
+{"epoch":142,"val_loss":37.16299,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90254},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90026},"tolerance:":42}
+{"epoch":143,"time":4048.03421,"train_loss":34.3176}
+{"epoch":143,"val_loss":35.31826,"val_metric":{"accuracy":0.91109,"micro":0.91109,"macro":0.9082},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90309},"tolerance:":43}
+{"epoch":144,"time":4077.33984,"train_loss":35.32003}
+{"epoch":144,"val_loss":35.07656,"val_metric":{"accuracy":0.91396,"micro":0.91396,"macro":0.91192},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90548},"tolerance:":0}
+{"epoch":145,"time":4106.10162,"train_loss":33.75589}
+{"epoch":145,"val_loss":37.02968,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90472},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89883},"tolerance:":1}
+{"epoch":146,"time":4135.28932,"train_loss":33.14453}
+{"epoch":146,"val_loss":38.58748,"val_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89439},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.91073},"tolerance:":2}
+{"epoch":147,"time":4164.61647,"train_loss":38.15286}
+{"epoch":147,"val_loss":35.0956,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90737},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89653},"tolerance:":3}
+{"epoch":148,"time":4193.90217,"train_loss":35.85588}
+{"epoch":148,"val_loss":34.52236,"val_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.9093},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89675},"tolerance:":4}
+{"epoch":149,"time":4223.0305,"train_loss":35.45267}
+{"epoch":149,"val_loss":34.91941,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90759},"test_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.91191},"tolerance:":5}
+{"epoch":150,"time":4252.23558,"train_loss":34.87495}
+{"epoch":150,"val_loss":37.01097,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90326},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89761},"tolerance:":6}
+{"epoch":151,"time":4281.46288,"train_loss":31.34206}
+{"epoch":151,"val_loss":39.15909,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90411},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90207},"tolerance:":7}
+{"epoch":152,"time":4310.36805,"train_loss":35.49611}
+{"epoch":152,"val_loss":36.28945,"val_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.91095},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90931},"tolerance:":8}
+{"epoch":153,"time":4339.82658,"train_loss":31.26053}
+{"epoch":153,"val_loss":36.64709,"val_metric":{"accuracy":0.91109,"micro":0.91109,"macro":0.9106},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90629},"tolerance:":9}
+{"epoch":154,"time":4368.93647,"train_loss":35.22357}
+{"epoch":154,"val_loss":34.38912,"val_metric":{"accuracy":0.91491,"micro":0.91491,"macro":0.91288},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.90145},"tolerance:":0}
+{"epoch":155,"time":4398.11147,"train_loss":33.77595}
+{"epoch":155,"val_loss":36.13895,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90118},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90334},"tolerance:":1}
+{"epoch":156,"time":4427.30168,"train_loss":34.97699}
+{"epoch":156,"val_loss":34.80627,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.90082},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90417},"tolerance:":2}
+{"epoch":157,"time":4456.58999,"train_loss":30.3532}
+{"epoch":157,"val_loss":36.32927,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90445},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90708},"tolerance:":3}
+{"epoch":158,"time":4486.03531,"train_loss":33.65733}
+{"epoch":158,"val_loss":36.63124,"val_metric":{"accuracy":0.91491,"micro":0.91491,"macro":0.91355},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.9063},"tolerance:":4}
+{"epoch":159,"time":4515.24436,"train_loss":29.96436}
+{"epoch":159,"val_loss":39.11464,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90168},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90249},"tolerance:":5}
+{"epoch":160,"time":4544.61402,"train_loss":33.62583}
+{"epoch":160,"val_loss":35.69005,"val_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.91055},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89607},"tolerance:":6}
+{"epoch":161,"time":4573.52066,"train_loss":34.89127}
+{"epoch":161,"val_loss":35.91031,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90559},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89684},"tolerance:":7}
+{"epoch":162,"time":4602.5646,"train_loss":29.13784}
+{"epoch":162,"val_loss":36.58181,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.90042},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90012},"tolerance:":8}
+{"epoch":163,"time":4631.30047,"train_loss":33.86913}
+{"epoch":163,"val_loss":35.6282,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90571},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90555},"tolerance:":9}
+{"epoch":164,"time":4660.21236,"train_loss":33.34308}
+{"epoch":164,"val_loss":35.84278,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90257},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90119},"tolerance:":10}
+{"epoch":165,"time":4689.37627,"train_loss":31.94132}
+{"epoch":165,"val_loss":36.91036,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90386},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89968},"tolerance:":11}
+{"epoch":166,"time":4718.6984,"train_loss":29.69687}
+{"epoch":166,"val_loss":37.81784,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90377},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90729},"tolerance:":12}
+{"epoch":167,"time":4748.14394,"train_loss":32.76167}
+{"epoch":167,"val_loss":37.18332,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90594},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89892},"tolerance:":13}
+{"epoch":168,"time":4777.38902,"train_loss":36.59485}
+{"epoch":168,"val_loss":35.78425,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90548},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90258},"tolerance:":14}
+{"epoch":169,"time":4806.41789,"train_loss":30.76832}
+{"epoch":169,"val_loss":37.61848,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90726},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90399},"tolerance:":15}
+{"epoch":170,"time":4835.07629,"train_loss":33.55899}
+{"epoch":170,"val_loss":36.13049,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90542},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90439},"tolerance:":16}
+{"epoch":171,"time":4864.29665,"train_loss":33.75526}
+{"epoch":171,"val_loss":35.99019,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90881},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90071},"tolerance:":17}
+{"epoch":172,"time":4893.69855,"train_loss":31.62494}
+{"epoch":172,"val_loss":35.4017,"val_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.90868},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90718},"tolerance:":18}
+{"epoch":173,"time":4922.69151,"train_loss":35.8236}
+{"epoch":173,"val_loss":38.6688,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90422},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90431},"tolerance:":19}
+{"epoch":174,"time":4951.61003,"train_loss":32.08679}
+{"epoch":174,"val_loss":36.91416,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.90067},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.90108},"tolerance:":20}
+{"epoch":175,"time":4980.62752,"train_loss":32.54471}
+{"epoch":175,"val_loss":37.57493,"val_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89708},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89828},"tolerance:":21}
+{"epoch":176,"time":5009.64539,"train_loss":34.38176}
+{"epoch":176,"val_loss":36.35273,"val_metric":{"accuracy":0.89771,"micro":0.89771,"macro":0.89546},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89852},"tolerance:":22}
+{"epoch":177,"time":5039.02136,"train_loss":33.38434}
+{"epoch":177,"val_loss":36.37531,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.9065},"test_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90968},"tolerance:":23}
+{"epoch":178,"time":5068.57213,"train_loss":31.92732}
+{"epoch":178,"val_loss":36.62006,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.9019},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90315},"tolerance:":24}
+{"epoch":179,"time":5097.76495,"train_loss":30.32936}
+{"epoch":179,"val_loss":37.49877,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90312},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90596},"tolerance:":25}
+{"epoch":180,"time":5126.94501,"train_loss":30.00339}
+{"epoch":180,"val_loss":38.07978,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90305},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90488},"tolerance:":26}
+{"epoch":181,"time":5156.14964,"train_loss":33.48502}
+{"epoch":181,"val_loss":38.63782,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90325},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89637},"tolerance:":27}
+{"epoch":182,"time":5184.99584,"train_loss":31.58927}
+{"epoch":182,"val_loss":38.32488,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90441},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90368},"tolerance:":28}
+{"epoch":183,"time":5214.05257,"train_loss":30.76493}
+{"epoch":183,"val_loss":38.87414,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90322},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89951},"tolerance:":29}
+{"epoch":184,"time":5243.29618,"train_loss":35.35102}
+{"epoch":184,"val_loss":36.76959,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.9018},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89951},"tolerance:":30}
+{"epoch":185,"time":5272.32032,"train_loss":32.33935}
+{"epoch":185,"val_loss":39.37203,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.89922},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.8953},"tolerance:":31}
+{"epoch":186,"time":5301.31802,"train_loss":34.27329}
+{"epoch":186,"val_loss":36.86598,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.90237},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90296},"tolerance:":32}
+{"epoch":187,"time":5330.34371,"train_loss":34.61072}
+{"epoch":187,"val_loss":37.20739,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.90253},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90758},"tolerance:":33}
+{"epoch":188,"time":5359.52785,"train_loss":29.20064}
+{"epoch":188,"val_loss":39.99636,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90073},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90437},"tolerance:":34}
+{"epoch":189,"time":5388.7266,"train_loss":31.39533}
+{"epoch":189,"val_loss":41.73441,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90283},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90477},"tolerance:":35}
+{"epoch":190,"time":5418.06615,"train_loss":29.55922}
+{"epoch":190,"val_loss":40.56931,"val_metric":{"accuracy":0.89962,"micro":0.89962,"macro":0.89593},"test_metric":{"accuracy":0.8891,"micro":0.8891,"macro":0.88901},"tolerance:":36}
+{"epoch":191,"time":5447.16941,"train_loss":32.77269}
+{"epoch":191,"val_loss":37.89393,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.89913},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89705},"tolerance:":37}
+{"epoch":192,"time":5476.62615,"train_loss":31.31163}
+{"epoch":192,"val_loss":38.42816,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90786},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90612},"tolerance:":38}
+{"epoch":193,"time":5505.78499,"train_loss":29.21141}
+{"epoch":193,"val_loss":39.26145,"val_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.89798},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90522},"tolerance:":39}
+{"epoch":194,"time":5534.69034,"train_loss":29.37347}
+{"epoch":194,"val_loss":37.86358,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90479},"test_metric":{"accuracy":0.8891,"micro":0.8891,"macro":0.89044},"tolerance:":40}
+{"epoch":195,"time":5563.2774,"train_loss":37.08505}
+{"epoch":195,"val_loss":35.50676,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.9015},"test_metric":{"accuracy":0.89101,"micro":0.89101,"macro":0.89392},"tolerance:":41}
+{"epoch":196,"time":5592.26182,"train_loss":29.10243}
+{"epoch":196,"val_loss":37.86395,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90288},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90628},"tolerance:":42}
+{"epoch":197,"time":5621.02787,"train_loss":33.75613}
+{"epoch":197,"val_loss":37.25239,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90436},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89631},"tolerance:":43}
+{"epoch":198,"time":5650.1378,"train_loss":30.09131}
+{"epoch":198,"val_loss":36.93529,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90619},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89817},"tolerance:":44}
+{"epoch":199,"time":5678.9129,"train_loss":30.10024}
+{"epoch":199,"val_loss":38.99996,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90411},"test_metric":{"accuracy":0.8891,"micro":0.8891,"macro":0.89024},"tolerance:":45}
+{"epoch":200,"time":5707.68533,"train_loss":30.24134}
+{"epoch":200,"val_loss":44.22372,"val_metric":{"accuracy":0.89579,"micro":0.89579,"macro":0.89025},"test_metric":{"accuracy":0.89101,"micro":0.89101,"macro":0.89087},"tolerance:":46}
+{"epoch":201,"time":5736.73142,"train_loss":35.63159}
+{"epoch":201,"val_loss":37.40402,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90357},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90116},"tolerance:":47}
+{"epoch":202,"time":5765.91363,"train_loss":34.42153}
+{"epoch":202,"val_loss":37.68202,"val_metric":{"accuracy":0.89579,"micro":0.89579,"macro":0.89379},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89404},"tolerance:":48}
+{"epoch":203,"time":5795.39764,"train_loss":27.71414}
+{"epoch":203,"val_loss":39.41566,"val_metric":{"accuracy":0.90153,"micro":0.90153,"macro":0.89854},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90621},"tolerance:":49}
+{"epoch":204,"time":5824.08813,"train_loss":30.55521}
+{"epoch":204,"val_loss":39.17055,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90537},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90529},"tolerance:":50}
+{"epoch":205,"time":5853.48466,"train_loss":32.78708}
+{"epoch":205,"val_loss":37.23633,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.89963},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89452},"tolerance:":51}
+{"epoch":206,"time":5882.39086,"train_loss":30.66443}
+{"epoch":206,"val_loss":37.37762,"val_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89442},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.90074},"tolerance:":52}
+{"epoch":207,"time":5911.43652,"train_loss":28.39986}
+{"epoch":207,"val_loss":48.73007,"val_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.8925},"test_metric":{"accuracy":0.8891,"micro":0.8891,"macro":0.89007},"tolerance:":53}
+{"epoch":208,"time":5940.31786,"train_loss":29.0211}
+{"epoch":208,"val_loss":41.17753,"val_metric":{"accuracy":0.89006,"micro":0.89006,"macro":0.88972},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89505},"tolerance:":54}
+{"epoch":209,"time":5969.3185,"train_loss":29.82128}
+{"epoch":209,"val_loss":39.91109,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90421},"test_metric":{"accuracy":0.8891,"micro":0.8891,"macro":0.8892},"tolerance:":55}
+{"epoch":210,"time":5998.42842,"train_loss":30.63396}
+{"epoch":210,"val_loss":38.67792,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.90005},"test_metric":{"accuracy":0.8891,"micro":0.8891,"macro":0.88804},"tolerance:":56}
+{"epoch":211,"time":6027.24313,"train_loss":29.87313}
+{"epoch":211,"val_loss":39.67882,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90332},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89339},"tolerance:":57}
+{"epoch":212,"time":6056.19279,"train_loss":32.4633}
+{"epoch":212,"val_loss":37.8973,"val_metric":{"accuracy":0.89579,"micro":0.89579,"macro":0.89478},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89851},"tolerance:":58}
+{"epoch":213,"time":6085.20267,"train_loss":31.29462}
+{"epoch":213,"val_loss":37.57474,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.89931},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89539},"tolerance:":59}
+{"epoch":214,"time":6114.1118,"train_loss":27.74999}
+{"epoch":214,"val_loss":38.83021,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90578},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.89987},"tolerance:":60}
+{"epoch":215,"time":6143.23709,"train_loss":29.44658}
+{"epoch":215,"val_loss":38.936,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90465},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89961},"tolerance:":61}
+{"epoch":216,"time":6172.55379,"train_loss":30.0968}
+{"epoch":216,"val_loss":39.74193,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90177},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90018},"tolerance:":62}
+{"epoch":217,"time":6201.33578,"train_loss":26.90807}
+{"epoch":217,"val_loss":37.94289,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90305},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89807},"tolerance:":63}
+{"epoch":218,"time":6230.87884,"train_loss":30.65801}
+{"epoch":218,"val_loss":38.74987,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.9041},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90821},"tolerance:":64}
+{"epoch":219,"time":6259.67245,"train_loss":30.00137}
+{"epoch":219,"val_loss":37.63824,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90353},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90146},"tolerance:":65}
+{"epoch":220,"time":6288.44574,"train_loss":32.05214}
+{"epoch":220,"val_loss":35.61547,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90254},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89455},"tolerance:":66}
+{"epoch":221,"time":6317.01892,"train_loss":28.73886}
+{"epoch":221,"val_loss":41.0681,"val_metric":{"accuracy":0.90344,"micro":0.90344,"macro":0.90089},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90184},"tolerance:":67}
+{"epoch":222,"time":6345.88073,"train_loss":28.29884}
+{"epoch":222,"val_loss":40.45931,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90399},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90162},"tolerance:":68}
+{"epoch":223,"time":6374.89466,"train_loss":31.92524}
+{"epoch":223,"val_loss":37.18941,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.89964},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89739},"tolerance:":69}
+{"epoch":224,"time":6403.8998,"train_loss":33.73668}
+{"epoch":224,"val_loss":39.20845,"val_metric":{"accuracy":0.90153,"micro":0.90153,"macro":0.89743},"test_metric":{"accuracy":0.8891,"micro":0.8891,"macro":0.88761},"tolerance:":70}
+{"epoch":225,"time":6432.86523,"train_loss":27.42461}
+{"epoch":225,"val_loss":41.28323,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90099},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89516},"tolerance:":71}
+{"epoch":226,"time":6461.62441,"train_loss":30.79268}
+{"epoch":226,"val_loss":41.49895,"val_metric":{"accuracy":0.89771,"micro":0.89771,"macro":0.89518},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89436},"tolerance:":72}
+{"epoch":227,"time":6490.35762,"train_loss":34.55871}
+{"epoch":227,"val_loss":37.71259,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90657},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89616},"tolerance:":73}
+{"epoch":228,"time":6519.37804,"train_loss":28.0423}
+{"epoch":228,"val_loss":39.87203,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.9043},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89797},"tolerance:":74}
+{"epoch":229,"time":6548.61684,"train_loss":30.726}
+{"epoch":229,"val_loss":39.54967,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90516},"test_metric":{"accuracy":0.8891,"micro":0.8891,"macro":0.89238},"tolerance:":75}
+{"epoch":230,"time":6577.8901,"train_loss":28.81469}
+{"epoch":230,"val_loss":39.95646,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90209},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89355},"tolerance:":76}
+{"epoch":231,"time":6607.17655,"train_loss":29.70264}
+{"epoch":231,"val_loss":38.20445,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90394},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.9035},"tolerance:":77}
+{"epoch":232,"time":6636.64497,"train_loss":31.17675}
+{"epoch":232,"val_loss":38.59787,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90591},"test_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90776},"tolerance:":78}
+{"epoch":233,"time":6665.7454,"train_loss":25.35476}
+{"epoch":233,"val_loss":40.06139,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90223},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.9066},"tolerance:":79}
+{"epoch":234,"time":6694.58752,"train_loss":30.79609}
+{"epoch":234,"val_loss":39.76086,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90249},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90172},"tolerance:":80}
+{"epoch":235,"time":6723.29821,"train_loss":29.02739}
+{"epoch":235,"val_loss":39.24294,"val_metric":{"accuracy":0.91013,"micro":0.91013,"macro":0.90683},"test_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90509},"tolerance:":81}
+{"epoch":236,"time":6752.27936,"train_loss":29.59823}
+{"epoch":236,"val_loss":36.37505,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90675},"test_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90958},"tolerance:":82}
+{"epoch":237,"time":6781.39535,"train_loss":24.83162}
+{"epoch":237,"val_loss":40.59694,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90371},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89683},"tolerance:":83}
+{"epoch":238,"time":6810.27469,"train_loss":28.97068}
+{"epoch":238,"val_loss":39.08147,"val_metric":{"accuracy":0.913,"micro":0.913,"macro":0.91055},"test_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90927},"tolerance:":84}
+{"epoch":239,"time":6839.23456,"train_loss":25.3067}
+{"epoch":239,"val_loss":39.27301,"val_metric":{"accuracy":0.91109,"micro":0.91109,"macro":0.90826},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90303},"tolerance:":85}
+{"epoch":240,"time":6868.79362,"train_loss":27.39259}
+{"epoch":240,"val_loss":42.36824,"val_metric":{"accuracy":0.90918,"micro":0.90918,"macro":0.90592},"test_metric":{"accuracy":0.89293,"micro":0.89293,"macro":0.89182},"tolerance:":86}
+{"epoch":241,"time":6897.85836,"train_loss":28.72342}
+{"epoch":241,"val_loss":39.80357,"val_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.8997},"test_metric":{"accuracy":0.88719,"micro":0.88719,"macro":0.88791},"tolerance:":87}
+{"epoch":242,"time":6926.78772,"train_loss":28.35969}
+{"epoch":242,"val_loss":38.39106,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90349},"test_metric":{"accuracy":0.89484,"micro":0.89484,"macro":0.89441},"tolerance:":88}
+{"epoch":243,"time":6956.08298,"train_loss":27.92726}
+{"epoch":243,"val_loss":40.06943,"val_metric":{"accuracy":0.90727,"micro":0.90727,"macro":0.90379},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90184},"tolerance:":89}
+{"epoch":244,"time":6985.73019,"train_loss":29.45567}
+{"epoch":244,"val_loss":39.84723,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90324},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.89795},"tolerance:":90}
+{"epoch":245,"time":7015.12362,"train_loss":29.60022}
+{"epoch":245,"val_loss":38.24833,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.9002},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90014},"tolerance:":91}
+{"epoch":246,"time":7044.32719,"train_loss":32.05922}
+{"epoch":246,"val_loss":40.18316,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90202},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.89812},"tolerance:":92}
+{"epoch":247,"time":7073.70808,"train_loss":28.02335}
+{"epoch":247,"val_loss":37.1619,"val_metric":{"accuracy":0.91205,"micro":0.91205,"macro":0.90722},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89863},"tolerance:":93}
+{"epoch":248,"time":7102.94098,"train_loss":27.98326}
+{"epoch":248,"val_loss":38.67598,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90295},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90175},"tolerance:":94}
+{"epoch":249,"time":7132.17764,"train_loss":28.45439}
+{"epoch":249,"val_loss":39.93515,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.906},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90329},"tolerance:":95}
+{"epoch":250,"time":7160.97205,"train_loss":31.20596}
+{"epoch":250,"val_loss":37.22255,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90207},"test_metric":{"accuracy":0.89866,"micro":0.89866,"macro":0.89921},"tolerance:":96}
+{"epoch":251,"time":7189.68259,"train_loss":29.36469}
+{"epoch":251,"val_loss":38.0732,"val_metric":{"accuracy":0.90535,"micro":0.90535,"macro":0.90345},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90272},"tolerance:":97}
+{"epoch":252,"time":7218.41757,"train_loss":26.66308}
+{"epoch":252,"val_loss":41.32897,"val_metric":{"accuracy":0.90631,"micro":0.90631,"macro":0.90346},"test_metric":{"accuracy":0.8891,"micro":0.8891,"macro":0.88868},"tolerance:":98}
+{"epoch":253,"time":7247.39905,"train_loss":29.80737}
+{"epoch":253,"val_loss":37.99197,"val_metric":{"accuracy":0.90822,"micro":0.90822,"macro":0.90567},"test_metric":{"accuracy":0.90057,"micro":0.90057,"macro":0.90205},"tolerance:":99}
+{"epoch":254,"time":7276.83989,"train_loss":29.75728}
+{"epoch":254,"val_loss":37.6837,"val_metric":{"accuracy":0.91109,"micro":0.91109,"macro":0.90804},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90332},"tolerance:":100}
+{"epoch":255,"time":7306.26206,"train_loss":27.54905}
+{"epoch":255,"val_loss":38.73377,"val_metric":{"accuracy":0.9044,"micro":0.9044,"macro":0.90069},"test_metric":{"accuracy":0.90249,"micro":0.90249,"macro":0.90366},"tolerance:":101}
+{"epoch":154,"val_loss":34.38912,"val_metric":{"accuracy":0.91491,"micro":0.91491,"macro":0.91288},"test_metric":{"accuracy":0.89675,"micro":0.89675,"macro":0.90145}}
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/functional.py:1386: UserWarning: nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.
+  warnings.warn("nn.functional.sigmoid is deprecated. Use torch.sigmoid instead.")
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/functional.py:1374: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1143: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no predicted samples.
+  'precision', 'predicted', average, warn_for)
+/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/sklearn/metrics/classification.py:1145: UndefinedMetricWarning: F-score is ill-defined and being set to 0.0 in labels with no true samples.
+  'recall', 'true', average, warn_for)
+-- done --

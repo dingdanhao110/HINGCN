@@ -94,14 +94,14 @@ def read_embed(path="../../../data/dblp2/",
 
     return features, n_nodes, n_feature
 
-def dump_edge_emb(path='data/dblp2/'):
+def dump_edge_emb(path='../../../data/dblp2/',emb_len=16):
     # dump APA
     APA_file = "APA"
     APAPA_file = "APAPA"
     APCPA_file = "APCPA"
 
-    APA_e,n_nodes,n_emb =read_embed(path=path,emb_file='APA')
-    APCPA_e,n_nodes,n_emb =read_embed(path=path,emb_file='APCPA')
+    APA_e,n_nodes,n_emb =read_embed(path=path,emb_file='APC',emb_len=emb_len)
+    APCPA_e,n_nodes,n_emb =read_embed(path=path,emb_file='APC',emb_len=emb_len)
 
     PA_file = "PA"
     PC_file = "PC"
@@ -533,6 +533,6 @@ def gen_walk(path='data/dblp2/'):
 
 #clean_dblp()
 #gen_homograph()
-dump_edge_emb()
+dump_edge_emb(emb_len=128)
 #gen_homoadj()
 #gen_walk()

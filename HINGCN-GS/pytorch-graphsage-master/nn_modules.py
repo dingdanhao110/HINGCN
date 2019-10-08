@@ -566,13 +566,15 @@ class AttentionAggregator2(nn.Module):
         x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
 
         ws = torch.bmm(neib_att, x_att).squeeze()
+       
         import math
-        #ws /= math.sqrt(512)
+        ws /= math.sqrt(512)
         #ws += -9999999 * mask
+        #ws = F.leaky_relu(ws)
         ws = F.softmax(ws, dim=1)
 
         #dropout for attention coefficient
-        #ws = F.dropout(ws,p=0.4,training=self.training)
+        ws = F.dropout(ws,p=0.3,training=self.training)
         #ws = F.normalize(ws,p=1,dim=1)
 
         # Weighted average of neighbors
@@ -658,11 +660,11 @@ class DenseAttentionAggregator(nn.Module):
 
             ws = x_att.mm(neib_att.t())  # +edge_att.view(N,-1)
             # ws = x_att+neib_att.t()
-            # ws = F.leaky_relu(ws)
+            ws = F.leaky_relu(ws)
             zero_vec = -9e15*torch.ones_like(ws)
             ws = torch.where(adjs[chunk_id] > 0, ws, zero_vec)
             ws = F.softmax(ws, dim=1)
-            ws = F.dropout(ws, 0.6, training=self.training)
+            ws = F.dropout(ws, 0.3, training=self.training)
             
             # Weighted average of neighbors
             agg_neib = torch.mm(ws, value)

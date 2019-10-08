@@ -15,7 +15,7 @@ from torch.nn import functional as F
 
 from lr import LRSchedule
 
-from nn_modules import GraphConvolution
+from nn_modules import GraphConvolution,IdEdgeAggregator
 
 # --
 # Model
@@ -88,7 +88,7 @@ class HINGCN_GS(nn.Module):
             input_dim = self.input_dim
             out_dim = 0
             for i, spec in enumerate(layer_specs):
-                if i == 0：
+                if i == 0:
                     edge = IdEdgeAggregator(
                         input_dim=input_dim,
                         edge_dim=self.edge_dim,

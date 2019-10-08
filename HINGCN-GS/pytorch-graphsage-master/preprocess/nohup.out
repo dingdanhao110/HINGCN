@@ -2,3 +2,63 @@ number of nodes:37342, embedding size:16
 compute edge embeddings BRURB complete
 compute edge embeddings BRKRB complete
 dump npz file ../../../data/yelp/edge17.npz complete
+Traceback (most recent call last):
+  File "yelp.py", line 454, in <module>
+    dump_yelp_edge_emb(path='data/yelp/')
+  File "yelp.py", line 75, in dump_yelp_edge_emb
+    dtype=np.int32)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/npyio.py", line 1737, in genfromtxt
+    fhd = iter(np.lib._datasource.open(fname, 'rt', encoding=encoding))
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/_datasource.py", line 266, in open
+    return ds.open(path, mode, encoding=encoding, newline=newline)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/numpy/lib/_datasource.py", line 624, in open
+    raise IOError("%s not found." % path)
+OSError: data/yelp/RB.txt not found.
+3492 33401 2502 4459
+Traceback (most recent call last):
+  File "yago.py", line 578, in <module>
+    dump_yago_edge_emb(path='../../../data/freebase/')
+  File "yago.py", line 256, in dump_yago_edge_emb
+    MAM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MAM_32")
+  File "yago.py", line 6, in read_embed
+    with open("{}{}.emb".format(path, emb_file)) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '../../../data/freebase/MAM_32.emb'
+3492 33401 2502 4459
+number of nodes:43854, embedding size:32
+number of nodes:43854, embedding size:32
+number of nodes:43854, embedding size:32
+compute edge embeddings MAM complete
+compute edge embeddings MDM complete
+compute edge embeddings MWM complete
+dump npz file ../../../data/freebase/edge34.npz complete
+3492 33401 2502 4459
+number of nodes:43854, embedding size:128
+number of nodes:43854, embedding size:128
+number of nodes:43854, embedding size:128
+compute edge embeddings MAM complete
+compute edge embeddings MDM complete
+compute edge embeddings MWM complete
+dump npz file ../../../data/freebase/edge130.npz complete
+3492 33401 2502 4459
+number of nodes:43854, embedding size:64
+number of nodes:43854, embedding size:64
+number of nodes:43854, embedding size:64
+compute edge embeddings MAM complete
+compute edge embeddings MDM complete
+compute edge embeddings MWM complete
+dump npz file ../../../data/freebase/edge66.npz complete
+number of nodes:37342, embedding size:32
+number of nodes:37342, embedding size:32
+compute edge embeddings BRURB complete
+compute edge embeddings BRKRB complete
+dump npz file ../../../data/yelp/edge34.npz complete
+number of nodes:37342, embedding size:64
+number of nodes:37342, embedding size:64
+compute edge embeddings BRURB complete
+compute edge embeddings BRKRB complete
+dump npz file ../../../data/yelp/edge66.npz complete
+number of nodes:37342, embedding size:128
+number of nodes:37342, embedding size:128
+compute edge embeddings BRURB complete
+compute edge embeddings BRKRB complete
+dump npz file ../../../data/yelp/edge130.npz complete

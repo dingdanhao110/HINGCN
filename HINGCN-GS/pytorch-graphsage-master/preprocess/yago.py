@@ -253,9 +253,9 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
                 MWMi[v][m].add(w)
 
 
-    MAM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MAM_16")
-    MDM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MDM_16")
-    MWM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MWM_16")
+    MAM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MADW_64")
+    MDM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MADW_64")
+    MWM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MADW_64")
     #print(n_nodes, emb_len)
 
     MAM_ps=sp.load_npz("{}{}".format(path, 'MAM_ps.npz')).todense()
@@ -575,7 +575,7 @@ def gen_homoadj(path):
 
 # gen_homograph(path='../../../data/freebase/')
 
-dump_yago_edge_emb(path='data/freebase/')
+dump_yago_edge_emb(path='../../../data/freebase/')
 
 #gen_yago_randomwalk(path='data/freebase/',
                      #walk_length=100,n_walks=1000)

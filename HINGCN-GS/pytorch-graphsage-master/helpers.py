@@ -184,7 +184,7 @@ def read_mpindex_yelp(path="../../data/yelp/"):
     feat = np.genfromtxt("{}{}.txt".format(path, feat_file),
                        dtype=np.float)
 
-    features = feat[:,:5]
+    features = feat[:,:2]
     #features = np.zeros((feat.shape[0],1))
     #features = np.eye(feat.shape[0])
 

@@ -41,7 +41,7 @@ def train_step(model, optimizer, ids, targets, loss_fn):
         weights=weights.cpu().detach().numpy()
         if len(weights.shape)>1:
             weights=np.sum(weights,axis=0)/weights.shape[0]
-        print(weights)
+#       print(weights)
     loss = loss_fn(preds, targets.squeeze())
     loss.backward()
     # torch.nn.utils.clip_grad_norm_(model.parameters(), 5)

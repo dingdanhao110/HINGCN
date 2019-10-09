@@ -1,0 +1,457 @@
+NodeProblem: loading started
+loading edge embedding for MAM complete, num of embeddings: 129098
+loading edge embedding for MDM complete, num of embeddings: 5949
+loading edge embedding for MWM complete, num of embeddings: 7100
+NodeProblem: loading finished
+Let's use 2 GPUs!
+DataParallel(
+  (module): HINGCN_GS(
+    (prep): NodeEmbeddingPrep(
+      (embedding): Embedding(3493, 32)
+      (fc): Linear(in_features=32, out_features=32, bias=True)
+    )
+    (agg_0_0): ModuleList(
+      (0): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_0_0): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (agg_0_1): ModuleList(
+      (0): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_0_1): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (agg_1_0): ModuleList(
+      (0): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_1_0): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (agg_1_1): ModuleList(
+      (0): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_1_1): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (agg_2_0): ModuleList(
+      (0): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=32, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=50, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=32, out_features=64, bias=False)
+        (fc_neib): Linear(in_features=50, out_features=64, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_2_0): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (agg_2_1): ModuleList(
+      (0): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (1): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (2): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+      (3): AttentionAggregator2(
+        (attn_dropout): Dropout(p=0.3)
+        (att): Sequential(
+          (0): Linear(in_features=256, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (att2): Sequential(
+          (0): Linear(in_features=274, out_features=512, bias=False)
+          (1): Tanh()
+          (2): Linear(in_features=512, out_features=512, bias=False)
+        )
+        (fc_x): Linear(in_features=256, out_features=16, bias=False)
+        (fc_neib): Linear(in_features=274, out_features=16, bias=False)
+        (dropout): Dropout(p=0.5)
+      )
+    )
+    (edge_2_1): IdEdgeAggregator(
+      (dropout): Dropout(p=0.5)
+    )
+    (mp_agg): MetapathGateLayer (320 -> 320)
+    (fc): Sequential(
+      (0): Linear(in_features=320, out_features=32, bias=True)
+      (1): ReLU()
+      (2): Dropout(p=0.5)
+      (3): Linear(in_features=32, out_features=3, bias=True)
+    )
+  )
+)
+Traceback (most recent call last):
+  File "train.py", line 245, in <module>
+    loss_fn=problem.loss_fn,
+  File "train.py", line 39, in train_step
+    preds,weights = model(ids, train=True)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 493, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/parallel/data_parallel.py", line 152, in forward
+    outputs = self.parallel_apply(replicas, inputs, kwargs)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/parallel/data_parallel.py", line 162, in parallel_apply
+    return parallel_apply(replicas, inputs, kwargs, self.device_ids[:len(replicas)])
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/parallel/parallel_apply.py", line 83, in parallel_apply
+    raise output
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/parallel/parallel_apply.py", line 59, in _worker
+    output = module(*input, **kwargs)
+  File "/home/daniel/local/opt/anaconda3/lib/python3.7/site-packages/torch/nn/modules/module.py", line 493, in __call__
+    result = self.forward(*input, **kwargs)
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/models.py", line 196, in forward
+    ) for k in range(len(all_edges))]
+  File "/home/daniel/Git/HINGCN/HINGCN-GS/pytorch-graphsage-master/models.py", line 196, in <listcomp>
+    ) for k in range(len(all_edges))]
+IndexError: list index out of range

@@ -1,0 +1,2 @@
+!# /bin/bash
+python3 train.py --problem-path ../../data/freebase/ --problem yago --batch-size 8 --lr-init 0.001 --dropout 0.5 --prep-class node_embedding --edgeupt-class identity --n-head 4 --aggregator-class attention2 --mpaggr-class gate --prep-len 32 --n-train-samples 600 --n-val-samples 1000 --attn-dropout 0.3 > experiment/freebase/edge_64.txt 

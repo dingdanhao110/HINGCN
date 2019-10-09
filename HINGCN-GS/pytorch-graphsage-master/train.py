@@ -39,9 +39,9 @@ def train_step(model, optimizer, ids, targets, loss_fn):
     preds,weights = model(ids, train=True)
     if weights is not None:
         weights=weights.cpu().detach().numpy()
-        if len(weights.shape)>1:
+        if len(weights.shape)>1 and weights.shape[0] is not 1:
             weights=np.sum(weights,axis=0)/weights.shape[0]
-#       print(weights)
+        print(weights)
     loss = loss_fn(preds, targets.squeeze())
     loss.backward()
     # torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
@@ -91,7 +91,7 @@ def parse_args():
     parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--batchnorm', action="store_true")
     parser.add_argument('--tolerance', type=int, default=100)
-
+    parser.add_argument('--attn-dropout',type=float,default=0)
     # Architecture params
     parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
     parser.add_argument('--aggregator-class', type=str, default='attention2')
@@ -165,14 +165,14 @@ if __name__ == "__main__":
                 "concat_node": args.concat_node,
                 "concat_edge": args.concat_edge,
             },
-            #{
-            #     "n_train_samples": n_train_samples[1],
-            #     "n_val_samples": n_val_samples[1],
-            #     "output_dim": output_dims[1],
-            #     "activation": F.relu,  # lambda x: x
-            #     "concat_node": args.concat_node,
-            #     "concat_edge": args.concat_edge,
-            #},
+            {
+                 "n_train_samples": n_train_samples[1],
+                 "n_val_samples": n_val_samples[1],
+                 "output_dim": output_dims[1],
+                 "activation": F.relu,  # lambda x: x
+                 "concat_node": args.concat_node,
+                 "concat_edge": args.concat_edge,
+            },
             # {
             #     "n_train_samples": n_train_samples[2],
             #     "n_val_samples": n_val_samples[2],
@@ -188,6 +188,7 @@ if __name__ == "__main__":
         # "weight_decay" : args.weight_decay,
         "dropout": args.dropout,
         "batchnorm": args.batchnorm,
+        "attn_dropout":args.attn_dropout,
     })
 
     if args.cuda:

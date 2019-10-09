@@ -521,10 +521,10 @@ class EdgeEmbAttentionAggregator(nn.Module):
 
 class AttentionAggregator2(nn.Module):
     def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=512,
-                 dropout=0.5,
+                 dropout=0.5,attn_dropout=0,
                  concat_node=True, concat_edge=True, batchnorm=False):
         super(AttentionAggregator2, self).__init__()
-
+        self.attn_dropout = nn.Dropout(p=attn_dropout)
         self.att = nn.Sequential(*[
             nn.Linear(input_dim, hidden_dim, bias=False),
             nn.Tanh(),
@@ -574,7 +574,7 @@ class AttentionAggregator2(nn.Module):
         ws = F.softmax(ws, dim=1)
 
         #dropout for attention coefficient
-        ws = F.dropout(ws,p=0.3,training=self.training)
+        ws = self.attn_dropout(ws)
         #ws = F.normalize(ws,p=1,dim=1)
 
         # Weighted average of neighbors
@@ -1141,7 +1141,7 @@ class MetapathAttentionLayer(nn.Module):
         output = torch.bmm(e, input).squeeze()
 
         output = self.dropout(output)
-        outout = self.mlp(output)
+        output = self.mlp(output)
 
         if self.batchnorm:
             output = self.bn(output)
@@ -1226,7 +1226,7 @@ class MetapathGateLayer(nn.Module):
         #output = torch.bmm(e, input).squeeze()
 
         output = self.dropout(output)
-        outout = self.mlp(output)
+        output = self.mlp(output)
 
         if self.batchnorm:
             output = self.bn(output)
@@ -1441,7 +1441,7 @@ class MetapathGRULayer(nn.Module):
         self.m = torch.sum(memory,dim=1).squeeze()/N
 
         output = self.dropout(output)
-        outout = self.mlp(output)
+        output = self.mlp(output)
 
         if self.batchnorm:
             output = self.bn(output)

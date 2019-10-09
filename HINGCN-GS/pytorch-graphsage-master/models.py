@@ -35,6 +35,7 @@ class HINGCN_GS(nn.Module):
                  sampler_class,
                  dropout,
                  batchnorm,
+                 attn_dropout=0,
                  bias=False,
                  ):
 
@@ -64,6 +65,7 @@ class HINGCN_GS(nn.Module):
         self.n_mp = n_mp
         self.depth = len(layer_specs)
         self.dropout = dropout
+        self.attn_dropout = attn_dropout
         self.batchnorm = batchnorm
 
         # Sampler
@@ -112,6 +114,7 @@ class HINGCN_GS(nn.Module):
                     concat_node=spec['concat_node'],
                     concat_edge=spec['concat_edge'],
                     dropout=self.dropout,
+                    attn_dropout=self.attn_dropout,
                     batchnorm=self.batchnorm,
                 ) for _ in range(n_head)])
                 # agg_layers.append(agg)

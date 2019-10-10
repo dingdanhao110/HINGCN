@@ -6,14 +6,14 @@
 
 from __future__ import division
 from __future__ import print_function
-
+import os
 from functools import partial
 import sys
 import argparse
 import ujson as json
 import numpy as np
 from time import time
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "5"
 import torch
 from torch.autograd import Variable
 from torch.nn import functional as F
@@ -78,12 +78,12 @@ def evaluate(model, problem, batch_size, loss_fn, mode='val'):
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--problem-path', type=str, required=True)
-    parser.add_argument('--problem', type=str, required=True)
-    parser.add_argument('--no-cuda', action="store_true")
+    parser.add_argument('--problem-path', type=str, default='../../data/dblp2/')
+    parser.add_argument('--problem', type=str, default='dblp')
+    parser.add_argument('--no-cuda', action="store_true",default=False)
 
     # Optimization params
-    parser.add_argument('--batch-size', type=int, default=2048)
+    parser.add_argument('--batch-size', type=int, default=16)
     parser.add_argument('--epochs', type=int, default=10000)
     parser.add_argument('--lr-init', type=float, default=0.001)
     parser.add_argument('--lr-schedule', type=str, default='constant')
@@ -95,22 +95,22 @@ def parse_args():
     # Architecture params
     parser.add_argument('--sampler-class', type=str, default='sparse_uniform_neighbor_sampler')
     parser.add_argument('--aggregator-class', type=str, default='attention2')
-    parser.add_argument('--prep-class', type=str, default='node_embedding')  # identity
-    parser.add_argument('--mpaggr-class', type=str, default='attention')
-    parser.add_argument('--edgeupt-class', type=str, default='residual')
+    parser.add_argument('--prep-class', type=str, default='linear')  # identity
+    parser.add_argument('--mpaggr-class', type=str, default='gate')
+    parser.add_argument('--edgeupt-class', type=str, default='identity')
     parser.add_argument('--concat-node', action="store_true")
     parser.add_argument('--concat-edge', action="store_true")
 
-    parser.add_argument('--prep-len', type=int, default=128)
+    parser.add_argument('--prep-len', type=int, default=2048)
     parser.add_argument('--n-head', type=int, default=4)
-    parser.add_argument('--n-train-samples', type=str, default='8,8')
-    parser.add_argument('--n-val-samples', type=str, default='8,8')
+    parser.add_argument('--n-train-samples', type=str, default='60,60')
+    parser.add_argument('--n-val-samples', type=str, default='100,100')
     parser.add_argument('--output-dims', type=str, default='64,16')
 
 
     # Logging
     parser.add_argument('--log-interval', default=1, type=int)
-    parser.add_argument('--seed', default=42, type=int)
+    parser.add_argument('--seed', default=0, type=int)
     parser.add_argument('--show-test', action="store_true")
 
     # --

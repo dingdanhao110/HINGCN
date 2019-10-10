@@ -253,9 +253,9 @@ def dump_yago_edge_emb(path='../../../data/yago/'):
                 MWMi[v][m].add(w)
 
 
-    MAM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MADW_16")
-    MDM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MADW_16")
-    MWM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MADW_16")
+    MAM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MADW_8")
+    MDM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MADW_8")
+    MWM_e, n_nodes, emb_len = read_embed(path=path,emb_file="MADW_8")
     #print(n_nodes, emb_len)
 
     MAM_ps=sp.load_npz("{}{}".format(path, 'MAM_ps.npz')).todense()

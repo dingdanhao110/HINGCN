@@ -13,7 +13,7 @@ import argparse
 import ujson as json
 import numpy as np
 from time import time
-
+import os
 import torch
 from torch.autograd import Variable
 from torch.nn import functional as F
@@ -25,7 +25,7 @@ from nn_modules import aggregator_lookup, prep_lookup, sampler_lookup, edge_aggr
     metapath_aggregator_lookup
 from lr import LRSchedule
 
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 # --
 # Helpers
 
@@ -78,40 +78,40 @@ def evaluate(model, problem, batch_size, loss_fn, mode='val'):
 def parse_args():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--problem-path', type=str, required=True)
-    parser.add_argument('--problem', type=str, required=True)
+    parser.add_argument('--problem-path', type=str, default='../../data/freebase/')
+    parser.add_argument('--problem', type=str, default='yago')
     parser.add_argument('--no-cuda', action="store_true")
 
     # Optimization params
-    parser.add_argument('--batch-size', type=int, default=2048)
+    parser.add_argument('--batch-size', type=int, default=9999999)
     parser.add_argument('--epochs', type=int, default=10000)
     parser.add_argument('--lr-init', type=float, default=0.001)
     parser.add_argument('--lr-schedule', type=str, default='constant')
     parser.add_argument('--weight-decay', type=float, default=5e-4)
-    parser.add_argument('--dropout', type=float, default=0.5)
+    parser.add_argument('--dropout', type=float, default=0)
     parser.add_argument('--batchnorm', action="store_true")
     parser.add_argument('--tolerance', type=int, default=100)
 
     # Architecture params
     parser.add_argument('--sampler-class', type=str,
                         default='sparse_uniform_neighbor_sampler')
-    parser.add_argument('--aggregator-class', type=str, default='attention2')
+    parser.add_argument('--aggregator-class', type=str, default='dense_attention')
     parser.add_argument('--prep-class', type=str,
                         default='node_embedding')  # identity
     parser.add_argument('--mpaggr-class', type=str, default='attention')
-    parser.add_argument('--edgeupt-class', type=str, default='residual')
+    parser.add_argument('--edgeupt-class', type=str, default='identity')
     parser.add_argument('--concat-node', action="store_true")
     parser.add_argument('--concat-edge', action="store_true")
 
-    parser.add_argument('--prep-len', type=int, default=128)
+    parser.add_argument('--prep-len', type=int, default=32)
     parser.add_argument('--n-head', type=int, default=4)
-    parser.add_argument('--n-train-samples', type=str, default='8,8')
-    parser.add_argument('--n-val-samples', type=str, default='8,8')
-    parser.add_argument('--output-dims', type=str, default='64,16')
+    parser.add_argument('--n-train-samples', type=str, default='8,8,8')
+    parser.add_argument('--n-val-samples', type=str, default='8,8,8')
+    parser.add_argument('--output-dims', type=str, default='64,16,8')
 
     # Logging
     parser.add_argument('--log-interval', default=1, type=int)
-    parser.add_argument('--seed', default=42, type=int)
+    parser.add_argument('--seed', default=0, type=int)
     parser.add_argument('--show-test', action="store_true")
 
     # --
@@ -133,9 +133,9 @@ if __name__ == "__main__":
 
     # --
     # Load problem
-    mp_index = {'dblp': ['APCPA', ],  # 'APAPA', 'APCPA'
-                'yelp': ['BRKRB'],  # 'BRURB',
-                'yago': ['MAM']  # , 'MDM', 'MWM'
+    mp_index = {'dblp': ['APA','APAPA','APCPA', ],  # 'APAPA', 'APCPA'
+                'yelp': ['BRURB','BRKRB'],  #
+                'yago': ['MAM', 'MDM', 'MWM']  #
                 }
     schemes = mp_index[args.problem]
     device = torch.device(
@@ -169,19 +169,19 @@ if __name__ == "__main__":
                 "concat_node": args.concat_node,
                 "concat_edge": args.concat_edge,
             },
-            {
-                "n_train_samples": n_train_samples[1],
-                "n_val_samples": n_val_samples[1],
-                "output_dim": output_dims[1],
-                "activation": F.relu,  # lambda x: x
-                "concat_node": args.concat_node,
-                "concat_edge": args.concat_edge,
-            },
+            # {
+            #     "n_train_samples": n_train_samples[1],
+            #     "n_val_samples": n_val_samples[1],
+            #     "output_dim": output_dims[1],
+            #     "activation": F.relu,  # lambda x: x
+            #     "concat_node": args.concat_node,
+            #     "concat_edge": args.concat_edge,
+            # },
             # {
             #     "n_train_samples": n_train_samples[2],
             #     "n_val_samples": n_val_samples[2],
             #     "output_dim": output_dims[2],
-            #     "activation": lambda x: x,  # lambda x: x
+            #     "activation": F.relu,  # lambda x: x
             #     "concat_node": args.concat_node,
             #     "concat_edge": args.concat_edge,
             # },

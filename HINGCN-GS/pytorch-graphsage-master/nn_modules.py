@@ -266,8 +266,8 @@ class LinearPrep(nn.Module):
     def __init__(self, input_dim, n_nodes, output_dim=32, embedding_dim=64):
         """ adds node embedding """
         super(LinearPrep, self).__init__()
-        self.fc = nn.Linear(input_dim, output_dim, bias=False)
-        self.output_dim = output_dim
+        self.fc = nn.Linear(input_dim, embedding_dim, bias=False)
+        self.output_dim = embedding_dim
 
     def forward(self, ids, feats, layer_idx=0):
         return self.fc(feats)
@@ -733,7 +733,7 @@ class DenseEdgeAggregator(nn.Module):
         if self.batchnorm:
             self.bn = nn.BatchNorm1d(self.output_dim)
 
-    def forward(self, x, neigh, batch=4):
+    def forward(self, x, neigh, batch=999999):
         '''
         :param x: (n_nodes,input_dim)
         :param neibs: (n_nodes,input_dim)
@@ -765,7 +765,7 @@ class DenseEdgeAggregator(nn.Module):
             x_att = self.att_x(chunk)
             # edge_att = self.att_edge(edge_emb)
             #gpu_tracker.track()
-            ws = x_att.mm(neib_att.t()) + torch.bmm(self.att_edge(edges),x_att.view(N,-1,1)).squeeze()
+            ws = x_att.mm(neib_att.t()) + torch.bmm(self.att_edge(edges),x_att.unsqueeze(-1)).squeeze()
             # ws = x_att+neib_att.t()
             ws = F.leaky_relu(ws)
             zero_vec = -9e15*torch.ones_like(ws,requires_grad=False)
@@ -774,7 +774,7 @@ class DenseEdgeAggregator(nn.Module):
             #attention = F.dropout(attention, self.dropout, training=self.training)
             
             # Weighted average of neighbors
-            agg_neib = torch.mm(ws, value)+ torch.bmm(ws.view(N,1,k),self.fc_edge(edges)).squeeze()
+            agg_neib = torch.mm(ws, value) + torch.bmm(ws.unsqueeze(1),self.fc_edge(edges)).squeeze()
             #agg_neib = F.sigmoid(agg_neib)
             # agg_edge = edge_emb.view(N, -1, edge_emb.size(-1))
             # agg_edge = torch.sum(agg_edge * ws.unsqueeze(-1), dim=1)
@@ -1092,7 +1092,7 @@ class MetapathAttentionLayer(nn.Module):
         output = torch.bmm(e, input).squeeze()
 
         output = self.dropout(output)
-        outout = self.mlp(output)
+        output = self.mlp(output)
 
         if self.batchnorm:
             output = self.bn(output)

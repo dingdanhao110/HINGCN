@@ -67,7 +67,7 @@ def read_embed(path="./data/dblp/",
     print("number of nodes:{}, embedding size:{}".format(n_nodes,n_feature))
 
     embedding = np.loadtxt("{}{}.emb".format(path, emd_file),
-                              dtype=np.int32,skiprows=1)
+                              dtype=np.float32,skiprows=1)
     emd_index = {}
     for i in range(n_nodes):
         emd_index[embedding[i, 0]] = i

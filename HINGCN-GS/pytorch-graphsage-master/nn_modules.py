@@ -235,11 +235,13 @@ class NodeEmbeddingPrep(nn.Module):
         self.n_nodes = n_nodes
         self.input_dim = input_dim
         self.embedding_dim = embedding_dim
-        self.embedding = nn.Embedding(num_embeddings=n_nodes + 1, embedding_dim=embedding_dim)
+        self.embedding = nn.Embedding(num_embeddings=n_nodes+1, embedding_dim=embedding_dim)
         self.fc = nn.Linear(embedding_dim, embedding_dim)  # Affine transform, for changing scale + location
 
         if pre_trained is not None:
-            self.embedding.from_pretrained(pre_trained, padding_idx=0)
+            assert pre_trained.shape[1]==self.embedding_dim
+            self.embedding.from_pretrained(pre_trained, padding_idx=None,freeze=False)
+            print('loaded from pre-trained embeddings')
 
     @property
     def output_dim(self):
@@ -263,11 +265,11 @@ class NodeEmbeddingPrep(nn.Module):
 
 
 class LinearPrep(nn.Module):
-    def __init__(self, input_dim, n_nodes, output_dim=32, embedding_dim=64):
+    def __init__(self, input_dim, n_nodes, embedding_dim=64):
         """ adds node embedding """
         super(LinearPrep, self).__init__()
-        self.fc = nn.Linear(input_dim, output_dim, bias=False)
-        self.output_dim = output_dim
+        self.fc = nn.Linear(input_dim, embedding_dim, bias=False)
+        self.embedding_dim = embedding_dim
 
     def forward(self, ids, feats, layer_idx=0):
         return self.fc(feats)

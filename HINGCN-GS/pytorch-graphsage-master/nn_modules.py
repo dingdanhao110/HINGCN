@@ -389,7 +389,7 @@ class LSTMAggregator(nn.Module, AggregatorMixin):
 
 class AttentionAggregator(nn.Module):
     def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=32,
-                 dropout=0.5, alpha=0.8,
+                 dropout=0.5, alpha=0.8,attn_dropout=0,
                  concat_node=True, concat_edge=True, batchnorm=False):
         super(AttentionAggregator, self).__init__()
 
@@ -437,6 +437,56 @@ class AttentionAggregator(nn.Module):
 
         return out
 
+class AttentionAggregator4(nn.Module):
+    def __init__(self, input_dim, output_dim, edge_dim, activation, hidden_dim=32,
+                 dropout=0.5, alpha=0.8,attn_dropout=0,
+                 concat_node=True, concat_edge=True, batchnorm=False):
+        super(AttentionAggregator4, self).__init__()
+
+        self.att = nn.Sequential(*[
+            nn.Linear(input_dim, 1, bias=False),
+        ])
+        self.att2 = nn.Sequential(*[
+            nn.Linear(input_dim, 1, bias=False),
+        ])
+        self.fc_x = nn.Linear(input_dim, output_dim, bias=False)
+        self.fc_neib = nn.Linear(input_dim, output_dim, bias=False)
+
+        self.dropout = nn.Dropout(p=dropout)
+        self.batchnorm = batchnorm
+        self.output_dim = output_dim
+        self.activation = activation
+
+        if self.batchnorm:
+            self.bn = nn.BatchNorm1d(self.output_dim)
+
+    def forward(self, x, neibs, edge_emb, mask):
+        # Compute attention weights
+        neib_att = self.att(neibs)
+        x_att = self.att(x)
+        neib_att = neib_att.view(x.size(0), -1, neib_att.size(1))
+        x_att = x_att.view(x_att.size(0), x_att.size(1), 1)
+        # ws = F.softmax(torch.bmm(neib_att, x_att).squeeze())
+
+        ws = torch.bmm(neib_att, x_att).squeeze()
+        ws += -9999999 * mask
+        ws = F.softmax(ws, dim=1)
+
+        # Weighted average of neighbors
+        agg_neib = neibs.view(x.size(0), -1, neibs.size(1))
+        agg_neib = torch.sum(agg_neib * ws.unsqueeze(-1), dim=1)
+
+        out = self.fc_x(x) + self.fc_neib(agg_neib)
+
+        if self.batchnorm:
+            out = self.bn(out)
+
+        out = self.dropout(out)
+
+        if self.activation:
+            out = self.activation(out)
+
+        return out
 
 class EdgeEmbAttentionAggregator(nn.Module):
     def __init__(self, input_dim, output_dim, edge_dim, activation, dropout=0.5, alpha=0.8,
@@ -1473,6 +1523,7 @@ aggregator_lookup = {
     "lstm": LSTMAggregator,
     "attention": AttentionAggregator,
     "attention2": AttentionAggregator2,
+    'attention4':AttentionAggregator4,
     "dense_attention": DenseAttentionAggregator,
     "dense_edge": DenseEdgeAggregator,
     "edge_emb_attn": EdgeEmbAttentionAggregator,

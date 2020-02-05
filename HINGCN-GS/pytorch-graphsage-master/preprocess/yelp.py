@@ -185,8 +185,8 @@ def dump_yelp_edge_emb(path='../../../data/yelp/'):
     user_max = max(RU[:, 1]) + 1  # 1286
 
     n_busi = busi_max
-    BRURB_e, n_nodes, emb_len = read_embed(path=path,emb_file="RBUK_16")
-    BRKRB_e, n_nodes, emb_len = read_embed(path=path,emb_file="RBUK_16")
+    BRURB_e, n_nodes, emb_len = read_embed(path=path,emb_file="RBUK_8")
+    BRKRB_e, n_nodes, emb_len = read_embed(path=path,emb_file="RBUK_8")
 
     BRURB_ps=sp.load_npz("{}{}".format(path, 'BRURB_ps.npz')).todense()
     BRKRB_ps=sp.load_npz("{}{}".format(path, 'BRKRB_ps.npz')).todense()

@@ -133,7 +133,8 @@ if __name__ == "__main__":
     # Load problem
     mp_index = {'dblp': ['APA', 'APAPA', 'APCPA'],
                 'yelp': ['BRURB', 'BRKRB'],
-                'yago': ['MAM', 'MDM', 'MWM']
+                'yago': ['MAM', 'MDM', 'MWM'],
+                'dblp2': ['APA','APAPA','APCPA'],
                 }
     schemes = mp_index[args.problem]
     device = torch.device(
@@ -167,14 +168,14 @@ if __name__ == "__main__":
                 "concat_node": args.concat_node,
                 "concat_edge": args.concat_edge,
             },
-            {
-                "n_train_samples": n_train_samples[1],
-                "n_val_samples": n_val_samples[1],
-                "output_dim": output_dims[1],
-                "activation": F.relu,  # lambda x: x
-                "concat_node": args.concat_node,
-                "concat_edge": args.concat_edge,
-            },
+            #{
+            #    "n_train_samples": n_train_samples[1],
+            #    "n_val_samples": n_val_samples[1],
+            #    "output_dim": output_dims[1],
+            #    "activation": F.relu,  # lambda x: x
+            #    "concat_node": args.concat_node,
+            #    "concat_edge": args.concat_edge,
+            #},
             # {
             #     "n_train_samples": n_train_samples[2],
             #     "n_val_samples": n_val_samples[2],
@@ -304,8 +305,8 @@ if __name__ == "__main__":
             }, double_precision=5))
             sys.stdout.flush()
 
-    print('-- done --', file=sys.stderr)
-    print(best_result)
+    print('-- done --')
+    print(best_result, file=sys.stderr)
     sys.stdout.flush()
 
     # if args.show_test:

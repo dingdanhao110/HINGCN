@@ -533,6 +533,6 @@ def gen_walk(path='data/dblp2/'):
 
 #clean_dblp()
 #gen_homograph()
-dump_edge_emb(emb_len=16)
+dump_edge_emb(emb_len=8)
 #gen_homoadj()
 #gen_walk()

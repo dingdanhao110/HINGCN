@@ -17,7 +17,7 @@ from torch.nn import functional as F
 
 from helpers import load_edge_emb
 
-from helpers import read_mpindex_dblp,read_homograph,read_mpindex_yelp,read_mpindex_yago
+from helpers import read_mpindex_dblp,read_homograph,read_mpindex_yelp,read_mpindex_yago,read_mpindex_dblp_new
 
 # --
 # Helper classes
@@ -78,6 +78,7 @@ read_feat_lookup = {
     "dblp":read_mpindex_dblp,
     "yelp":read_mpindex_yelp,
     "yago":read_mpindex_yago,
+    "dblp2":read_mpindex_dblp_new,
 }
 
 class NodeProblem(object):

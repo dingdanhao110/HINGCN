@@ -77,8 +77,30 @@ class HINGCN_GS(nn.Module):
             partial(self.val_sampler, n_samples=s['n_val_samples']) for s in layer_specs]
 
         # Prep
+        import numpy as np
+        with open("{}{}.emb".format('../../data/freebase/', 'MADW_16')) as f:
+            n_nodes, n_feature = map(int, f.readline().strip().split())
+        print("number of nodes:{}, embedding size:{}".format(n_nodes, n_feature))
+
+        embedding = np.loadtxt("{}{}.emb".format('../../data/freebase/', 'MADW_16'),
+                               dtype=np.float32, skiprows=1)
+        emd_index = {}
+        for i in range(n_nodes):
+            emd_index[embedding[i, 0]] = i
+
+        # print(emd_index[0])
+
+        features = np.asarray([embedding[emd_index[i], 1:] for i in range(n_nodes)])
+
+        assert features.shape[1] == n_feature
+        assert features.shape[0] == n_nodes
+
+        # print(features[0,:])
+
+        features = torch.FloatTensor(features[:problem.n_nodes,:])
         self.prep = prep_class(input_dim=problem.feats_dim, n_nodes=problem.n_nodes,
-                               embedding_dim=prep_len
+                               embedding_dim=prep_len,
+                               pre_trained=features,
                                # output_dim=prep_len
                                )
         self.input_dim = self.prep.output_dim

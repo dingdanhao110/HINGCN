@@ -207,7 +207,30 @@ class DenseMask(object):
         return neigh, edges, mask[ids]
 
 
+class ConchSampler(object):
+    """
+    ...use conch tensors as input
+    """
 
+    def __init__(self, ):
+        # self.node_neigh=node_neigh
+        # self.node2edge=node2edge
+        # self.edge_emb=edge_emb
+        pass
+
+    def __call__(self, node_neigh, node2edge, ids, n_samples=16):
+
+        sel = np.random.choice(node2edge.shape[1], (ids.shape[0] * n_samples))
+        seletected_edges = node2edge[
+                ids.repeat_interleave(n_samples).reshape(-1),
+                np.array(sel).reshape(-1)
+                ] 
+        seletected_neighs = node_neigh[
+                ids.repeat_interleave(n_samples).reshape(-1),
+                np.array(sel).reshape(-1)
+                ] 
+
+        return seletected_neighs, seletected_edges
 
 
 # --
@@ -270,6 +293,7 @@ class LinearPrep(nn.Module):
         super(LinearPrep, self).__init__()
         self.fc = nn.Linear(input_dim, embedding_dim, bias=False)
         self.embedding_dim = embedding_dim
+        self.output_dim = embedding_dim
 
     def forward(self, ids, feats, layer_idx=0):
         return self.fc(feats)
@@ -609,6 +633,9 @@ class AttentionAggregator2(nn.Module):
 
     def forward(self, x, neibs, edge_emb, mask):
         # Compute attention weights
+
+        # print(x.shape, neibs.shape, edge_emb.shape)
+
         neibs = torch.cat([neibs, edge_emb], dim=1)
 
         neib_att = self.att2(neibs)
@@ -1510,6 +1537,7 @@ sampler_lookup = {
     "uniform_neighbor_sampler": UniformNeighborSampler,
     "sparse_uniform_neighbor_sampler": SpUniformNeighborSampler,
     "dense_mask": DenseMask,
+    "conch_sampler":ConchSampler,
 }
 
 prep_lookup = {

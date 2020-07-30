@@ -35,6 +35,7 @@ class HINGCN_GS(nn.Module):
                  sampler_class,
                  dropout,
                  batchnorm,
+                 concat_node,
                  attn_dropout=0,
                  bias=False,
                  ):
@@ -398,6 +399,7 @@ class CLING(nn.Module):
                  sampler_class,
                  dropout,
                  batchnorm,
+                 concat_node,
                  attn_dropout=0,
                  ):
 
@@ -434,6 +436,7 @@ class CLING(nn.Module):
         self.dropout = dropout
         self.attn_dropout = attn_dropout
         self.batchnorm = batchnorm
+        self.concat_node = concat_node
 
         # Sampler
         self.train_sampler = sampler_class()
@@ -472,7 +475,10 @@ class CLING(nn.Module):
                 # agg_layers.append(agg)
                 # May not be the same as spec['output_dim']
                 input_dim = agg[0].output_dim * n_head
-                out_dim += input_dim
+                if concat_node:
+                    out_dim += input_dim
+                else:
+                    out_dim = input_dim
 
                 # edge_layers.append(edge)
                 self.add_module('agg_{}_{}'.format(mp, i), agg)
@@ -531,7 +537,10 @@ class CLING(nn.Module):
 
                 tmp_out.append(all_feats[0])
             assert len(all_feats) == 1, "len(all_feats) != 1"
-            output.append(torch.cat(tmp_out, dim=-1).unsqueeze(0))
+            if self.concat_node:
+                output.append(torch.cat(tmp_out, dim=-1).unsqueeze(0))
+            else:
+                output.append(tmp_out[-1].unsqueeze(0))
         output = torch.cat(output)
 
         # output = F.normalize(output, dim=2) #normalize before attention

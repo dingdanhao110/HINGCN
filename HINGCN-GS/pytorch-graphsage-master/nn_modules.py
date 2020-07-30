@@ -232,7 +232,26 @@ class ConchSampler(object):
 
         return seletected_neighs, seletected_edges
 
+class ConchSampler2(object):
+    """
+    ...use conch tensors as input
+    """
 
+    def __init__(self, ):
+        # self.node_neigh=node_neigh
+        # self.node2edge=node2edge
+        # self.edge_emb=edge_emb
+        pass
+
+    def __call__(self, node_neigh, node2edge, ids, n_samples=16):
+
+        perm = torch.randperm(node_neigh.shape[1])
+        if ids.is_cuda:
+            perm = perm.cuda()
+        seletected_edges = node2edge[ids][:,perm][:,:n_samples]
+        seletected_neighs = node_neigh[ids][:,perm][:,:n_samples]
+
+        return seletected_neighs, seletected_edges
 # --
 # Preprocessers
 
@@ -604,13 +623,13 @@ class AttentionAggregator2(nn.Module):
         self.att = nn.Sequential(*[
             nn.Linear(input_dim, hidden_dim, bias=False),
             nn.Tanh(),
-            nn.Linear(hidden_dim, hidden_dim, bias=False),
+            # nn.Linear(hidden_dim, hidden_dim, bias=False),
         ])
 
         self.att2 = nn.Sequential(*[
             nn.Linear(input_dim + edge_dim, hidden_dim, bias=False),
             nn.Tanh(),
-            nn.Linear(hidden_dim, hidden_dim, bias=False),
+            # nn.Linear(hidden_dim, hidden_dim, bias=False),
         ])
 
         self.fc_x = nn.Linear(input_dim, output_dim, bias=False)
@@ -1179,14 +1198,14 @@ class MetapathAttentionLayer(nn.Module):
 
         self.att = nn.Sequential(*[
             nn.Linear(in_features, hidden_dim, bias=False),
-            nn.Tanh(),
-            nn.Linear(hidden_dim, hidden_dim, bias=False),
+            # nn.Tanh(),
+            # nn.Linear(hidden_dim, hidden_dim, bias=False),
         ])
 
         self.mlp = nn.Sequential(*[
-            nn.Linear(in_features, hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim, in_features),
+            nn.Linear(in_features, in_features),
+            # nn.ReLU(),
+            # nn.Linear(hidden_dim, in_features),
         ])
 
         a = nn.Parameter(torch.zeros(size=(hidden_dim, 1)))
@@ -1248,11 +1267,11 @@ class MetapathGateLayer(nn.Module):
         self.dropout = nn.Dropout(p=dropout)
         self.batchnorm = batchnorm
 
-        self.att = nn.Sequential(*[
-            nn.Linear(in_features, hidden_dim, bias=False),
-            nn.Tanh(),
-            nn.Linear(hidden_dim, in_features, bias=False),
-        ])
+        # self.att = nn.Sequential(*[
+        #     nn.Linear(in_features, hidden_dim, bias=False),
+        #     nn.Tanh(),
+        #     nn.Linear(hidden_dim, in_features, bias=False),
+        # ])
 
         self.mlp = nn.Sequential(*[
             nn.Linear(in_features, hidden_dim),
@@ -1292,8 +1311,8 @@ class MetapathGateLayer(nn.Module):
         input_dim = input.shape[2]
 
         input = input.contiguous()
-        gate_input = F.sigmoid(self.gate(input))
-        update_input = F.tanh(self.update(input))
+        gate_input = torch.sigmoid(self.gate(input))
+        update_input = torch.tanh(self.update(input))
         output = gate_input*update_input
 
         output = torch.sum(output,dim=1).squeeze()
@@ -1538,6 +1557,7 @@ sampler_lookup = {
     "sparse_uniform_neighbor_sampler": SpUniformNeighborSampler,
     "dense_mask": DenseMask,
     "conch_sampler":ConchSampler,
+    "conch_sampler2":ConchSampler2,
 }
 
 prep_lookup = {

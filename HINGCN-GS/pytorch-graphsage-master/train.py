@@ -21,7 +21,7 @@ import argparse
 import ujson as json
 import numpy as np
 from time import time
-os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 # --
@@ -39,7 +39,7 @@ def train_step(model, optimizer, ids, targets, loss_fn):
         weights = weights.cpu().detach().numpy()
         if len(weights.shape) > 1 and weights.shape[0] != 1:
             weights = np.sum(weights, axis=0)/weights.shape[0]
-        print(weights)
+        # print(weights)
     loss = loss_fn(preds, targets.squeeze())
     loss.backward()
     # torch.nn.utils.clip_grad_norm_(model.parameters(), 5)
@@ -51,14 +51,16 @@ def evaluate(model, problem, batch_size, loss_fn, mode='val'):
     assert mode in ['test', 'val']
     preds, acts = [], []
     loss = 0
+    count = 0
     for (ids, targets, _) in problem.iterate(mode=mode, shuffle=False, batch_size=batch_size):
         # print(ids.shape,targets.shape)
         pred, _ = model(ids, train=False)
-        loss += loss_fn(pred, targets.squeeze()).item()
+        loss += loss_fn(pred, targets.squeeze()).item() * ids.shape[0]
+        count += ids.shape[0]
         preds.append(to_numpy(pred))
         acts.append(to_numpy(targets))
     #
-    return loss, problem.metric_fn(np.vstack(acts), np.vstack(preds))
+    return loss/count, problem.metric_fn(np.vstack(acts), np.vstack(preds))
 
 
 # def evaluate(model, problem, batch_size, mode='val'):
@@ -82,17 +84,17 @@ def parse_args():
     parser.add_argument('--no-cuda', action="store_true", default=False)
 
     # Optimization params
-    parser.add_argument('--batch-size', type=int, default=16)
-    parser.add_argument('--epochs', type=int, default=10000)
-    parser.add_argument('--lr-init', type=float, default=0.0001)
+    parser.add_argument('--batch-size', type=int, default=512)
+    parser.add_argument('--epochs', type=int, default=200)
+    parser.add_argument('--lr-init', type=float, default=0.001)
     parser.add_argument('--lr-schedule', type=str, default='constant')
     parser.add_argument('--weight-decay', type=float, default=5e-4)
     parser.add_argument('--dropout', type=float, default=0.5)
     parser.add_argument('--batchnorm', action="store_true")
-    parser.add_argument('--tolerance', type=int, default=100)
+    parser.add_argument('--tolerance', type=int, default=30)
     parser.add_argument('--attn-dropout', type=float, default=0.3)
     # Architecture params
-    parser.add_argument('--sampler-class', type=str, default='conch_sampler')
+    parser.add_argument('--sampler-class', type=str, default='conch_sampler2')
     parser.add_argument('--aggregator-class', type=str, default='attention2')
     parser.add_argument('--prep-class', type=str, default='linear')  # identity
     parser.add_argument('--mpaggr-class', type=str, default='gate')
@@ -105,9 +107,9 @@ def parse_args():
     parser.add_argument('--n-head', type=int, default=8)
     parser.add_argument('--K', type=int, default=4044)
     parser.add_argument('--train-per', type=float, default=0.4)
-    parser.add_argument('--n-train-samples', type=str, default='600,600')
+    parser.add_argument('--n-train-samples', type=str, default='100,100')
     parser.add_argument('--n-val-samples', type=str, default='600,600')
-    parser.add_argument('--output-dims', type=str, default='32,16')
+    parser.add_argument('--output-dims', type=str, default='128,16')
 
     # Logging
     parser.add_argument('--log-interval', default=1, type=int)
@@ -197,6 +199,7 @@ if __name__ == "__main__":
         "dropout": args.dropout,
         "batchnorm": args.batchnorm,
         "attn_dropout": args.attn_dropout,
+        "concat_node": args.concat_node,
     })
 
     if args.cuda:
@@ -212,7 +215,7 @@ if __name__ == "__main__":
     optimizer = torch.optim.Adam(
         model.parameters(), lr=lr, weight_decay=args.weight_decay)
     #optimizer = torch.optim.SGD(model.parameters(), lr=lr, weight_decay=args.weight_decay,momentum=0.9)
-    print(model, file=sys.stdout)
+    # print(model, file=sys.stdout)
 
     # --
     # Train
@@ -239,6 +242,7 @@ if __name__ == "__main__":
 
         # Train
         _ = model.train()
+        id_count = 0
         for ids, targets, epoch_progress in problem.iterate(mode='train', shuffle=True, batch_size=args.batch_size):
 
             if args.lr_schedule == 'cosine':
@@ -255,9 +259,10 @@ if __name__ == "__main__":
                 targets=targets,
                 loss_fn=problem.loss_fn,
             )
-            train_loss += loss.item()
-            train_metric = problem.metric_fn(
-                to_numpy(targets), to_numpy(preds))
+            train_loss += loss.item() * ids.shape[0]
+            id_count += ids.shape[0]
+            # train_metric = problem.metric_fn(
+            #     to_numpy(targets), to_numpy(preds))
             # print(json.dumps({
             #    "epoch": epoch,
             #    "epoch_progress": epoch_progress,
@@ -269,7 +274,7 @@ if __name__ == "__main__":
         print(json.dumps({
             "epoch": epoch,
             "time": time() - start_time,
-            "train_loss": train_loss,
+            "train_loss": train_loss/id_count,
         }, double_precision=5))
         sys.stdout.flush()
 
@@ -291,7 +296,7 @@ if __name__ == "__main__":
             if val_metric['accuracy'] > best_val_acc or (val_metric['accuracy'] == best_val_acc and loss < best_val_loss):
                 tolerance = 0
                 best_val_loss = loss
-                best_val_acc = test_metric['accuracy']
+                best_val_acc = val_metric['accuracy']
                 best_result = json.dumps({
                     "epoch": epoch,
                     "val_loss": loss,
